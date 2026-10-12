@@ -2214,7 +2214,7 @@ function cardHTML(it, label, other, cls) {
   const sl = SLOTS.find(s => s.id === it.slot), dp = other ? itemPower(it) - itemPower(other) : 0, c = RAR[it.r].c;
   return `<div class="card ${cls || ''}" style="--rc:${c}"><div class="tag">${label}</div><div class="hd"><div class="icon-big"><canvas data-ci="${label}"></canvas></div><div><h4>${sl.n}</h4><div class="rar"><b>${RAR[it.r].n}</b> · niveau ${it.L}</div></div></div><div class="stats">${statLines(it, other)}</div>${setHTML(it)}<div class="pw"><span>PUISSANCE</span><em>${fmt(itemPower(it))}${other ? ` <span class="${dp >= 0 ? 'up' : 'down'}" style="font-size:14px">${dp >= 0 ? '▲' : '▼'}${fmt(Math.abs(dp))}</span>` : ''}</em></div></div>`;
 }
-function sheet(html, dock) { $('mbox').innerHTML = html; const m = $('modal'); m.classList.toggle('dock', !!dock); m.style.top = dock ? Math.max(0, ($('stageWrap').getBoundingClientRect().bottom - $('app').getBoundingClientRect().top) / SCL) + 'px' : ''; m.hidden = false; const x = $('mbox').querySelector('.x'); if (x) x.onclick = closeM; }
+function sheet(html, dock) { $('mbox').innerHTML = html; const m = $('modal'); m.classList.toggle('dock', !!dock); m.style.top = dock ? Math.max(0, Math.min(($('stageWrap').getBoundingClientRect().bottom - $('app').getBoundingClientRect().top) / SCL, $('app').clientHeight - 520)) + 'px' : ''; m.hidden = false; const x = $('mbox').querySelector('.x'); if (x) x.onclick = closeM; }
 function setHTML(it) {
   if (!it.set) return ''; const S0 = SETS[it.set], n = setCounts()[it.set] || 0;
   return `<div class="setbox" style="--sc:${S0.c}"><div class="sethd"><b>${S0.n}</b><span>${n} / 6 équipées</span></div>${S0.b.map(([k, t]) => `<div class="setb ${n >= k ? 'on' : ''}"><em>${k}</em>${t}</div>`).join('')}</div>`;
