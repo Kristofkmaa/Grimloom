@@ -1084,7 +1084,14 @@ body:has(#skn:not([hidden])) #toast{top:6px}
 #eqTog{flex:none;width:34px;height:34px;border-radius:10px;border:1.5px solid #6a4a2a;background:linear-gradient(#2a1418,#120609);color:#ffd890;display:grid;place-items:center;padding:0}#eqTog svg{width:24px;height:24px;transition:transform .2s}
 body.eqmin #eqTog svg{transform:rotate(180deg)}body.full #eqTog{display:none}
 body.eqmin:not(.full) #panel,body.eqmin:not(.full) #eqCols,body.eqmin:not(.full) #eqBg{display:none!important}
-body.eqmin:not(.full) #forgeBtn .chest{width:50px!important;height:75px!important;margin-left:-25px!important;bottom:30px!important}
+body.eqmin:not(.full) #questBar,body.eqmin:not(.full) #dpsBox{display:none!important}
+body.eqmin:not(.full) #botBar{padding:3px 10px!important;min-height:0!important}
+body.eqmin:not(.full) #hpBox{font-size:12px}body.eqmin:not(.full) #hpBox svg{width:13px;height:13px}
+body.eqmin:not(.full) .hpbar{height:11px!important;border-width:1px!important}body.eqmin:not(.full) .hpbar span{font-size:9px!important;line-height:11px!important}
+body.eqmin:not(.full) #dock{padding:6px 14px 6px!important;justify-content:space-between!important;align-items:flex-end!important;min-height:86px}
+body.eqmin:not(.full) #forgeBtn{flex:none;margin:0!important}
+body.eqmin:not(.full) #forgeBtn .chest{width:44px!important;height:66px!important;margin-left:-22px!important;bottom:30px!important}
+body.eqmin:not(.full) #dock #eqTog{width:54px;height:46px;border-radius:12px;align-self:flex-end}
 html,body{background:#050204}
 .kcf{position:absolute;inset:0;z-index:50;background:#000b;display:grid;place-items:center;padding:20px}
 .kcfb{width:100%;max-width:330px;text-align:center}.kcfb p{margin:4px 0 14px;font:800 15px/1.45 var(--b);color:var(--txt)}.kcfb p small{display:block;margin-top:6px;font:700 12px var(--b);color:var(--dim)}
@@ -1498,7 +1505,7 @@ let FQ = [], FQT = 0;
 const FINFO = {
   coffre: ['hubAfk', 'Il se remplit tout seul, même quand tu ne joues pas, jusqu\'à <b>12 h</b>. Reviens le récolter : or, XP, marteaux et pages.', () => afkSheet()],
   talent: [null, 'Chaque niveau gagné te donne un <b>point de talent</b>. Dépense-les dans l\'arbre pour renforcer ton héros.', () => document.querySelector('#nav [data-t=talent]').click()],
-  auto: [null, 'Le bouton <b>Auto</b> à côté de la forge forge en boucle à ta place et équipe seul les objets meilleurs.', null],
+  auto: [null, 'Le bouton <b>Auto</b> à côté de la forge forge en boucle à ta place et te propose les objets meilleurs.', null],
   invoc: ['sumBtn', 'Le portail est ouvert ! Invoque des <b>Pouvoirs</b> avec tes pages : des sorts qui se lancent seuls en combat. Équipe-les depuis la case Pouvoirs.', () => sumPage()],
   dungeon: [null, 'Les <b>donjons</b> te donnent or, XP, éclats et pages. Chacun a 2 tickets par jour, remis à minuit.', () => document.querySelector('#nav [data-t=dungeon]').click()],
   fam: [null, 'Invoque des <b>familiers</b> avec des âmes. Ton compagnon se bat à tes côtés, et chaque familier possédé renforce ton héros.', () => famSheet()],
@@ -1536,7 +1543,7 @@ let SCL = 1;
 function appScale() { const a = $('app'); if (!a) return; const DW = 390, DH = 780, iw = innerWidth, ih = innerHeight; SCL = Math.max(0.6, Math.min(1.3, iw / DW, ih / DH)); const w = Math.min(480, iw / SCL);
   Object.assign(a.style, { width: w + 'px', height: ih / SCL + 'px', left: (iw - w * SCL) / 2 + 'px', top: '0px', right: 'auto', bottom: 'auto', margin: '0', transform: SCL === 1 ? '' : `scale(${SCL})`, transformOrigin: '0 0' }); }
 function fit() { appScale();
-  const wrap = $('stageWrap'), w = wrap.clientWidth || 360, nat = w * BH / BW, fixed = $('topBar').offsetHeight + $('botBar').offsetHeight + 82 + $('nav').offsetHeight, mini = document.body.classList.contains('eqmin') && tab === 'forge', H0 = $('app').clientHeight, h = Math.round(Math.min(nat * (mini ? 3 : 1), Math.max(220, H0 - fixed - (mini ? $('dock').offsetHeight + 4 : 360))));
+  const wrap = $('stageWrap'), w = wrap.clientWidth || 360, nat = w * BH / BW, fixed = $('topBar').offsetHeight + $('botBar').offsetHeight + 82 + $('nav').offsetHeight, mini = document.body.classList.contains('eqmin') && tab === 'forge', H0 = $('app').clientHeight, h = Math.round(mini ? Math.max(220, H0 - [...$('app').children].filter(e => e !== wrap && e.offsetParent !== null && getComputedStyle(e).position !== 'fixed' && getComputedStyle(e).position !== 'absolute').reduce((a, e) => a + e.offsetHeight, 0)) : Math.min(nat, Math.max(220, H0 - fixed - 360)));
   wrap.style.height = h + 'px'; const dpr = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   OFFY = (h * BW / w - BH) * 0.72; // on rogne surtout le haut du mur du fond
 }
@@ -2780,7 +2787,6 @@ function autoForgeTick(dt) {
   chestOpen(it.r, () => {
     autoBusy = false;
     if (!cur) { equipItem(it); save(); equipFx(it); toast(`${SLOTS.find(q => q.id === it.slot).n} équipé automatiquement`); if (tab === 'forge') ui(); else uiTop(); return; }
-    if ((!cur || itemPower(it) > itemPower(cur)) && !(cur && cur.set && !it.set) && S.auto.equip !== false) { equipItem(it); save(); equipFx(it); toast(`${SLOTS.find(q => q.id === it.slot).n} ${RAR[it.r].n.toLowerCase()} équipé automatiquement`); if (S.ham <= 0) { S.auto.on = false; toast('Auto-forge en pause : plus de marteaux'); } if (tab === 'forge') ui(); else uiTop(); return; }
     if ((!cur || itemPower(it) > itemPower(cur)) && !(cur && cur.set && !it.set)) { S.auto.on = false; B.autoResume = true; save(); ui(); sfxPlay('reward'); if (tab !== 'forge' || $('sumPg') || !$('modal').hidden) { B.pendItem = it; document.querySelector('#nav [data-t="forge"]').classList.add('pend'); toast('Meilleur objet trouvé ! Il t\'attend à la forge'); return; } toast('Meilleur objet trouvé !'); showItem(it, true); return; }
     recycle(it);
     if (S.ham <= 0) { S.auto.on = false; toast('Auto-forge en pause : plus de marteaux'); }
@@ -3158,7 +3164,7 @@ function toast(t) { const d = document.createElement('div'); d.textContent = t; 
 document.querySelectorAll('#nav button').forEach(b => b.onclick = () => { if (!featOK(b.dataset.t)) { toast(featMsg(b.dataset.t)); return; } tab = b.dataset.t; document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('on', x === b)); ui(); tabTuto(tab);  });
 $('modal').addEventListener('click', e => { if (e.target.id === 'modal') { if ($('sellB')) return; closeM(); } });
 $('forgeBtn').onclick = forge; const sndIcon = () => $('sndBtn').innerHTML = S.snd ? '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4zM16 8.5a5 5 0 0 1 0 7l-1.4-1.4a3 3 0 0 0 0-4.2zM18.8 5.7a9 9 0 0 1 0 12.6l-1.4-1.4a7 7 0 0 0 0-9.8z"/></svg>' : '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9h4l5-4v14l-5-4H4zM16 9.4l1.4-1.4 2.1 2.1 2.1-2.1 1.4 1.4-2.1 2.1 2.1 2.1-1.4 1.4-2.1-2.1-2.1 2.1-1.4-1.4 2.1-2.1z"/></svg>'; sndIcon(); $('sndBtn').onclick = () => { S.snd = !S.snd; save(); sndIcon(); if (S.snd) { audioInit(); music(true); } else music(false); }; $('questBar').onclick = claimQuest; $('bagBtn').onclick = () => { if (B.pendItem) { pendShow(); return; } if (!autoOK()) { toast('Auto-forge : bats le boss du chapitre 1 (étape 1-10) pour la débloquer'); return; } if (!S.auto.on && S.ham <= 0) { toast('Plus de marteaux : avance dans les étapes, ouvre le coffre hors ligne ou fais le Repaire du Voleur'); return; } S.auto.on = !S.auto.on; B.autoResume = false; autoT = 0; save(); uiTop(); toast(S.auto.on ? 'Auto-forge activée' : 'Auto-forge désactivée'); }; $('forgeLv').onclick = showForge; $('adminBtn').onclick = () => titleOpen('home'); $('helpBtn').onclick = showHelp;
-$('eqTog').onclick = () => { S.eqMin = !S.eqMin; document.body.classList.toggle('eqmin', !!S.eqMin); save(); fit(); ui(); }; document.body.classList.toggle('eqmin', !!S.eqMin); $('ultBtn').onclick = castUlt; $('sumBtn').onclick = () => sumPage(); $('hubAfk').onclick = afkSheet; $('hubLog').onclick = loginView; $('hubWh').onclick = wheelSheet; $('hubPs').onclick = passSheet; $('hubTog').onclick = () => { S.hubShut = !S.hubShut; save(); uiHub(); sfxPlay('click'); }; $('bossBtn').onclick = challenge; $('challengeBtn').onclick = challenge;
+const eqTogPlace = () => { const m = !!S.eqMin; document.body.classList.toggle('eqmin', m); (m ? $('dock') : $('botBar')).appendChild($('eqTog')); }; $('eqTog').onclick = () => { S.eqMin = !S.eqMin; eqTogPlace(); save(); fit(); ui(); }; eqTogPlace(); $('ultBtn').onclick = castUlt; $('sumBtn').onclick = () => sumPage(); $('hubAfk').onclick = afkSheet; $('hubLog').onclick = loginView; $('hubWh').onclick = wheelSheet; $('hubPs').onclick = passSheet; $('hubTog').onclick = () => { S.hubShut = !S.hubShut; save(); uiHub(); sfxPlay('click'); }; $('bossBtn').onclick = challenge; $('challengeBtn').onclick = challenge;
 // portrait animé du héros (panneau + pastille du HUD)
 function heroPortrait(time) {
   const H = HEROES[S.hero], c = $('heroC');
@@ -3285,7 +3291,7 @@ const COACH = [
   { t: '#famSlot', h: 'Les familiers', p: 'Invoque des familiers avec des <b>âmes</b> (boss, nouvelles étapes, raid). Celui que tu équipes combat à tes côtés et donne un bonus. Chaque doublon ajoute une <b>étoile</b>.' },
   { t: '#wingSlot', h: 'Les ailes', p: 'Un emplacement spécial. Les ailes se débloquent avec les <b>plumes</b> du raid (onglet Donjons) et apparaissent dans le dos de ton héros.' },
   { t: () => $('ham') && $('ham').closest('.res'), h: 'Les marteaux', p: 'Chaque forge coûte <b>1 marteau</b>. Tu en gagnes <b>1 par démon vaincu pour la première fois</b> et 20 par nouveau boss. Refarmer ne rapporte rien : avance ! Il y en a aussi hors ligne et au donjon du Voleur.' },
-  { t: '#bagBtn', h: 'L\'auto-forge', p: 'Elle forge en boucle sans toucher à rien et équipe seule les objets meilleurs. Elle se <b>débloque après le premier boss</b> (étape 1-10).' },
+  { t: '#bagBtn', h: 'L\'auto-forge', p: 'Elle forge en boucle sans toucher à rien et te <b>propose</b> chaque objet meilleur que le tien. Elle se <b>débloque après le premier boss</b> (étape 1-10).' },
   { t: '#forgeLv', h: 'Le niveau de forge', p: 'Dépense ton or ici pour améliorer la forge : les objets <b>rares, épiques et légendaires</b> sortent plus souvent.' },
   { t: '#questBar', h: 'Les quêtes', p: 'Elles te guident pas à pas. Quand la barre est remplie, touche-la pour récupérer ta récompense.' },
   { t: '#stageBar', h: 'Les chapitres', p: 'Chaque chapitre compte <b>10 étapes</b> et se termine par un <b>boss</b>. Quand il est trop fort, forge, monte de niveau et reviens le défier.' },
