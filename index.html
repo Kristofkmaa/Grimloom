@@ -1084,7 +1084,10 @@ body:has(#skn:not([hidden])) #toast{top:6px}
 #eqTog{flex:none;width:34px;height:34px;border-radius:10px;border:1.5px solid #6a4a2a;background:linear-gradient(#2a1418,#120609);color:#ffd890;display:grid;place-items:center;padding:0}#eqTog svg{width:24px;height:24px;transition:transform .2s}
 body.eqmin #eqTog svg{transform:rotate(180deg)}body.full #eqTog{display:none}
 body.eqmin:not(.full) #panel,body.eqmin:not(.full) #eqCols,body.eqmin:not(.full) #eqBg{display:none!important}
-body.eqmin:not(.full) #questBar,body.eqmin:not(.full) #dpsBox{display:none!important}
+body.eqmin:not(.full) #questBar,body.eqmin:not(.full) #botBar{display:none!important}
+body.eqmin:not(.full) #dock{position:absolute!important;left:0;right:0;bottom:var(--navh,60px);z-index:6;background:none!important;border:0!important;box-shadow:none!important;pointer-events:none}body.eqmin:not(.full) #dock>*{pointer-events:auto}
+body.eqmin:not(.full) #dock::before,body.eqmin:not(.full) #dock::after{display:none!important}
+body.eqmin:not(.full) #ultBtn{bottom:92px!important}body.eqmin:not(.full) #spellHud2{bottom:96px}
 body.eqmin:not(.full) #botBar{padding:3px 10px!important;min-height:0!important}
 body.eqmin:not(.full) #hpBox{font-size:12px}body.eqmin:not(.full) #hpBox svg{width:13px;height:13px}
 body.eqmin:not(.full) .hpbar{height:11px!important;border-width:1px!important}body.eqmin:not(.full) .hpbar span{font-size:9px!important;line-height:11px!important}
@@ -1203,7 +1206,7 @@ ASSETS.audio = {"sfx": {}, "music": {"explore": "data:audio/mpeg;base64,SUQzBAAA
 const $ = id => document.getElementById(id);
 const rand = (a, b) => a + Math.random() * (b - a), ri = (a, b) => Math.floor(rand(a, b + 1)), pick = a => a[Math.floor(Math.random() * a.length)];
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v, hyp = Math.hypot, TAU = Math.PI * 2;
-const fmt = n => n >= 1e9 ? (n / 1e9).toFixed(1) + 'G' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e4 ? (n / 1e3).toFixed(1) + 'k' : String(Math.floor(n));
+const fmtU = (v, u) => (v < 100 ? v.toFixed(1).replace(/\.0$/, '') : String(Math.floor(v))) + u, fmt = n => n >= 1e9 ? fmtU(n / 1e9, 'G') : n >= 1e6 ? fmtU(n / 1e6, 'M') : n >= 1e4 ? fmtU(n / 1e3, 'K') : String(Math.floor(n));
 const IMG = {}, TINT = {};
 { const an = {}, k = { idle: 5 / 12, course: 0.5, tir: 4 / 14.5, touche: 2 / 12.5 };
   for (let d = 0; d < 8; d++) { const front = d >= 5 && d <= 7; an['idle_' + d] = front ? { row: 4, n: 4, k: k.idle } : { row: 2, f0: 3, n: 1, k: 1, bob: 1 }; an['course_' + d] = { row: 2, f0: 3, n: 1, k: 1, bob: 2 }; an['tir_' + d] = { row: 2, n: 4, k: k.tir }; an['touche_' + d] = { row: 3, n: 2, k: k.touche }; }
@@ -1546,6 +1549,7 @@ function fit() { appScale();
   const wrap = $('stageWrap'), w = wrap.clientWidth || 360, nat = w * BH / BW, fixed = $('topBar').offsetHeight + $('botBar').offsetHeight + 82 + $('nav').offsetHeight, mini = document.body.classList.contains('eqmin') && tab === 'forge', H0 = $('app').clientHeight, h = Math.round(mini ? Math.max(220, H0 - [...$('app').children].filter(e => e !== wrap && e.offsetParent !== null && getComputedStyle(e).position !== 'fixed' && getComputedStyle(e).position !== 'absolute').reduce((a, e) => a + e.offsetHeight, 0)) : Math.min(nat, Math.max(220, H0 - fixed - 360)));
   wrap.style.height = h + 'px'; const dpr = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
   OFFY = (h * BW / w - BH) * 0.72; // on rogne surtout le haut du mur du fond
+  if (mini) { $('app').style.setProperty('--navh', $('nav').offsetHeight + 'px'); OFFY = h * BW / w - BH - ($('dock').offsetHeight - 10) * BW / w; }
 }
 addEventListener('resize', fit);
 const TL = { floor: [[736, 320], [784, 320], [736, 368], [784, 368], [736, 272]], seg: [[80, 272], [176, 272], [80, 496], [176, 496], [368, 208], [304, 336], [384, 336]], pillar: [672, 144, 16, 48], door: [640, 208, 32, 48] };
@@ -1880,6 +1884,7 @@ function draw(time) {
   if (B.scene === 'arena') { ctx.globalCompositeOperation = 'lighter'; if (0.5 - B.scroll > 0.02) glow(CX, py(0.5 - B.scroll), 110 * sOf(0.5 - B.scroll) / sOf(0.5), biome().light, 0.12 + Math.sin(time * 2.5) * 0.05); ctx.globalCompositeOperation = 'source-over'; }
   for (const e of B.en) L.push({ z: e.z, f: () => drawEnemy(e, time) });
   L.push({ z: 0, f: () => drawHero(time) });
+  if (document.body.classList.contains('eqmin') && tab === 'forge' && !B.walk) L.push({ z: -0.001, f: drawHeroHp });
   L.push({ z: -0.02, f: () => { drawComp(0, time); drawComp(1, time); if (raidOn()) drawComp(2, time); } });
   if (S.fam && FAM[S.fam] && S.fams[S.fam]) L.push({ z: 0.05, f: () => { const F = FAM[S.fam], im = IMG.fam_sp, bob = Math.sin(time * 2.4) * 5, x = CX + 54, y = YF - 86 + bob, sz = 58 + F.r * 4; ctx.globalCompositeOperation = 'lighter'; glow(x, y, 26 + F.r * 4, FRC[F.r], 0.28 + 0.06 * F.r); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#0006'; ctx.beginPath(); ctx.ellipse(x, YF - 6, 16, 4, 0, 0, 7); ctx.fill(); if (im && im.complete) { ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(im, F.i * 128, 0, 128, 128, x - sz / 2, y - sz / 2, sz, sz); ctx.restore(); } } });
   if (false && S.pet && PETS[S.pet]) L.push({ z: 0.05, f: () => { const P0 = PETS[S.pet], bob = Math.sin(time * 3) * 4; dem(P0.dem, B.walk ? 'walk' : 'walk', 'S', time * (B.walk ? 14 : 6), CX + 46, YF - 74 + bob, 0.85, {}); ctx.globalCompositeOperation = 'lighter'; glow(CX + 46, YF - 92 + bob, 22, P0.c, 0.35); ctx.globalCompositeOperation = 'source-over'; } });
@@ -1986,6 +1991,9 @@ function heroSil(key, anim, fr, x, y, sc, col, alpha, grow, cg) {
   for (const [dx, dy] of [[-grow, 0], [grow, 0], [0, -grow], [0, grow]]) ctx.drawImage(HS, Math.round(x - w / 2 + dx), Math.round(y - h + A.foot * sc + dy), w, h);
   ctx.restore();
 }
+function drawHeroHp() { const h = B.hero, p = clamp(h.hp / Math.max(1, h.hpMax), 0, 1), w = 64, x = CX - w / 2, y = YF + 8;
+  ctx.save(); ctx.fillStyle = '#000c'; ctx.fillRect(x - 1, y - 1, w + 2, 7); ctx.fillStyle = '#3a0c16'; ctx.fillRect(x, y, w, 5); ctx.fillStyle = p > 0.3 ? '#e8384f' : '#ff7a2a'; ctx.fillRect(x, y, Math.round(w * p), 5); ctx.fillStyle = '#ffffff40'; ctx.fillRect(x, y, Math.round(w * p), 1);
+  ctx.font = '400 9px Lilita, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; const t = `${fmt(Math.ceil(Math.min(h.hp, h.hpMax)))} / ${fmt(Math.ceil(h.hpMax))}`; ctx.strokeText(t, CX, y + 7); ctx.fillStyle = '#fff'; ctx.fillText(t, CX, y + 7); ctx.restore(); }
 function drawHero(time) {
   const H = HEROES[S.hero], h = B.hero; let anim, fr;
   const di = h.shootT > 0 ? dirIdx(h.face || Math.PI / 2) : 2;
