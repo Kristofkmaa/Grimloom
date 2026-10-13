@@ -1096,6 +1096,7 @@ body.eqmin:not(.full) #forgeBtn{flex:none;margin:0!important}
 body.eqmin:not(.full) #forgeBtn .chest{width:44px!important;height:66px!important;margin-left:-22px!important;bottom:30px!important}
 body.eqmin:not(.full) #dock #eqTog{width:54px;height:46px;border-radius:12px;align-self:flex-end}
 html,body{background:#050204}
+.spTabs button.stlk{opacity:.45;filter:grayscale(1)}.spTabs button.stlk svg{width:12px;height:12px;margin-right:4px;vertical-align:-1px}
 .kcf{position:absolute;inset:0;z-index:50;background:#000b;display:grid;place-items:center;padding:20px}
 .kcfb{width:100%;max-width:330px;text-align:center}.kcfb p{margin:4px 0 14px;font:800 15px/1.45 var(--b);color:var(--txt)}.kcfb p small{display:block;margin-top:6px;font:700 12px var(--b);color:var(--dim)}
 .kcfr{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn.red2{border-color:#ff8a9a;background:linear-gradient(#e0405a,#9a1a30);color:#fff}
@@ -1501,7 +1502,7 @@ function rarityWeights(lvl) { const base = [100, 32, 8, 1.6, 0.3, 0.05, 0.008]; 
 function rollRarity() { const w = rarityWeights(S.forge + 0.6 * tr('a_luck')); let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < w.length; i++) { if ((r -= w[i]) < 0) return i; } return 0; }
 const PC = () => S.farm && S.fc ? S.fc : S.c, PS = () => S.farm && S.fs ? S.fs : S.s; // chapitre / étape réellement jouée
 const label = (c, s) => `${c}-${s}`;
-const FEAT = { coffre: [4, 'Coffre de temps'], talent: [6, 'Talents'], auto: [11, 'Auto-forge'], invoc: [13, 'Invocation et Pouvoirs'], dungeon: [15, 'Donjons'], fam: [18, 'Familiers'], roue: [21, 'Roue de la fortune'], passe: [23, 'Passe de saison'], rel: [26, 'Reliques'], aile: [31, 'Ailes'] };
+const FEAT = { coffre: [4, 'Coffre de temps'], talent: [6, 'Talents'], auto: [11, 'Auto-forge'], invoc: [13, 'Invocation et Familiers'], dungeon: [15, 'Donjons'], grim: [18, 'Grimoire et Pouvoirs'], roue: [21, 'Roue de la fortune'], passe: [23, 'Passe de saison'], rel: [26, 'Reliques'], aile: [31, 'Ailes'] };
 const featOK = k => !FEAT[k] || S.best >= FEAT[k][0] || !!(S.unl && S.unl[k]) || (k === 'auto' && S.autoUnl);
 const featMsg = k => `${FEAT[k][1]} : se débloque à l'étape ${stName(FEAT[k][0])}`;
 let FQ = [], FQT = 0;
@@ -1509,9 +1510,9 @@ const FINFO = {
   coffre: ['hubAfk', 'Il se remplit tout seul, même quand tu ne joues pas, jusqu\'à <b>12 h</b>. Reviens le récolter : or, XP, marteaux et pages.', () => afkSheet()],
   talent: [null, 'Chaque niveau gagné te donne un <b>point de talent</b>. Dépense-les dans l\'arbre pour renforcer ton héros.', () => document.querySelector('#nav [data-t=talent]').click()],
   auto: [null, 'Le bouton <b>Auto</b> à côté de la forge forge en boucle à ta place et te propose les objets meilleurs.', null],
-  invoc: ['sumBtn', 'Le portail est ouvert ! Invoque des <b>Pouvoirs</b> avec tes pages : des sorts qui se lancent seuls en combat. Équipe-les depuis la case Pouvoirs.', () => sumPage()],
+  invoc: ['sumBtn', 'Le portail est ouvert ! Invoque des <b>familiers</b> avec des âmes. Ton compagnon se bat à tes côtés, et chaque familier possédé renforce ton héros.', () => sumPage('fam')],
   dungeon: [null, 'Les <b>donjons</b> te donnent or, XP, éclats et pages. Chacun a 2 tickets par jour, remis à minuit.', () => document.querySelector('#nav [data-t=dungeon]').click()],
-  fam: [null, 'Invoque des <b>familiers</b> avec des âmes. Ton compagnon se bat à tes côtés, et chaque familier possédé renforce ton héros.', () => famSheet()],
+  grim: [null, 'Le <b>Grimoire</b> s\'ouvre dans le portail : invoque des pouvoirs avec tes pages. Ce sont des sorts qui se lancent seuls en combat, à équiper depuis la case Pouvoirs.', () => sumPage('grim')],
   roue: ['hubWh', 'Un <b>tour gratuit</b> chaque jour pour gagner marteaux, or, âmes ou Sceaux. Le passe de saison donne des jetons en plus.', () => wheelSheet()],
   passe: ['hubPs', 'Tout ce que tu fais rapporte des <b>points</b> : démons, forges, donjons, invocations… Monte les 100 paliers avant la fin de la saison.', () => passSheet()],
   rel: [null, 'Invoque des <b>reliques</b> avec les Sceaux des donjons, puis place-les sur l\'autel : 6 emplacements et des bonus de set.', () => relSheet()],
@@ -1519,7 +1520,7 @@ const FINFO = {
 };
 function featPop() {
   if (!FQ.length || TITLE || CO || !$('modal').hidden || $('fpop') || ($('skn') && !$('skn').hidden) || B.hero.dead) return; if (FQT && performance.now() < FQT) return;
-  const k = FQ.shift(), I = FINFO[k] || [null, '', null], src = I[0] && $(I[0]) && $(I[0]).querySelector('img') ? $(I[0]).querySelector('img').src : null;
+  const k = FQ.shift(); if (!FEAT[k]) return; const I = FINFO[k] || [null, '', null], src = I[0] && $(I[0]) && $(I[0]).querySelector('img') ? $(I[0]).querySelector('img').src : null;
   const d = document.createElement('div'); d.id = 'fpop';
   d.innerHTML = `<div class="fpB kg"><small>Nouveau débloqué</small><div class="fpI">${src ? `<img alt="" src="${src}">` : `<i>${IC[{ talent: 'tree', auto: 'ham', dungeon: 'gate', fam: 'drop', rel: 'gem', aile: 'wind' }[k] || 'star']}</i>`}</div><h3>${FEAT[k][1]}</h3><p>${I[1]}</p><div class="fpR">${I[2] ? '<button class="btn" type="button" data-f="0">Plus tard</button><button class="btn gold" type="button" data-f="1">Voir</button>' : '<button class="btn gold" type="button" data-f="0">Compris</button>'}</div></div>`;
   $('app').appendChild(d); sfxPlay('reward');
@@ -2094,7 +2095,7 @@ function ui() {
       <div id="heroCell"><canvas id="heroCard"></canvas><div class="pname">${HEROES[S.hero].n}</div><div class="pstats"><span style="color:#ff9a6a">${IC.sword}${fmt(st.atk)}</span><span style="color:#ff6a7a">${IC.heart}${fmt(st.pv)}</span><span style="color:#9ad0ff">${IC.shield}${fmt(st.def)}</span><span class="shardp" title="Éclats : recycle des objets, sert à les améliorer">${SHARD_IC}<b>${fmt(S.shards)}</b></span></div><div class="slots2 four"><button type="button" id="wingSlot" class="xslot ${wEq() ? 'on' : ''}" style="${wEq() ? `--rc:${WINGS[wEq()].c}` : ''}">${wEq() ? `<canvas id="wingMini" width="84" height="54"></canvas><span><b style="color:${WINGS[wEq()].c}">${WINGS[wEq()].n.replace('Ailes ', '').replace(/^(du |de |d')/, '')}</b><small>Nv ${wlv(wEq())}</small></span>` : `<i class="wplus">+</i><span><b>Ailes</b></span>`}</button><button type="button" id="famSlot" class="xslot ${S.fam && S.fams[S.fam] ? 'on' : ''}" style="${S.fam && S.fams[S.fam] ? `--rc:${FRC[FAM[S.fam].r]}` : ''}">${S.fam && S.fams[S.fam] ? `<canvas id="famMini" width="64" height="64" style="width:24px;height:24px;image-rendering:pixelated;flex:none"></canvas><span><b style="color:${FRC[FAM[S.fam].r]}">${FAM[S.fam].n.split(' ')[0]}</b><small>${famStar(S.fam)}★</small></span>` : `<i class="wplus">+</i><span><b>Familier</b></span>`}</button><button type="button" id="relSlot" class="xslot ${S.relEq.some(Boolean) ? 'on' : ''}" style="--rc:#ffc23a">${S.relEq.some(Boolean) ? `<span class="rmini">${S.relEq.filter(Boolean).map(id => relSp(id)).join('')}</span><span><small>${S.relEq.filter(Boolean).length}/6</small></span>` : `<i class="wplus">+</i><span><b>Reliques</b></span>`}</button><button type="button" id="spSlot" class="xslot ${S.slots.some(Boolean) ? 'on' : ''}" style="--rc:#b48aff">${S.slots.some(Boolean) ? `<span class="spmini">${S.slots.filter(Boolean).slice(0, 4).map(id => spIcon(id, 19)).join('')}</span><span><b style="color:#d0b0ff">Pouvoirs</b><small>${S.slots.filter(Boolean).length} / ${slotCount()}</small></span>` : `<i class="wplus">+</i><span><b>Pouvoirs</b></span>`}</button></div>${Object.entries(setCounts()).filter(([, n]) => n >= 1).map(([k, n]) => `<div class="setchip" style="--sc:${SETS[k].c}">${SETS[k].n} ${n}/6</div>`).join('')}</div>
       <div class="col">${SLOTS.slice(4).map(slotHTML).join('')}</div></div>`;
     requestAnimationFrame(drawHeroCard);
-    $('wingSlot').onclick = wingSheet; $('famSlot').onclick = famSheet; $('relSlot').onclick = relSheet; $('spSlot').onclick = openSkills; [['wingSlot', 'aile'], ['famSlot', 'fam'], ['relSlot', 'rel'], ['spSlot', 'invoc']].forEach(([id, k]) => { if (featOK(k)) return; const e = $(id); e.classList.add('flock'); e.classList.remove('on'); e.style.removeProperty('--rc'); e.innerHTML = `<i class="flk">${IC.lock}</i><span><b>${{ aile: 'Ailes', fam: 'Familier', rel: 'Reliques', invoc: 'Pouvoirs' }[k]}</b><small>Étape ${stName(FEAT[k][0])}</small></span>`; e.onclick = () => toast(featMsg(k)); }); { const c = $('famMini'); if (c && S.fam) { const g = c.getContext('2d'), im = IMG.fam_sp, F = FAM[S.fam]; const dr = () => { if (!im.complete) return setTimeout(dr, 100); g.imageSmoothingEnabled = false; g.clearRect(0, 0, 64, 64); g.drawImage(im, F.i * 128, 0, 128, 128, 0, 0, 64, 64); }; dr(); } }
+    $('wingSlot').onclick = wingSheet; $('famSlot').onclick = famSheet; $('relSlot').onclick = relSheet; $('spSlot').onclick = openSkills; [['wingSlot', 'aile'], ['famSlot', 'invoc'], ['relSlot', 'rel'], ['spSlot', 'grim']].forEach(([id, k]) => { if (featOK(k)) return; const e = $(id); e.classList.add('flock'); e.classList.remove('on'); e.style.removeProperty('--rc'); e.innerHTML = `<i class="flk">${IC.lock}</i><span><b>${{ aile: 'Ailes', invoc: 'Familier', rel: 'Reliques', grim: 'Pouvoirs' }[k]}</b><small>Étape ${stName(FEAT[k][0])}</small></span>`; e.onclick = () => toast(featMsg(k)); }); { const c = $('famMini'); if (c && S.fam) { const g = c.getContext('2d'), im = IMG.fam_sp, F = FAM[S.fam]; const dr = () => { if (!im.complete) return setTimeout(dr, 100); g.imageSmoothingEnabled = false; g.clearRect(0, 0, 64, 64); g.drawImage(im, F.i * 128, 0, 128, 128, 0, 0, 64, 64); }; dr(); } }
     { const c = $('wingMini'); if (c) { const w = wEq(), g = c.getContext('2d'); const draw = () => { if (!c.isConnected || !wEq()) return; g.clearRect(0, 0, 84, 54); if (WING_IMG.complete) { const f = [0, 1, 2, 3, 2, 1][Math.floor(performance.now() / 190) % 6]; g.imageSmoothingEnabled = false; g.drawImage(WING_IMG, f * 168, WINGS[w].row * 168, 168, 108, 0, 0, 84, 54); } requestAnimationFrame(draw); }; draw(); } }
     document.querySelectorAll('[data-ic]').forEach(c => eqIcon(c, S.eq[c.dataset.ic], c.dataset.ic));
     eqLayout();
@@ -2566,7 +2567,7 @@ function sumFx(color, cb) { // cercle runique + rayon de la couleur de la meille
 function relPage(pg) {
   const rf = relFeat(), R = REL[rf], cur = sealTot();
   pg.innerHTML = `<div class="spHead"><button type="button" class="spX" aria-label="Fermer">‹</button><b>Invocation</b><div class="spCur">${IC.shield}<b>${fmt(cur)}</b><small>Sceaux</small></div></div>
-  <div class="spTabs"><button type="button" data-st="fam">Familiers</button><button type="button" data-st="grim">Grimoire</button><button type="button" data-st="rel" class="on">Reliques</button></div>
+  ${sumTabs('rel')}
   <div class="spBan" style="background-image:url(${SUMBAN.rel})"><div class="spGlow"></div><div class="spTxt"><em>Bannière des reliques</em><h2>INVOCATION</h2><small>Vedette · chances ×2</small></div>
     <div class="spFeat" style="--rc:${FRC[R.r]}">${relSp(rf, 'feat')}<b>${R.n}</b><small style="color:${SETS[R.set].c}">${SETS[R.set].n}</small></div><div class="spTime">⏳ Change dans ${dhm(banLeft())}</div></div>
   <div class="spPity"><div><span>Légendaire garanti</span><b>${S.relPity} / 40</b></div><i><u style="width:${Math.min(100, S.relPity / 40 * 100)}%"></u></i></div>
@@ -2576,12 +2577,16 @@ function relPage(pg) {
   pg.querySelector('.spX').onclick = () => { pg.remove(); ui(); }; pg.querySelectorAll('[data-st]').forEach(b => b.onclick = () => sumPage(b.dataset.st));
   $('spOne').onclick = () => relSummon(1); $('spTen').onclick = () => relSummon(10); $('spColl').onclick = () => { pg.remove(); relSheet(); };
 }
+const SUMK = { fam: 'invoc', grim: 'grim', rel: 'rel' };
+function sumTabs(on) { return `<div class="spTabs">${[['fam', 'Familiers'], ['grim', 'Grimoire'], ['rel', 'Reliques']].map(([k, n]) => `<button type="button" data-st="${k}" class="${on === k ? 'on' : ''} ${featOK(SUMK[k]) ? '' : 'stlk'}">${featOK(SUMK[k]) ? '' : IC.lock}${n}</button>`).join('')}</div>`; }
 function sumPage(tab) { if (!featOK('invoc')) { toast(featMsg('invoc')); return; }
+  if (tab && !featOK(SUMK[tab])) { toast(featMsg(SUMK[tab])); if ($('sumPg')) return; tab = 'fam'; }
+  if (!featOK(SUMK[tab || SUMTAB])) SUMTAB = 'fam';
   if (tab) SUMTAB = tab; let pg = $('sumPg'); if (!pg) { pg = document.createElement('div'); pg.id = 'sumPg'; $('app').appendChild(pg); }
   if (SUMTAB === 'rel') return relPage(pg); const fam = SUMTAB === 'fam', ff = famFeat(), sf = spFeat(), F = FAM[ff], SP = SPELLS[sf];
   const cur = fam ? S.souls : S.pages, curN = fam ? 'âmes' : 'pages', pity = fam ? S.famPity : (S.spPity || 0);
   pg.innerHTML = `<div class="spHead"><button type="button" class="spX" aria-label="Fermer">‹</button><b>Invocation</b><div class="spCur">${fam ? '<i class="fsoul"></i>' : IC.book}<b>${fmt(cur)}</b><small>${curN}</small></div></div>
-  <div class="spTabs"><button type="button" data-st="fam" class="${fam ? 'on' : ''}">Familiers</button><button type="button" data-st="grim" class="${SUMTAB === 'grim' ? 'on' : ''}">Grimoire</button><button type="button" data-st="rel" class="${SUMTAB === 'rel' ? 'on' : ''}">Reliques</button></div>
+  ${sumTabs(SUMTAB)}
   <div class="spBan" style="background-image:url(${fam ? SUMBAN.fam : SUMBAN.grim})"><div class="spGlow"></div>
     <div class="spTxt"><em>${fam ? 'Bannière des familiers' : 'Bannière du grimoire'}</em><h2>INVOCATION</h2><small>Vedette · chances ×2</small></div>
     <div class="spFeat" style="--rc:${fam ? FRC[F.r] : SPRC[SP.r]}">${fam ? `<canvas data-famc="${ff}" width="96" height="96"></canvas>` : `<canvas data-spv="${sf}" width="128" height="96"></canvas>`}<b>${fam ? F.n : SP.n}</b><small>${fam ? FRN[F.r] : SPR[SP.r]}</small></div>
