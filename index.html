@@ -1838,7 +1838,7 @@ function heroFire() {
   B.hero.shootT = H.twin ? 1 / st.rate + 0.2 : 0.3; B.hero.altN = (B.hero.altN || 0) + 1; B.hero.shotAt = B.t; B.hero.face = Math.atan2(-(py(t.z) - YF), sx(t.X, t.z) - CX);
 }
 const alive = () => B.en.filter(e => !e.dead && e.spawn <= 0);
-const RANGE = 0.36; // patch v25 : distance d'engagement (~milieu de l'écran)
+const RANGE = 0.66; // patch v25 : distance d engagement (~75 % de l écran)
 const inRange = () => B.en.some(e => !e.dead && e.spawn <= 0 && e.z < RANGE);
 const ex = e => sx(e.X, e.z), ey = e => py(e.z) + e.X * LANE - 24 * sOf(e.z);
 function aoe(e0, rad, dmg, fx, col) { sfxPlay(fx === 'feu' ? 'fire' : fx === 'glace' ? 'ice' : 'bite'); // dégâts autour d'un point (explosions en chaîne possibles)
@@ -1978,7 +1978,7 @@ function update(dt) {
   spawnTick(dt);
   for (const e of B.en) {
     if (e.dead) { e.deadT += dt; continue; } e.flash -= dt; if (e.spawn > 0) { e.spawn -= dt; continue; } if (e.frozen > 0) { e.frozen -= dt; continue; } e.t += dt; e.chill -= dt;
-    const stop = e.ranged ? 0.28 : 0.07, sp = e.spd * (e.chill > 0 ? 0.5 : 1);
+    const stop = e.ranged ? 0.42 : 0.07, sp = e.spd * (e.chill > 0 ? 0.5 : 1);
     if (e.z > stop && !e.aName) { e.z -= sp * dt * (e.z > 1.1 ? 3.2 : e.z > RANGE ? 1.7 : 1); const tx = e.X; e.X += (tx - e.X) * Math.min(1, dt * 0.9); e.moving = 1; } else e.moving = 0;
     e.z += e.kz; e.kz *= 0.8; if (e.raid) { e.z = 0.3; e.X = 0; e.kz = 0; } e.flip = sx(e.X, e.z) > CX;
     // séparation

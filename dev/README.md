@@ -8,7 +8,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - `dev/src.html` = SOURCE du jeu (HTML/CSS/JS, images en base64). C'est ce fichier qu'on modifie.
 - `dev/assemble.py` = assemble `src.html` + polices + `assets_*.js` → `dev/out/grimloom.html` (chemins relatifs au dossier `dev/`).
 - `dev/build_pwa.py` = fabrique `dev/out/pwa/` (index.html + manifest + sw.js + icônes) ; avec `--publish`, copie aussi à la racine du dépôt.
-- `dev/build/patch_vNN.py` = historique des modifications de `src.html` (v18 = vue de côté, v19-v23 = héros de profil, v25 = engagement au milieu de l'écran, réglage RANGE ; patch_v24.py est un ancien patch d'une autre série). `dev/build/build_side.py` = découpe des planches de héros → `dev/assets_side.js`.
+- `dev/build/patch_vNN.py` = historique des modifications de `src.html` (v18 = vue de côté, v19-v23 = héros de profil, v25 = le héros attaque quand les démons atteignent ~75 % de l'écran, réglage RANGE ; patch_v24.py est un ancien patch d'une autre série). `dev/build/build_side.py` = découpe des planches de héros → `dev/assets_side.js`.
 - `dev/build_enemy.py` = découpe une planche ChatGPT fond vert 4×3 en sprite d'ennemi.
 - `dev/maquette/` = maquette de la NOUVELLE direction (vue de côté) + essai jouable + sprites découpés.
 
