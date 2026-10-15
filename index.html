@@ -1916,7 +1916,7 @@ function combatTick(dt) { // sets (déclencheurs) + sorts + timer du donjon
   if (st.frenzy && h.hp < h.hpMax * 0.3 && B.frenzyCd <= 0 && !h.dead) { B.frenzyT = 5; B.frenzyCd = 20; B.banner = { a: 'Frénésie', b: 'Vitesse d\'attaque ×2', t: 1.2 }; }
   if (st.boneShield) { B.shT = (B.shT || 0) - dt; if (B.shT <= 0) { B.shT = 10; B.shield = Math.max(B.shield || 0, h.hpMax * 0.2); } }
   if (S.fam && FAM[S.fam] && S.fams[S.fam] && fighting) { B.famT = (B.famT || 1) - dt; if (B.famT <= 0) { B.famT = 2.5; const L = alive(); if (L.length) { const F = FAM[S.fam], t = L.reduce((a, b) => b.z < a.z ? b : a); B.shots.push({ X: 0, z: -0.34, h: 122, tg: t, dmg: st.atk * 0.18 * (1 + 0.3 * F.r) * (1 + 0.25 * (famStar(S.fam) - 1)), crit: false, t: 0, fx: 'arc', prj: F.p, solid: 0, wr: -1, comp: 'fam' }); } } }
-  if (!B.hero.dead && !$('sellB')) ultGain(100 / ULT_CD * dt); // recharge de base : prêt toutes les ULT_CD s, chaque kill accélère
+  if (!B.hero.dead && !(!$('modal').hidden && $('sellB'))) ultGain(100 / ULT_CD * dt); // recharge de base : prêt toutes les ULT_CD s, chaque kill accélère
   if (fighting && (B.ult || 0) >= 100 && B.ultFullT && S.ultAuto !== false && B.t - B.ultFullT > 0.4) castUlt(); // bouton AUTO de la barre de sorts
   if (B.plague) { B.plague.t -= dt; B.plague.tick -= dt; if (B.plague.tick <= 0) { B.plague.tick = 0.5; for (const e of alive()) hitEnemy(e, B.plague.dps * 0.5, false); const PL = alive(); for (let i = 0; i < Math.min(3, PL.length); i++) { const e = pick(PL); gfx('spl', 5, ex(e), ey(e) - 10 * sOf(e.z), 150 * sOf(e.z), 0.9); } } if (B.plague.t <= 0) B.plague = null; }
   if (B.dun && !B.dun.end) { B.dun.t -= dt; if (B.dun.t <= 0) { if (B.dun.raid) dunEnd(true); else dunEnd(false, 'Temps écoulé'); } }
@@ -1925,7 +1925,7 @@ function combatTick(dt) { // sets (déclencheurs) + sorts + timer du donjon
     if (st.wmet) { B.wmT = (B.wmT || 2.5) - dt; if (B.wmT <= 0) { B.wmT = 5; meteorShower(st.atk * st.wmet, 3); } }
     if (st.wfrz) { B.wfT = (B.wfT || 5) - dt; if (B.wfT <= 0) { B.wfT = 10; freezeAll(st.wfrz); } }
   }
-  { const pick = !!$('sellB'); // patch v26 : on ne met en pause que pendant le choix d'un objet
+  { const pick = !$('modal').hidden && !!$('sellB'); // patch v26 : on ne met en pause que pendant le choix d'un objet
     for (let i = 0; i < slotCount(); i++) { const id = S.slots[i]; if (!id || !S.spells[id]) continue; B.cd = B.cd || {}; if (B.cd[id] === undefined) B.cd[id] = SPELLS[id].cd * 0.5; if (!pick) B.cd[id] = Math.max(0, B.cd[id] - dt); if (B.cd[id] <= 0 && fighting) { B.cd[id] = SPELLS[id].cd; castSpell(id); } } }
   if (!fighting) return;
   for (const e of B.en) if (e.boss && !e.dead && e.spawn <= 0) {
