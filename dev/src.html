@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* patch v22 *//* patch v21 */
+<style id="sv">/* patch v23 *//* patch v22 *//* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
 #app{background:radial-gradient(120% 60% at 50% 100%,#3a1a10,#140810 70%)!important}
 #eqTog,#eqCols,#eqBg,#botBar,#hubTog{display:none!important}
@@ -2133,7 +2133,7 @@ function drawSideLight(VH) { const top = -OFFY, g = ctx.createLinearGradient(0, 
 function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];
   if (SA) { const im = SIDEI[curForm()], sc = HSC * 0.69 * (SA.k || 1); let row = 1, f = 0, by = 0; // rangées : marche · sort · touché (2) + mort (2)
     if (h.dead) { row = 2; f = h.deadT < 0.3 ? 2 : 3; } else if (anim === 'course') { row = 0; f = Math.floor(time * 10) % 4; }
-    else if (anim === 'tir') { f = clamp(Math.floor((1 - Math.max(0, h.shootT) / 0.3) * 4), 0, 3); } else if (anim === 'touche') { row = 2; f = 0; } else by = Math.round(Math.sin(time * 2.6) * 1.2);
+    else if (anim === 'tir') { f = clamp(Math.floor((B.t - (h.shotAt || 0)) / 0.32 * 4), 0, 3); } else if (anim === 'touche') { row = 2; f = 0; } else by = Math.round(Math.sin(time * 2.6) * 1.2);
     const w = wEq(); if (w && WING_IMG.complete && !h.dead) { const fw = [0, 1, 2, 3, 2, 1][Math.floor(time * (B.walk ? 9 : 5)) % 6], ws = 0.62; ctx.save(); ctx.imageSmoothingEnabled = false; ctx.translate(CX - 10, YF - 88); ctx.drawImage(WING_IMG, fw * 168, WINGS[w].row * 168, 168, 168, -84 * ws, -48 * ws, 168 * ws, 168 * ws); ctx.restore(); }
     if (!im || !im.complete) return; ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, f * SA.cw, row * SA.ch, SA.cw, SA.ch, Math.round(CX - SA.ax * sc), Math.round(YF - SA.foot * sc + by), Math.round(SA.cw * sc), Math.round(SA.ch * sc)); ctx.restore(); return; }
   const C = 109, sc = 0.7; let im = SHI, row = 2, f = Math.floor(time * 2.5) % 2 ? 2 : 0;

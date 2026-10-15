@@ -8,7 +8,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - `dev/src.html` = SOURCE du jeu (HTML/CSS/JS, images en base64). C'est ce fichier qu'on modifie.
 - `dev/assemble.py` = assemble `src.html` + polices + `assets_*.js` → `dev/out/grimloom.html` (chemins relatifs au dossier `dev/`).
 - `dev/build_pwa.py` = fabrique `dev/out/pwa/` (index.html + manifest + sw.js + icônes) ; avec `--publish`, copie aussi à la racine du dépôt.
-- `dev/build/patch_vNN.py` = historique des modifications de `src.html` (v18 = vue de côté).
+- `dev/build/patch_vNN.py` = historique des modifications de `src.html` (v18 = vue de côté, v19-v23 = héros de profil). `dev/build/build_side.py` = découpe des planches de héros → `dev/assets_side.js`.
 - `dev/build_enemy.py` = découpe une planche ChatGPT fond vert 4×3 en sprite d'ennemi.
 - `dev/maquette/` = maquette de la NOUVELLE direction (vue de côté) + essai jouable + sprites découpés.
 
@@ -20,13 +20,13 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - **Boss** : à l'étape X-10, le héros farme la dernière vague jusqu'à ce qu'on touche « Défier le boss ». Mort → repli + bouton « Défier X-Y ».
 - **Disposition** : combat ~44 % avec HUD, bandeau d'étape, hubs (Invocation/Roue/Passe à gauche, Coffre de temps/7 jours à droite) et quête en surimpression ; barre de sorts ronde (AUTO = ultime automatique ON/OFF, 3 pouvoirs, ultime) ; grille 12 équipements (Arme, Casque, Épaulettes, Plastron / Gants, Ceinture, Jambières, Bottes / Anneau, Amulette, Bracelet, 12e verrouillée 5-1) + 6 artefacts (Ailes, Familier, Reliques, Pouvoirs, Monture et ??? verrouillés).
 - **Coffre à clés** à la place de la forge (`chest.png`, 6 images) : cadenas sans clé, clé qui tourne, ouverture, lumière à la couleur de la rareté, tremblement dès Légendaire ; en auto l'objet file vers sa case. Marteaux → **clés**, clés de donjon de set → **tickets**, niveau de forge → **niveau du coffre** (textes, quêtes, succès, tutoriel).
-- Sprites de profil intégrés : Écuyer (attente/attaque/coup + marche 8 images), Diablotin d'os, **Sorcier complet (8 formes)**, **Chevalier complet (Écuyer refait + 7 évolutions)**. Les autres formes/ennemis gardent leurs anciennes planches en attendant.
+- Sprites de profil intégrés : Écuyer (attente/attaque/coup + marche 8 images), Diablotin d'os, **Sorcier complet (8 formes)**, **Chevalier complet (Écuyer refait + 7 évolutions)**, **Chasseur à l'arc complet (8 formes)**. Héros de profil affichés à ×1,25 (`HSC`). Les autres formes/ennemis gardent leurs anciennes planches en attendant.
 - Ajouter un héros de profil : planche ChatGPT fond vert 4×3 (marche ×4 · sort/attaque ×4 · touché ×2 + mort ×2, regard vers la droite) → `python3 dev/build/build_side.py planche.png <clé de forme>` (ex. `chev`, `h_novice`) → il apparaît tout seul en combat (`dev/assets_side.js`). `--keep-green` seulement pour une aura vraiment verte ; `--ws` quand les images se touchent (grosses auras), avec `--claim=rang,col,x0,y0,x1,y1` pour rendre une épée tendue à la bonne image (voir sfeu).
 - Toujours là : 3 classes et évolutions, ailes, familiers, reliques, pouvoirs, ultime, talents, donjons + raid, quêtes, succès, hub illustré, déblocages progressifs, tutoriel.
 
 ## À faire / en attente
 - Icônes des 3 nouvelles pièces (épaulettes, ceinture, bracelet), 5 raretés chacune — prompt donné.
-- Redessiner de profil : Chasseur à l'arc (8 formes, prompts donnés), autres ennemis/élites/boss, ailes vues de côté.
+- Redessiner de profil : autres ennemis/élites/boss, ailes vues de côté.
 - Icônes définitives des Épaulettes, Ceinture, Bracelet (provisoirement celles du plastron, des jambières et de l'anneau).
 - Décors extérieurs des biomes 2-7. Contenu de la 12e case et de la Monture.
 - Remplacer tous les assets de packs achetés (priorité), vérifier licences (icônes, audio, UI zLizard), page Crédits.
