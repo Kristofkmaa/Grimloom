@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p17 hud */
+<style id="sv">/* p18 chute *//* p17 hud */
 #hud .res[hidden]{display:none!important}
 #app #topBar #stageBar{top:calc(12px + env(safe-area-inset-top))!important;left:calc(50% + 14px)!important}
 #app #dock #goldD{position:absolute!important;left:10px;top:4px;height:28px;padding:0 10px 0 4px;z-index:3}
@@ -1903,7 +1903,8 @@ function novaFire(st) { // set Furie des Braises (6) : onde de feu sur tous les 
   B.fx.push({ k: 'ring', x: CX, y: YF - 20, t: 0, d: 0.6, c: '#ff8a2a' }); B.shake = Math.max(B.shake, 3);
   for (const e of B.en) if (!e.dead && e.spawn <= 0) { sfx('feu', sx(e.X, e.z), py(e.z) - 20 * sOf(e.z), 70 * sOf(e.z), 0.4); hitEnemy(e, st.atk * 3, false); }
 }
-function hitEnemy(e, dmg, crit) {
+const FALL = 0.26; // p18 chute : durée de la chute des effets
+function hitEnemy(e, dmg, crit) { if (B.hitDelay) { setTimeout(() => hitEnemy(e, dmg, crit), B.hitDelay); return; }
   if (e.dead) return; if (e.v === 'void' && !e.boss && !B.oneshot && Math.random() < 0.15) { num(sx(e.X, e.z), py(e.z) - 50 * sOf(e.z), 'Esquive', '#d8a0ff', 1); return; } if (e.frozen > 0) { const st0 = heroStats(); if (st0.frozenBonus) dmg *= 1 + st0.frozenBonus; } if (B.oneshot) dmg = Math.max(dmg, e.hp + 1); e.hp -= dmg; e.flash = 0.1; if (!e.aName && !e.boss) e.hitT = 0.25; e.kz += (S.cls === 'knight' ? 0.006 : 0.04) * (e.boss ? 0.2 : 1);
   sfxPlay(crit ? 'crit' : 'hit'); num(sx(e.X, e.z) + rand(-6, 6), py(e.z) - 50 * sOf(e.z), fmt(dmg) + (crit ? '!' : ''), crit ? '#ffd23a' : '#ffffff', crit ? 1.4 : 1); B.dmg.push([B.t, Math.min(dmg, e.hp + dmg)]); B.waveDmg += Math.min(dmg, e.hp + dmg);
   const st = heroStats(); if (st.vol) B.hero.hp = Math.min(B.hero.hpMax, B.hero.hp + dmg * st.vol / 100); if (crit && st.critFreeze && !e.boss) e.frozen = Math.max(e.frozen || 0, 1);
@@ -2087,6 +2088,7 @@ function draw(time) {
       continue; }
     if (f.k === 'w') { drawWisp(f); continue; }
     if (f.k === 'slash') { const q = clamp(f.t / f.d, 0, 1); if (f.t < 0) continue; const R = f.big ? 34 : 26; ctx.save(); ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - q; ctx.strokeStyle = f.c; ctx.lineCap = 'round'; for (const [w, r] of [[7 * (1 - q) + 1, R], [3, R - 5]]) { ctx.lineWidth = w; ctx.beginPath(); ctx.arc(0, 0, r, -1.9 + q * 0.6, -1.9 + 0.6 + q * 2.4); ctx.stroke(); } ctx.restore(); continue; }
+    if (f.k === 'g' && f.fall) { const A = ASSETS['fx_' + f.sh]; if (f.t < FALL) { const q = f.t / FALL, top = -OFFY - f.w * 0.5, yy = f.y - (f.y - top) * (1 - q * q); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35; for (let k = 1; k <= 3; k++) drawG(f.sh, f.row, 0, f.x, yy - k * 22, f.w * (1 - k * 0.12), 0, 0.25); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; drawG(f.sh, f.row, 0, f.x, yy, f.w, 0, 1); } else { const q = (f.t - FALL) / (f.d - FALL); if (!f.boom) { f.boom = 1; B.shake = Math.max(B.shake, 2); } drawG(f.sh, f.row, q * A.n, f.x, f.y, f.w, 0, Math.min(1, (1 - q) * 3)); } continue; }
     if (f.k === 'g') { const A = ASSETS['fx_' + f.sh]; drawG(f.sh, f.row, f.loop ? 1 + (f.t * 10) % 3 : p * A.n, f.x, f.y, f.w, f.a || 0, f.loop ? Math.min(1, (1 - p) * 4) * (f.al || 1) : Math.min(1, (1 - p) * 3)); continue; } if (f.k === 'p') { ctx.globalAlpha = 1 - p; ctx.fillStyle = f.c; ctx.fillRect(f.x - f.r, f.y - f.r, f.r * 2, f.r * 2); } else { ctx.globalCompositeOperation = 'lighter'; drawFx(f.id, p * 15, f.x, f.y, f.a, f.w, 1 - p); ctx.globalCompositeOperation = 'source-over'; } }
   ctx.globalAlpha = 1;
   // lumière : pénombre de crypte, halos des flammes et du héros
@@ -3183,8 +3185,8 @@ function ultGain(n) { B.ult = Math.min(100, (B.ult || 0) + n); if (B.ult >= 100 
 function castUlt() {
   if ((B.ult || 0) < 100 || B.hero.dead) return; const L0 = alive(); if (!L0.length) return;
   B.ult = 0; B.ultFullT = 0; const k = ultKey(), st = heroStats(), A = st.atk, U = ULT[k]; B.banner = { a: 'Ultime', b: U[0], t: 1.6 }; B.shake = Math.max(B.shake, 8); B.flash = { c: '255,200,120', t: 0.35, a: 0.4 };
-  const each = (f, gap) => alive().forEach((e, i) => setTimeout(() => { if (!e.dead) f(e); }, (gap || 0) * i));
-  const UG = (row, e, w, d, o) => { const W2 = w * sOf(e.z); gfx('ult', row, ex(e), py(e.z) - W2 * 0.875 / 2 + 4 * sOf(e.z), W2, d || 0.6, o); };
+  const each = (f, gap) => alive().forEach((e, i) => setTimeout(() => { if (!e.dead) { B.hitDelay = FALL * 1000; f(e); B.hitDelay = 0; } }, (gap || 0) * i));
+  const UG = (row, e, w, d, o) => { const W2 = w * sOf(e.z); gfx('ult', row, ex(e), py(e.z) - W2 * 0.875 / 2 + 4 * sOf(e.z), W2, (d || 0.6) + FALL, Object.assign({ fall: 1 }, o || {})); };
   const heal = p => { B.hero.hp = Math.min(B.hero.hpMax, B.hero.hp + B.hero.hpMax * p); num(CX, YF - 90, '+' + fmt(B.hero.hpMax * p), '#7aff9a', 1); };
   if (k === 'base_k') each(e => { UG(0, e, 200, 0.5); hitEnemy(e, A * 4, true); }, 40);
   else if (k === 'mort') { each(e => { UG(1, e, 220, 0.6); hitEnemy(e, A * 5, true); }, 50); heal(0.2); }
@@ -3205,13 +3207,13 @@ function uiUlt() { const b = $('ultBtn'); if (!b) return; const v = Math.floor(B
 function castSpell(id) {
   const st = heroStats(), k = spPct(id) / 100, L = alive(), sp = SPELLS[id]; if (!L.length && id !== 'shield' && id !== 'frenzy') return;
   B.fx.push({ k: 'ring', x: CX, y: YF - 20, t: 0, d: 0.4, c: sp.c }); num(CX, YF - 110, sp.n, sp.c, 1); sfxPlay({ blades: 'crit', shield: 'shield', meteor: 'fire', nova: 'ice', chain: 'thunder', plague: 'poison', smite: 'charge', frenzy: 'speed' }[id] || 'spell');
-  if (id === 'blades') for (let i = 0; i < 6; i++) { const e = pick(L); gfx('spl', 0, ex(e), ey(e), 120 * sOf(e.z), 0.5, { t: -i * 0.06 }); hitEnemy(e, st.atk * k, false); }
+  if (id === 'blades') for (let i = 0; i < 6; i++) { const e = pick(L); gfx('spl', 0, ex(e), ey(e), 120 * sOf(e.z), 0.5 + FALL, { t: -i * 0.06, fall: 1 }); B.hitDelay = (FALL + i * 0.06) * 1000; hitEnemy(e, st.atk * k, false); B.hitDelay = 0; }
   else if (id === 'shield') { B.shield = Math.max(B.shield || 0, B.hero.hpMax * k / 6); gfx('spl', 1, CX, YF - 50, 170, 0.7); }
   else if (id === 'meteor') meteorShower(st.atk * k, 5);
   else if (id === 'nova') { freezeAll(2); gfx('spl', 3, CX, YF - 20, 420, 0.7); for (const e of L) { gfx('imp', 3, ex(e), ey(e), 90 * sOf(e.z), 0.4); hitEnemy(e, st.atk * k, false); } }
   else if (id === 'chain') { let cur = L.reduce((a, b) => b.z < a.z ? b : a), pts = [[CX, YF - 40]], hit = new Set(); for (let i = 0; i < 6 && cur; i++) { hit.add(cur); pts.push([ex(cur), ey(cur)]); hitEnemy(cur, st.atk * k, false); const nx = alive().filter(o => !hit.has(o)); cur = nx.length ? nx.reduce((a, b) => hyp(b.X - cur.X, b.z - cur.z) < hyp(a.X - cur.X, a.z - cur.z) ? b : a) : null; } B.fx.push({ k: 'bolt', pts, t: 0, d: 0.35 }); pts.slice(1).forEach((q, j) => gfx('spl', 4, q[0], q[1], 130, 0.45, { t: -j * 0.04 })); }
   else if (id === 'plague') B.plague = { t: 5, tick: 0, dps: st.atk * k };
-  else if (id === 'smite') { const e = L.reduce((a, b) => b.hp > a.hp ? b : a); gfx('spl', 6, ex(e), py(e.z) - 50 * sOf(e.z), 200 * sOf(e.z), 0.8); B.shake = Math.max(B.shake, 6); hitEnemy(e, st.atk * k, true); }
+  else if (id === 'smite') { const e = L.reduce((a, b) => b.hp > a.hp ? b : a); gfx('spl', 6, ex(e), py(e.z) - 50 * sOf(e.z), 200 * sOf(e.z), 0.8 + FALL, { fall: 1 }); setTimeout(() => { B.shake = Math.max(B.shake, 6); }, FALL * 1000); B.hitDelay = FALL * 1000; hitEnemy(e, st.atk * k, true); B.hitDelay = 0; }
   else if (id === 'frenzy') { B.spFrT = 6; B.spFrK = spPct(id) / 300; gfx('spl', 7, CX, YF - 22, 160, 0.6); }
 }
 function summon(n) {
