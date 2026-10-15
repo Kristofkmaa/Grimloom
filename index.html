@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p08 auras *//* patch v26 *//* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
+<style id="sv">/* p09 test formes *//* p08 auras *//* patch v26 *//* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
 #app{background:radial-gradient(120% 60% at 50% 100%,#3a1a10,#140810 70%)!important}
 #eqTog,#eqCols,#eqBg,#botBar,#hubTog{display:none!important}
@@ -3491,11 +3491,11 @@ function titleView() {
     $('tPlay').onclick = () => { if (nw) { TCLS = S.cls; TV = 'heroes'; titleView(); } else titleClose(); };
   } else if (TV === 'heroes') {
     const c = TCLS || S.cls, T = ETREE[c], C = TCL[c], cur = tCur(c);
-    const ev = (k, lv) => `<div class="kt ${k === cur && !nw ? 'cur' : ''}">${tCan('k_' + k, 60, 66)}<b>${EVO[k].n.replace(/^(Le |La |L')/, '')}</b><small>${lv}</small></div>`;
+    const ev = (k, lv) => `<div class="kt ${k === cur && !nw ? 'cur' : ''}" data-tf="${k}" style="cursor:pointer">${tCan('k_' + k, 60, 66)}<b>${EVO[k].n.replace(/^(Le |La |L')/, '')}</b><small>${lv}</small></div>`;
     el.innerHTML = `<div class="tHead">${tBack}<h2>Choisis ton héros</h2></div>
     <div class="tCls">${Object.keys(TCL).map(k => `<div class="kt ${k === c ? 'gd' : ''}" data-tc="${k}">${tCan('k_' + ETREE[k].a[0], 72, 80)}<b>${TCL[k].n}</b><small>${TCL[k].r.split(' · ')[1]}</small></div>`).join('')}</div>
     <div class="kl tBig">${tCan('k_' + T.a[0], 128, 140)}<div><h3>${C.n}</h3><small style="font:800 11px var(--b);color:#d6aa60">${C.r}</small><p>${C.d}</p>${C.pip.map((v, i) => `<div class="tPip">${TPIP[i]}<i>${[1, 2, 3, 4, 5].map(j => `<u class="${j <= v ? 'on' : ''}"></u>`).join('')}</i></div>`).join('')}</div></div>
-    <h4 class="kh">Ses évolutions</h4>
+    <h4 class="kh">Ses évolutions <small style="color:#ff8a8a">TEST : touche une forme pour la jouer</small></h4>
     <div class="tEvo two">${ev(T.a[0], 'Départ')}<div class="tArr">›</div>${ev(T.a[1], 'Niveau 15')}</div>
     <div class="tArr">⌄</div>
     <p class="knote" style="margin:0 0 6px;text-align:center">Au niveau 30, choisis une voie</p>
@@ -3504,6 +3504,7 @@ function titleView() {
     <div class="tEvo">${T.c.map(k => ev(k, 'Niveau 60')).join('')}</div>
     <div class="tGo"><button class="btn gold" type="button" id="tGo">${nw ? `Partir avec le ${C.n}` : c === S.cls ? 'Reprendre l\'aventure' : `Jouer le ${C.n}`}</button></div>`;
     el.querySelectorAll('[data-tc]').forEach(b => b.onclick = () => { TCLS = b.dataset.tc; titleView(); el.scrollTop = 0; });
+    el.querySelectorAll('[data-tf]').forEach(b => b.onclick = () => { const k = b.dataset.tf; S.cls = c; if (c === 'hunter') S.hform = k; else if (c === 'mage') S.mform = k; else S.form = k; applyEvo(); const st = heroStats(); B.hero.hpMax = st.pv; B.hero.hp = st.pv; S.started = 1; save(); titleClose(); toast('Test : ' + EVO[k].n); }); // p09 TEST
     $('tGo').onclick = () => {
       if (c !== S.cls) { S.cls = c; applyEvo(); const st = heroStats(); B.hero.hpMax = st.pv; B.hero.hp = st.pv; }
       if (nw) { S.started = 1; save(); TAFTER = 'coach'; titleClose(); } else { save(); titleClose(); }
