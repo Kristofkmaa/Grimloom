@@ -1,8 +1,10 @@
-# Construit le dossier pwa/ (à glisser sur Netlify) à partir de /home/claude/grimloom.html
-import json, base64, io, re, time, zipfile, os
+# Construit dev/out/pwa/ à partir de dev/out/grimloom.html (sortie d'assemble.py).
+# Option --publish : copie aussi le résultat à la racine du dépôt (GitHub Pages).
+import json, base64, io, re, time, zipfile, os, sys, shutil
 from PIL import Image
-OUT = '/home/claude/grimloom/pwa/'
-s = open('/home/claude/grimloom.html').read()
+D = os.path.dirname(os.path.abspath(__file__)) + '/'
+OUT = D + 'out/pwa/'; os.makedirs(OUT, exist_ok=True)
+s = open(D + 'out/grimloom.html').read()
 ver = time.strftime('%Y%m%d%H%M')
 head = ('<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0c0610">'
         '<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">'
@@ -32,7 +34,10 @@ self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Pr
 // réseau d'abord (pour recevoir les mises à jour), cache si hors ligne
 self.addEventListener('fetch', e => { if (e.request.method !== 'GET') return; e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(V).then(k => k.put(e.request, c)); return r; }).catch(() => caches.match(e.request).then(r => r || caches.match('index.html')))); });
 """ % ver)
-z = '/home/claude/grimloom_web.zip'
+z = D + 'out/grimloom_web.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as f:
     for n in os.listdir(OUT): f.write(OUT + n, n)
 print('ok', ver, os.path.getsize(z) // 1024, 'Ko')
+if '--publish' in sys.argv:
+    for n in os.listdir(OUT): shutil.copy(OUT + n, D + '../' + n)
+    print('copié à la racine du dépôt')
