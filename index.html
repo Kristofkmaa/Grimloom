@@ -1108,6 +1108,9 @@ html,body{background:#050204}
 #nav{position:relative;z-index:8}
 .srow1{display:flex;align-items:center;justify-content:space-between;gap:6px}#dpsChip{display:flex;align-items:center;gap:3px;padding:1px 7px;border-radius:9px;background:#000a;border:1px solid #6a3a48;font:800 9.5px var(--b);color:#e8c0a0;white-space:nowrap}#dpsChip svg{width:11px;height:11px;color:#ff9a6a}#dpsChip b{font:400 12px var(--n);color:#ffe2a8}
 #sndBtn,#helpBtn,#mapBtn{display:none!important}#ribbon{cursor:pointer}
+#heroChip .avW{position:relative;display:block;flex:none}
+#lvB{position:absolute;right:-6px;bottom:-4px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:linear-gradient(#8a1a2a,#4a0812);border:1.5px solid #f0c46a;font:400 11px/15px var(--n);font-style:normal;color:#fff;text-align:center;text-shadow:0 1px 0 #000;box-shadow:0 1px 3px #000a}
+#heroChip .xpM{display:block;width:100%;min-width:64px;height:4px;margin-top:2px;border-radius:2px;background:#000a;overflow:hidden}#heroChip .xpM i{display:block;height:100%;background:linear-gradient(90deg,#7a4aff,#c8a0ff)}
 .kcf{position:absolute;inset:0;z-index:50;background:#000b;display:grid;place-items:center;padding:20px}
 .kcfb{width:100%;max-width:330px;text-align:center}.kcfb p{margin:4px 0 14px;font:800 15px/1.45 var(--b);color:var(--txt)}.kcfb p small{display:block;margin-top:6px;font:700 12px var(--b);color:var(--dim)}
 .kcfr{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn.red2{border-color:#ff8a9a;background:linear-gradient(#e0405a,#9a1a30);color:#fff}
@@ -1163,7 +1166,7 @@ body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 <div id="app">
   <div id="topBar">
     <div id="hud">
-      <div id="heroChip"><canvas id="avatar" width="40" height="40"></canvas><div><span class="lbl">Puissance</span><b id="pow">0</b></div></div>
+      <div id="heroChip"><span class="avW"><canvas id="avatar" width="40" height="40"></canvas><em id="lvB">1</em></span><div><span class="lbl">Puissance</span><b id="pow">0</b><span class="xpM"><i id="xpMini"></i></span></div></div>
       <div class="res"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c87a18"/><circle cx="12" cy="11" r="8.5" fill="#ffc94a"/><circle cx="12" cy="11" r="5.5" fill="none" stroke="#c87a18" stroke-width="1.6"/><path d="M8 7.5a5 5 0 0 1 4-2" stroke="#fff6c0" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><b id="gold">0</b></div>
       <div class="res"><svg class="ico" viewBox="0 0 24 24"><path d="M10.5 9.5 4 20.5a1.6 1.6 0 0 0 2.6 1.5l7-10.5z" fill="#a8622a"/><path d="M8 3.5h9.5a3 3 0 0 1 3 3V9h-5l-1.5 2.5L9.5 9 8 9.2z" fill="#d6d8e6"/><path d="M8 3.5h9.5a3 3 0 0 1 3 3V9h-3V6.5H8z" fill="#fff" opacity=".5"/></svg><b id="ham">0</b></div>
       <button id="sndBtn" type="button" aria-label="Son"></button>
@@ -2199,7 +2202,7 @@ function ui() {
 }
 function uiTop() { musicFor();
   hamTick(); if (B.dun) { $('stage').textContent = 'DONJON'; $('biomeN').textContent = B.dun.raid ? `Raid · ${fmt(B.waveDmg)} dégâts` : `${dunName(B.dun.k)} · niveau ${B.dun.lv}`; $('challengeBtn').hidden = true; } else { $('stage').textContent = S.farm ? `FARM ${label(PC(), PS())}` : `CHAPITRE ${S.c} · ${S.s}/10`; $('biomeN').textContent = S.farm ? `${biome().n} · prochaine : ${label(S.c, S.s)}` : biome().n; }
-  $('gold').textContent = fmt(S.gold); $('ham').textContent = S.ham; $('hamN').textContent = S.ham; $('pow').textContent = fmt(power());
+  $('gold').textContent = fmt(S.gold); $('ham').textContent = S.ham; $('hamN').textContent = S.ham; $('pow').textContent = fmt(power()); $('lvB').textContent = S.lvl; { const x = $('xpMini'); if (x) x.style.width = Math.min(100, S.xp / xpNeed(S.lvl) * 100) + '%'; }
   $('flv').textContent = S.forge; { let ab = $('forgeBtn').querySelector('.autob'); if (S.auto.on && !ab) { ab = document.createElement('span'); ab.className = 'autob'; ab.textContent = 'AUTO'; $('forgeBtn').appendChild(ab); } else if (!S.auto.on && ab) ab.remove(); } $('bagN').innerHTML = autoOK() ? `Auto<b>${S.auto.on ? 'ON' : 'OFF'}</b>` : `Auto<b class="alk">${IC.lock}</b>`; $('bagBtn').classList.toggle('lockd', !autoOK()); $('bagBtn').classList.toggle('on', !!S.auto.on); $('fdot').hidden = S.gold < forgeCost(); $('forgeBtn').classList.toggle('empty', S.ham <= 0); 
   document.querySelectorAll('[data-kt]').forEach(el => { el.textContent = S.keys >= 2 ? '(recharge à minuit)' : '(2 dans ' + hms(keyLeft()) + ')'; });
   document.querySelectorAll('[data-rt]').forEach(el => { const k = el.dataset.rt, n = rtTick(k).n; el.textContent = n >= RT_MAX ? 'recharge à minuit' : '2 dans ' + hms(rtLeft(k)); });
