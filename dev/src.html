@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p13 ailes profil *//* p12 sans amelioration *//* p11 sans eclats */
+<style id="sv">/* p14 ailes hd *//* p13 ailes profil *//* p12 sans amelioration *//* p11 sans eclats */
 #forgeBtn .shd{border-radius:50%!important;background:radial-gradient(circle at 35% 35%,#fff6c0,#ffc94a 45%,#c87a18)!important;box-shadow:0 0 8px #ffb040!important}
 /* p09 test formes *//* p08 auras *//* patch v26 *//* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
@@ -2219,7 +2219,18 @@ function wingAnchor(SA, key) { if (WANC[key]) return WANC[key]; const im = SIDEI
   return WANC[key] = { x: back + hgt * 0.06, y: sy, h: hgt }; }
 function wingDark() { const [I, q] = WIM(); if ((WDARK.c && WDARK.q === q) || !I.complete) return WDARK.c; const c = document.createElement('canvas'); c.width = I.width; c.height = I.height; const g = c.getContext('2d'); g.drawImage(I, 0, 0); WDARK.q = q;
   g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(10,4,14,.5)'; g.fillRect(0, 0, c.width, c.height); return WDARK.c = c; }
-function sideWings(SA, key, time, sc, by) { const w = wEq(); if (!w || !WING_IMG.complete) return; const A = wingAnchor(SA, key); if (!A) return;
+const WSI = {}, WSD = {}; for (const k in (ASSETS.wingside || {})) { const i = new Image(); i.src = ASSETS.wingside[k].src; WSI[k] = i; } // p14 ailes hd
+function wsDark(k) { if (WSD[k]) return WSD[k]; const im = WSI[k]; if (!im || !im.complete) return null; const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const g = c.getContext('2d'); g.drawImage(im, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(8,3,12,.55)'; g.fillRect(0, 0, c.width, c.height); return WSD[k] = c; }
+function sideWings(SA, key, time, sc, by) { const w = wEq(); if (!w) return; const A = wingAnchor(SA, key); if (!A) return;
+  const WS = ASSETS.wingside && ASSETS.wingside[w], im = WSI[w];
+  if (WS && im && im.complete) { // battement : déployé → mi-course → replié → mi-course, plus rapide pendant l'avance
+    const fr = Math.floor(time * (B.walk ? 9 : 4)) % WS.n, k = A.h * sc * 1.15 / WS.h, rx = CX + (A.x - SA.ax) * sc, ry = YF + (A.y - SA.foot) * sc + by, dk = wsDark(w);
+    ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    if (dk) { const f2 = (fr + 1) % WS.n; ctx.save(); ctx.translate(rx + 8 * sc, ry - 7 * sc); ctx.rotate(0.12); ctx.scale(0.86 * k, 0.86 * k); ctx.drawImage(dk, f2 * WS.cw, 0, WS.cw, WS.ch, -WS.rx, -WS.ry, WS.cw, WS.ch); ctx.restore(); } // aile lointaine
+    ctx.translate(rx, ry); ctx.scale(k, k); ctx.drawImage(im, fr * WS.cw, 0, WS.cw, WS.ch, -WS.rx, -WS.ry, WS.cw, WS.ch); ctx.restore(); // aile proche
+    if (w === 'enfer' || w === 'givre' || w === 'dechu') { if (Math.random() < 0.25) B.fx.push({ k: 'p', x: rx - rand(10, 90) * k * 0.5, y: ry + rand(-60, 90) * k * 0.5, vx: 0, vy: w === 'givre' ? 10 : -16, g: 0, c: WINGS[w].c, t: 0, d: 0.7, r: 1 }); }
+    return; }
+  if (!WING_IMG.complete) return;
   const fw = [0, 1, 2, 3, 2, 1][Math.floor(time * (B.walk ? 10 : 4.5)) % 6], row = WINGS[w].row, ws = A.h * sc * 1.1 / 105; // ~ la hauteur du héros
   const rx = CX + (A.x - SA.ax) * sc, ry = YF + (A.y - SA.foot) * sc + by, RX = 83, RY = 58; // racine de l'aile dans la planche
   ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
