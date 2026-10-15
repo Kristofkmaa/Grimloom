@@ -1163,7 +1163,12 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p16 chevalier melee *//* p15 familiers multi */
+<style id="sv">/* p17 hud */
+#hud .res[hidden]{display:none!important}
+#app #topBar #stageBar{top:calc(12px + env(safe-area-inset-top))!important;left:calc(50% + 14px)!important}
+#app #dock #goldD{position:absolute!important;left:10px;top:4px;height:28px;padding:0 10px 0 4px;z-index:3}
+#app #dock #goldD b{font-size:15px}
+/* p16 chevalier melee *//* p15 familiers multi */
 .fslots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
 .fsl{position:relative;aspect-ratio:1;border-radius:12px;border:2px solid #4a2a36;background:radial-gradient(circle at 50% 40%,#3a2030,#170b11);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;color:#a08a78;overflow:hidden}
 .fsl.on{border-color:var(--rc);box-shadow:0 0 10px -3px var(--rc)}.fsl.on>*:first-child{width:70%!important;height:auto!important;max-height:62%}
@@ -1264,8 +1269,7 @@ body:not(.full) #panel{padding:6px 5px 0!important;display:flex!important;flex-d
   <div id="topBar">
     <div id="hud">
       <div id="heroChip"><span class="avW"><canvas id="avatar" width="40" height="40"></canvas><em id="lvB">1</em></span><div><span class="lbl">Puissance</span><b id="pow">0</b><span class="xpM"><i id="xpMini"></i></span></div></div>
-      <div class="res"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c87a18"/><circle cx="12" cy="11" r="8.5" fill="#ffc94a"/><circle cx="12" cy="11" r="5.5" fill="none" stroke="#c87a18" stroke-width="1.6"/><path d="M8 7.5a5 5 0 0 1 4-2" stroke="#fff6c0" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><b id="gold">0</b></div>
-      <div class="res"><svg class="ico" viewBox="0 0 24 24"><path d="M8 3a5 5 0 1 0 1.9 9.6L19 21.7l2-2-1.5-1.5 1.5-1.5-2-2-1.5 1.5-4.9-4.9A5 5 0 0 0 8 3zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" fill="#f0c04a" stroke="#6a3a08" stroke-width=".8"/></svg><b id="ham">0</b></div>
+      <div class="res" hidden><b id="ham">0</b></div>
       <button id="sndBtn" type="button" aria-label="Son"></button>
       <button id="helpBtn" type="button" aria-label="Aide : les ressources"><b style="font:400 19px var(--n);color:var(--gold2)">?</b></button>
       <button id="mapBtn" type="button" aria-label="Carte du monde"><svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3 3 5.5v15.5l6-2.5 6 2.5 6-2.5V3l-6 2.5zm0 2.2 6 2.5v11.1l-6-2.5z"/></svg></button>
@@ -1287,6 +1291,7 @@ body:not(.full) #panel{padding:6px 5px 0!important;display:flex!important;flex-d
   <div id="panel"></div>
   <div id="title" hidden><div id="tBg"></div><canvas id="tFx"></canvas><div id="tIn"></div></div>
   <div id="dock">
+    <div class="res" id="goldD"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c87a18"/><circle cx="12" cy="11" r="8.5" fill="#ffc94a"/><circle cx="12" cy="11" r="5.5" fill="none" stroke="#c87a18" stroke-width="1.6"/><path d="M8 7.5a5 5 0 0 1 4-2" stroke="#fff6c0" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><b id="gold">0</b></div>
     <button class="dk" id="forgeLv" type="button"><small>Coffre</small><b id="flv">1</b><small>niveau</small><i class="dot" id="fdot" hidden>!</i></button>
     <button id="forgeBtn" type="button" aria-label="Ouvrir le coffre"><i class="cglow"></i><canvas class="chest" width="304" height="344" aria-hidden="true"></canvas><span class="plq"><svg class="i" viewBox="0 0 24 24"><path d="M8 3a5 5 0 1 0 1.9 9.6L19 21.7l2-2-1.5-1.5 1.5-1.5-2-2-1.5 1.5-4.9-4.9A5 5 0 0 0 8 3zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" fill="#f0c04a"/></svg><b id="hamN">0</b></span></button>
     <button class="dk" id="bagBtn" type="button" aria-label="Ouverture auto"><small id="bagN">Auto</small></button>
