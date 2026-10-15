@@ -1163,7 +1163,9 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p09 test formes *//* p08 auras *//* patch v26 *//* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
+<style id="sv">/* p11 sans eclats */
+#forgeBtn .shd{border-radius:50%!important;background:radial-gradient(circle at 35% 35%,#fff6c0,#ffc94a 45%,#c87a18)!important;box-shadow:0 0 8px #ffb040!important}
+/* p09 test formes *//* p08 auras *//* patch v26 *//* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
 #app{background:radial-gradient(120% 60% at 50% 100%,#3a1a10,#140810 70%)!important}
 #eqTog,#eqCols,#eqBg,#botBar,#hubTog{display:none!important}
@@ -1279,7 +1281,6 @@ body:not(.full) #panel{padding:6px 5px 0!important;display:flex!important;flex-d
   <div id="panel"></div>
   <div id="title" hidden><div id="tBg"></div><canvas id="tFx"></canvas><div id="tIn"></div></div>
   <div id="dock">
-    <span class="shardp" id="shardP" title="Éclats : recycle des objets, sert à les améliorer"><svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 5 9l7 13 7-13zm0 3.2L16.4 9H7.6z"/></svg><b id="shardN">0</b></span>
     <button class="dk" id="forgeLv" type="button"><small>Coffre</small><b id="flv">1</b><small>niveau</small><i class="dot" id="fdot" hidden>!</i></button>
     <button id="forgeBtn" type="button" aria-label="Ouvrir le coffre"><i class="cglow"></i><canvas class="chest" width="304" height="344" aria-hidden="true"></canvas><span class="plq"><svg class="i" viewBox="0 0 24 24"><path d="M8 3a5 5 0 1 0 1.9 9.6L19 21.7l2-2-1.5-1.5 1.5-1.5-2-2-1.5 1.5-4.9-4.9A5 5 0 0 0 8 3zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" fill="#f0c04a"/></svg><b id="hamN">0</b></span></button>
     <button class="dk" id="bagBtn" type="button" aria-label="Ouverture auto"><small id="bagN">Auto</small></button>
@@ -1433,6 +1434,7 @@ const KEY = 'grimloom.v1';
 let S = { gold: 0, ham: 40, hamT: Date.now(), forge: 1, eq: {}, c: 1, s: 1, hero: 'archere', farm: false, kills: 0, forged: 0, best: 1, bag: [] };
 try { const o = JSON.parse(localStorage.getItem(KEY)); if (o) S = Object.assign(S, o); } catch (e) { }
 if (!Array.isArray(S.bag)) S.bag = []; if (S.shards === undefined) S.shards = 0;
+if (S.shards > 0) { const g0 = Math.round(S.shards * 3 * Math.pow(1.11, Math.max(1, S.best || 1))); S.gold = (S.gold || 0) + g0; S.shards = 0; setTimeout(() => toast(`Les éclats disparaissent : +${fmt(g0)} or`), 2600); }
 S.hero = 'chevalier'; if (!S.cls) S.cls = 'knight'; if (!S.form) S.form = (S.lvl || 1) >= 30 ? 'mort' : (S.lvl || 1) >= 15 ? 'chev' : 'ecuyer'; if (!S.hform) S.hform = (S.lvl || 1) >= 15 ? 'hunter' : 'h_novice'; if (!S.mform) S.mform = (S.lvl || 1) >= 15 ? 'm_sorcier' : 'm_apprenti'; applyEvo();
 S.st = Object.assign({ equip: 0, stage: 0, forgeLv: 0, boss: 0, dun: 0, summon: 0, upg: 0, comp: 0, fused: 0, bestR: -1 }, S.st || {});
 if (S.q === undefined) { S.q = 0; S.qStart = 0; } S.auto = Object.assign({ on: false, keep: 3, equip: true }, S.auto || {});
@@ -1447,7 +1449,7 @@ const rdBan = (k, lv, lock) => `<div class="rban ${lock ? 'lock' : ''}" style="b
 const RD = {
   or: { n: 'Mine aux trésors', bi: 3, c: '#ffc23a', ic: 'coin', what: 'or', d: 'Des démons gorgés d\'or' },
   xp: { n: 'Puits des âmes', bi: 6, c: '#7aff9a', ic: 'star', what: 'XP', d: 'Les âmes errantes renforcent ton héros' },
-  eclats: { n: 'Caveau de cristal', bi: 5, c: '#b48aff', ic: 'gem', what: 'éclats', d: 'Des démons de givre chargés d\'éclats' },
+  eclats: { n: 'Caveau de cristal', bi: 5, c: '#b48aff', ic: 'gem', what: 'or', d: 'Des démons de givre gorgés de joyaux' },
   ham: { n: 'Repaire du Voleur', bi: 2, c: '#e8dcc8', ic: 'ham', what: 'clés', d: 'Un démon voleur garde un trésor de clés' },
   pages: { n: 'Scriptorium maudit', bi: 1, c: '#ff9a6a', ic: 'book', what: 'pages', d: 'Des grimoires interdits à piller' },
 };
@@ -1460,7 +1462,7 @@ function rtTickOld(k) { const r = S.rt[k], now = Date.now(); if (r.n >= RT_MAX) 
 const rtLeft = k => toMidnight();
 const hms = ms => { const m = Math.ceil(ms / 60000), h = Math.floor(m / 60); return h ? `${h} h ${String(m % 60).padStart(2, '0')}` : `${m} min`; };
 function rdReward(k, lv) { const si = Math.max(1, S.best), f = 1 + 0.35 * (lv - 1);
-  return k === 'or' ? { gold: Math.round(120 * Math.pow(1.11, si) * f) } : k === 'xp' ? { xp: Math.round(xpNeed(S.lvl) * 0.25 * (1 + 0.15 * (lv - 1))) } : k === 'eclats' ? { shards: Math.round((20 + si * 1.5) * f) } : k === 'ham' ? { ham: 25 + 3 * (lv - 1) } : { pages: 25 + 10 * (lv - 1) }; }
+  return k === 'or' ? { gold: Math.round(120 * Math.pow(1.11, si) * f) } : k === 'xp' ? { xp: Math.round(xpNeed(S.lvl) * 0.25 * (1 + 0.15 * (lv - 1))) } : k === 'eclats' ? { gold: Math.round(160 * Math.pow(1.11, si) * f) } : k === 'ham' ? { ham: 25 + 3 * (lv - 1) } : { pages: 25 + 10 * (lv - 1) }; }
 const rdTxt = r => r.ham ? `${fmt(r.ham)} clés` : r.gold ? `${fmt(r.gold)} or` : r.xp ? `${fmt(r.xp)} XP` : r.shards ? `${fmt(r.shards)} éclats` : `${fmt(r.pages)} pages`;
 function rdGive(r) { if (r.ham) S.ham += r.ham; if (r.gold) S.gold += r.gold; if (r.xp) gainXP(r.xp / (1 + 0.08 * tr('a_xp'))); if (r.shards) S.shards += r.shards; if (r.pages) S.pages += r.pages; }
 const dunName = k => (DUNS[k] || RD[k]).n;
@@ -1502,7 +1504,8 @@ const BAG_MAX = 40;
 // ---------- recyclage : chaque objet non gardé donne de l'or et des éclats ----------
 const SHARDV = [1, 2, 4, 8, 16, 32, 64];
 const shardsOf = it => Math.round(SHARDV[it.r] * (1 + (it.L - 1) * 0.15) * (1 + 0.1 * tr('a_shard')));
-function recycle(it) { const sh = shardsOf(it); S.gold += it.v; S.shards += sh; smokeFx(it); return sh; }
+const recGold = it => Math.round(it.v * (2 + 0.5 * it.r) * (1 + 0.1 * tr('a_shard'))); // p11 sans eclats
+function recycle(it) { const g = recGold(it); S.gold += g; smokeFx(it); return g; }
 function smokeFx(it) { // l'objet sort du coffre, brûle, puis éclate en éclats qui filent vers le compteur
   const btn = $('forgeBtn'); if (!btn || !btn.offsetParent) return; const c = document.createElement('canvas'); c.className = 'smk'; eqIcon(c, it, it.slot);
   c.style.setProperty('--rc', RAR[it.r].c); c.style.left = '50%'; btn.appendChild(c);
@@ -1510,10 +1513,10 @@ function smokeFx(it) { // l'objet sort du coffre, brûle, puis éclate en éclat
     f.animate([{ transform: 'translate(0,0) scale(.5)', opacity: 0 }, { opacity: 1, offset: 0.25 }, { transform: `translate(${rand(-8, 8)}px,${-rand(28, 52)}px) scale(.15)`, opacity: 0 }], { duration: rand(360, 500), delay: 300 + i * 28, easing: 'ease-out', fill: 'both' }).onfinish = () => f.remove(); }
   setTimeout(() => {
     if (!c.isConnected) return; const br = btn.getBoundingClientRect(), cr = c.getBoundingClientRect(), ox = (cr.left + cr.width / 2 - br.left) / SCL, oy = (cr.top + cr.height / 2 - br.top) / SCL;
-    const tg = document.querySelector('.shardp'); let tx = ox, ty = oy - 160; if (tg && tg.offsetParent) { const q = tg.getBoundingClientRect(); tx = (q.left + 10 - br.left) / SCL; ty = (q.top + q.height / 2 - br.top) / SCL; }
+    const tg = $('gold'); let tx = ox, ty = oy - 160; if (tg && tg.offsetParent) { const q = tg.getBoundingClientRect(); tx = (q.left + 10 - br.left) / SCL; ty = (q.top + q.height / 2 - br.top) / SCL; }
     const n = Math.min(14, 5 + it.r * 2);
     for (let i = 0; i < n; i++) { const p = document.createElement('i'); p.className = 'shd'; p.style.left = ox + 'px'; p.style.top = oy + 'px'; btn.appendChild(p); const a = rand(0, TAU), r = rand(22, 48), mx = Math.cos(a) * r, my = Math.sin(a) * r - 8;
-      p.animate([{ transform: 'translate(-50%,-50%) scale(.3) rotate(45deg)', opacity: 1 }, { transform: `translate(calc(-50% + ${mx}px),calc(-50% + ${my}px)) scale(1) rotate(${45 + rand(-120, 120)}deg)`, opacity: 1, offset: 0.35 }, { transform: `translate(calc(-50% + ${tx - ox}px),calc(-50% + ${ty - oy}px)) scale(.45) rotate(45deg)`, opacity: 0.9 }], { duration: rand(640, 820), easing: 'cubic-bezier(.35,.05,.45,1)', fill: 'both' }).onfinish = () => { p.remove(); const t2 = document.querySelector('.shardp'); if (i === 0 && t2) { t2.classList.remove('pop'); void t2.offsetWidth; t2.classList.add('pop'); } }; }
+      p.animate([{ transform: 'translate(-50%,-50%) scale(.3) rotate(45deg)', opacity: 1 }, { transform: `translate(calc(-50% + ${mx}px),calc(-50% + ${my}px)) scale(1) rotate(${45 + rand(-120, 120)}deg)`, opacity: 1, offset: 0.35 }, { transform: `translate(calc(-50% + ${tx - ox}px),calc(-50% + ${ty - oy}px)) scale(.45) rotate(45deg)`, opacity: 0.9 }], { duration: rand(640, 820), easing: 'cubic-bezier(.35,.05,.45,1)', fill: 'both' }).onfinish = () => { p.remove(); const t2 = $('gold'); if (i === 0 && t2) { t2.classList.remove('pop'); void t2.offsetWidth; t2.classList.add('pop'); } }; }
     for (let i = 0; i < 6; i++) { const e = document.createElement('i'); e.className = 'emb'; e.style.left = ox + 'px'; e.style.top = oy + 'px'; btn.appendChild(e);
       e.animate([{ transform: 'translate(0,0)', opacity: 1 }, { transform: `translate(${rand(-30, 30)}px,${rand(40, 80)}px)`, opacity: 0 }], { duration: rand(500, 800), easing: 'ease-in', fill: 'both' }).onfinish = () => e.remove(); }
   }, 680);
@@ -1612,7 +1615,7 @@ const FINFO = {
   talent: [null, 'Chaque niveau gagné te donne un <b>point de talent</b>. Dépense-les dans l\'arbre pour renforcer ton héros.', () => document.querySelector('#nav [data-t=talent]').click()],
   auto: [null, 'Le bouton <b>Auto</b> à côté du coffre l\'ouvre en boucle à ta place et te propose les objets meilleurs.', null],
   invoc: ['sumBtn', 'Le portail est ouvert ! Invoque des <b>familiers</b> avec des âmes. Ton compagnon se bat à tes côtés, et chaque familier possédé renforce ton héros.', () => sumPage('fam')],
-  dungeon: [null, 'Les <b>donjons</b> te donnent or, XP, éclats et pages. Chacun a 2 tickets par jour, remis à minuit.', () => document.querySelector('#nav [data-t=dungeon]').click()],
+  dungeon: [null, 'Les <b>donjons</b> te donnent or, XP, clés et pages. Chacun a 2 tickets par jour, remis à minuit.', () => document.querySelector('#nav [data-t=dungeon]').click()],
   grim: [null, 'Le <b>Grimoire</b> s\'ouvre dans le portail : invoque des pouvoirs avec tes pages. Ce sont des sorts qui se lancent seuls en combat, à équiper depuis la case Pouvoirs.', () => sumPage('grim')],
   roue: ['hubWh', 'Un <b>tour gratuit</b> chaque jour pour gagner clés, or, âmes ou Sceaux. Le passe de saison donne des jetons en plus.', () => wheelSheet()],
   passe: ['hubPs', 'Tout ce que tu fais rapporte des <b>points</b> : démons, coffres, donjons, invocations… Monte les 100 paliers avant la fin de la saison.', () => passSheet()],
@@ -2449,18 +2452,18 @@ const SHARD_IC = '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d
 function showItem(it, mode) { // mode : true = forgé, null = équipé
   const cur = S.eq[it.slot], nm = SLOTS.find(q => q.id === it.slot).n, isNew = mode === true;
   if (isNew) {
-    const better = !cur || itemPower(it) > itemPower(cur), sh = shardsOf(it);
+    const better = !cur || itemPower(it) > itemPower(cur), sh = recGold(it);
     sheet(`<h3>Nouvel objet <button class="x" type="button" aria-label="Fermer">✕</button></h3>${cmpHTML(it, cur)}
-    <div class="row" style="margin-top:14px"><button class="btn" id="sellB" type="button" style="flex:1">Recycler<small>+${fmt(it.v)} or · +${sh} éclats</small></button><button class="btn ${better ? 'gold' : ''}" id="eqB" type="button" style="flex:1.3">Équiper<small>${cur ? 'l\'ancien est recyclé' : 'emplacement vide'}</small></button></div>`, true);
-    const rec = () => { sfxPlay('sell'); const n = recycle(it); save(); toast(`Recyclé : +${fmt(it.v)} or · +${n} éclats`); };
+    <div class="row" style="margin-top:14px"><button class="btn" id="sellB" type="button" style="flex:1">Recycler<small>+${fmt(sh)} or</small></button><button class="btn ${better ? 'gold' : ''}" id="eqB" type="button" style="flex:1.3">Équiper<small>${cur ? 'l\'ancien est recyclé' : 'emplacement vide'}</small></button></div>`, true);
+    const rec = () => { sfxPlay('sell'); const n = recycle(it); save(); toast(`Recyclé : +${fmt(n)} or`); };
     const resume = () => { if (B.autoResume) { B.autoResume = false; if (S.ham > 0) { S.auto.on = true; autoT = performance.now() + 500; ui(); } } };
     $('mbox').querySelector('.x').onclick = () => { rec(); closeM(); resume(); };
     $('sellB').onclick = () => { rec(); closeM(); resume(); };
     $('eqB').onclick = () => { equipItem(it); save(); closeM(); equipFx(it); toast(`${nm} ${RAR[it.r].n.toLowerCase()} équipé`); resume(); };
   } else {
-    const cs = upShards(it), ok = S.gold >= upCost(it) && S.shards >= cs;
+    const ok = S.gold >= upCost(it);
     sheet(`<h3>${nm} <button class="x" type="button" aria-label="Fermer">✕</button></h3>${cardHTML(it, 'Équipé', null)}
-    <button class="btn gold" id="upI" type="button" style="width:100%;margin-top:12px" ${ok ? '' : 'disabled'}>Améliorer au niveau ${it.L + 1}<small>${fmt(upCost(it))} or · ${fmt(cs)} éclats — tu as ${fmt(S.gold)} or · ${fmt(S.shards)} éclats</small></button>
+    <button class="btn gold" id="upI" type="button" style="width:100%;margin-top:12px" ${ok ? '' : 'disabled'}>Améliorer au niveau ${it.L + 1}<small>${fmt(upCost(it))} or — tu as ${fmt(S.gold)} or</small></button>
 `);
     $('upI').onclick = () => { if (upgradeItem(it)) { B.gear = gear(); showItem(it, null); } };
     if ($('egB')) $('egB').onclick = () => openEngrave(it, () => showItem(it, null));
@@ -2473,9 +2476,8 @@ function equipFx(it) { // petites étincelles de la couleur de la rareté qui mo
 }
 // ---------- aide : à quoi servent les ressources ----------
 const HELP = [
-  ['#ffc23a', '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>', 'Or', 'Démons tués, recyclage d\'objets, quêtes.', 'Niveau du coffre, amélioration des objets, compagnons, réinitialiser les talents.'],
+  ['#ffc23a', '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>', 'Or', 'Démons tués, recyclage d\'objets (plus l\'objet est rare, plus il rapporte), quêtes, donjons.', 'Niveau du coffre, amélioration des objets, compagnons, réinitialiser les talents.'],
   ['#d8dee8', IC.ham, 'Clés', '1 par démon vaincu sur une étape jamais franchie, 20 par nouveau boss, coffre hors ligne, donjon du Voleur, quêtes, connexion du jour. Rien en refarmant.', 'Ouvrir le coffre (1 clé par objet).'],
-  ['#b48aff', IC.gem, 'Éclats', 'Recycler les objets dont tu ne veux pas. Plus l\'objet est rare, plus il en donne.', 'Améliorer l\'équipement que tu portes (avec de l\'or).'],
   ['#ff9a6a', '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5z"/></svg>', 'Pages de grimoire', 'Chaque vague, boss, donjons, quêtes.', 'Invoquer des pouvoirs (10 pages par invocation), onglet Pouvoirs.'],
   ['#f0c46a', IC.key, 'Tickets de set', '2 par jour (remis à minuit), +1 par boss de chapitre, certaines quêtes.', 'Entrer dans un donjon de set (le ticket n\'est perdu qu\'en cas de victoire).'],
   ['#7aff9a', IC.coin, 'Tickets de donjon', 'Chaque donjon de ressources en donne 2 par jour, remis à minuit.', 'Entrer dans la Mine aux trésors, le Puits des âmes, le Caveau de cristal ou le Scriptorium (perdu seulement si tu gagnes), ou balayer un niveau déjà battu.'],
@@ -2595,7 +2597,7 @@ const NODE = {
   r_pv: ['Chair de pierre', 5, 'heart', r => `Points de vie +${4 * r} %`], r_def: ['Carapace', 5, 'shield', r => `Dégâts subis −${1.5 * r} %`], r_regen: ['Sang noir', 5, 'heart', r => `Régénère ${(0.3 * r).toFixed(1)} % des PV par seconde`],
   r_leech: ['Sangsue', 3, 'drop', r => `Vol de vie +${r} %`], r_esq: ['Ombre fuyante', 5, 'wind', r => `Esquive +${1.5 * r} %`], r_thorns: ['Épines', 5, 'shield', r => `Renvoie ${20 * r} % des dégâts subis`],
   r_shield: ['Égide', 3, 'shield', r => `Bouclier de ${5 * r} % des PV au début de chaque vague`], r_undying: ['Indomptable', 1, 'heart', () => 'Une fois par vague, survit à un coup mortel avec 30 % de PV'],
-  a_gold: ['Cupidité', 5, 'drop', r => `Or gagné +${6 * r} %`], a_shard: ['Récupérateur', 5, 'gem', r => `Éclats de recyclage +${10 * r} %`], a_xp: ['Érudit', 5, 'star', r => `Expérience +${8 * r} %`],
+  a_gold: ['Cupidité', 5, 'drop', r => `Or gagné +${6 * r} %`], a_shard: ['Récupérateur', 5, 'coin', r => `Or de recyclage +${10 * r} %`], a_xp: ['Érudit', 5, 'star', r => `Expérience +${8 * r} %`],
   a_ham: ['Serrurier infatigable', 3, 'ham', r => `${8 * r} % de chances qu'un nouveau démon donne une clé en plus`], a_luck: ['Main bénie', 5, 'star', r => `Chances de rareté comme un coffre +${(0.6 * r).toFixed(1)} niveau`], a_up: ['Économe', 5, 'drop', r => `Améliorations ${5 * r} % moins chères`],
   a_comp: ['Chasseur de raid', 3, 'star', r => `Plumes gagnées au raid +${15 * r} %`], a_twin: ['Clé bénie', 1, 'ham', () => '10 % de chances qu\'un coffre ne consomme pas de clé'],
   k_berserk: ['Berserker', 1, 'sword', () => 'Attaque +40 %<br><span style="color:#ff8a8a">Points de vie −20 %</span>'], k_fort: ['Forteresse', 1, 'shield', () => 'Points de vie +40 % · dégâts subis −10 %<br><span style="color:#ff8a8a">Vitesse d\'attaque −15 %</span>'], k_midas: ['Midas', 1, 'drop', () => 'Or gagné +60 %<br><span style="color:#ff8a8a">Attaque −10 %</span>'],
@@ -2863,7 +2865,7 @@ const AFK_MAX = 12 * 3600;
 function afkCalc() { const sec = Math.min(AFK_MAX, Math.max(0, (Date.now() - S.afkT) / 1000)), n = stageIndex();
   return { sec, gold: Math.round(3 * Math.pow(1.11, n) * 0.22 * goldMul() * sec), xp: Math.round(sec * 0.08 * (1 + n * 0.25)), ham: Math.floor(sec / 3600 * afkHamH()), pages: Math.floor(sec / 300) }; }
 // --- roue de la fortune ---
-const WHEEL = [{ k: 'ham', v: 20, w: 28, c: '#5a3a28' }, { k: 'gold', v: 1, w: 25, c: '#6a4a10' }, { k: 'pages', v: 30, w: 20, c: '#5a2a18' }, { k: 'souls', v: 15, w: 12, c: '#3a1a5a' }, { k: 'seals', v: 12, w: 8, c: '#5a1020' }, { k: 'shards', v: 150, w: 15, c: '#2a2050' }, { k: 'ham', v: 80, w: 4, c: '#7a5a20' }, { k: 'souls', v: 100, w: 1, c: '#8a1a3a' }];
+const WHEEL = [{ k: 'ham', v: 20, w: 28, c: '#5a3a28' }, { k: 'gold', v: 1, w: 25, c: '#6a4a10' }, { k: 'pages', v: 30, w: 20, c: '#5a2a18' }, { k: 'souls', v: 15, w: 12, c: '#3a1a5a' }, { k: 'seals', v: 12, w: 8, c: '#5a1020' }, { k: 'gold', v: 1, w: 15, c: '#2a2050' }, { k: 'ham', v: 80, w: 4, c: '#7a5a20' }, { k: 'souls', v: 100, w: 1, c: '#8a1a3a' }];
 const wheelTxt = s => ({ ham: `${s.v} clés`, gold: `${fmt(wheelGold())} or`, pages: `${s.v} pages`, souls: `${s.v} âmes`, seals: `${s.v} Sceaux`, shards: `${s.v} éclats` }[s.k]);
 const wheelGold = () => Math.round(400 * Math.pow(1.11, stageIndex()));
 const wheelFree = () => S.wheelDay !== new Date().toDateString();
@@ -3017,9 +3019,9 @@ function autoForgeTick(dt) {
 }
 
 // ================= amélioration et fusion d'objets =================
-const upCost = it => Math.round(30 * SCALE(it.L) * RMULT[it.r] * (1 - 0.05 * tr('a_up')));
+const upCost = it => Math.round(55 * SCALE(it.L) * RMULT[it.r] * (1 - 0.05 * tr('a_up')));
 const upShards = it => Math.max(1, Math.round(3 * Math.pow(1.18, it.L - 1) * (1 + it.r * 0.3) * (1 - 0.05 * tr('a_up'))));
-function upgradeItem(it) { const c = upCost(it), cs = upShards(it); if (S.gold < c || S.shards < cs) { toast('Pas assez ' + (S.gold < c ? 'd\'or' : 'd\'éclats : recycle des objets')); return false; } S.gold -= c; S.shards -= cs; const k = SCALE(it.L + 1) / SCALE(it.L); it.main = it.main.map(([st, v]) => [st, round2(FLAT[st] ? v * k : v * 1.04)]); it.subs = it.subs.map(([st, v]) => [st, round2(FLAT[st] ? v * k : v * 1.02)]); it.L++; it.v = Math.round(it.v * 1.1); S.st.upg++; sfxPlay('forge'); save(); return true; }
+function upgradeItem(it) { const c = upCost(it), cs = 0; if (S.gold < c) { toast('Pas assez d\'or : recycle des objets'); return false; } S.gold -= c; const k = SCALE(it.L + 1) / SCALE(it.L); it.main = it.main.map(([st, v]) => [st, round2(FLAT[st] ? v * k : v * 1.04)]); it.subs = it.subs.map(([st, v]) => [st, round2(FLAT[st] ? v * k : v * 1.02)]); it.L++; it.v = Math.round(it.v * 1.1); S.st.upg++; sfxPlay('forge'); save(); return true; }
 function upgradeItemFree(it) { const k = SCALE(it.L + 1) / SCALE(it.L); it.main = it.main.map(([st, v]) => [st, round2(FLAT[st] ? v * k : v * 1.04)]); it.subs = it.subs.map(([st, v]) => [st, round2(FLAT[st] ? v * k : v * 1.02)]); it.L++; }
 
 // ================= gains hors ligne + connexion quotidienne =================
@@ -3306,7 +3308,7 @@ function showAdmin() {
   const B2 = (a, t, cls) => `<button class="btn ${cls || ''}" data-a="${a}" type="button">${t}</button>`, G = (t, h) => `<div class="adg"><div class="lbl2">${t}</div><div class="adm">${h}</div></div>`;
   const tabs = [['res', 'Ressources'], ['hero', 'Héros'], ['world', 'Monde'], ['coll', 'Collections'], ['test', 'Tests']];
   let body = '';
-  if (ADT === 'res') body = G('Monnaies', B2('gold', '+1 M or', 'gold') + B2('ham', '+100 clés', 'gold') + B2('shards', '+1 000 éclats', 'gold') + B2('pages', '+500 pages', 'gold') + B2('souls', '+500 âmes', 'gold') + B2('plumes', '+500 plumes', 'gold'))
+  if (ADT === 'res') body = G('Monnaies', B2('gold', '+1 M or', 'gold') + B2('ham', '+100 clés', 'gold') + B2('pages', '+500 pages', 'gold') + B2('souls', '+500 âmes', 'gold') + B2('plumes', '+500 plumes', 'gold'))
     + G('Donjons', B2('keys', '+10 tickets') + B2('seals', '+20 Sceaux de chaque') + B2('tickets', 'Tickets et raid pleins', 'full'))
     + G('Coffre', B2('forge', 'Coffre +1') + B2('forge5', 'Coffre +5'));
   else if (ADT === 'hero') body = G('Niveau', B2('lvl', '+10 niveaux') + B2('allcp', 'Niveau 60') + `<div class="adin full"><input type="number" id="adLvl" min="1" max="200" value="${S.lvl}"><button class="btn" data-a="setlvl" type="button">Fixer le niveau</button></div>`)
@@ -3327,7 +3329,7 @@ function showAdmin() {
     + G('Sauvegarde', B2('reset', 'Réinitialiser la partie', 'red full'));
   const chip = (ic, v, c) => `<span style="--c:${c}">${ic}<b>${v}</b></span>`;
   sheet(`<h3>Panneau admin <button class="x" type="button" aria-label="Fermer">✕</button></h3>
-  <div class="adst">${chip('Ch.', `${S.c}-${S.s}`, '#ffd27a')}${chip('Nv', S.lvl, '#7aff9a')}${chip('Or', fmt(S.gold), '#ffc23a')}${chip('🔨', fmt(S.ham), '#e8dcc8')}${chip('Âmes', fmt(S.souls), '#c890ff')}${chip('Pages', fmt(S.pages), '#ff9a6a')}${chip('Éclats', fmt(S.shards), '#b48aff')}${chip('Coffre', S.forge, '#ffd27a')}${SPEED > 1 ? chip('Vitesse', '×' + SPEED, '#ff5a72') : ''}${B.god ? chip('', 'Invincible', '#ff5a72') : ''}</div>
+  <div class="adst">${chip('Ch.', `${S.c}-${S.s}`, '#ffd27a')}${chip('Nv', S.lvl, '#7aff9a')}${chip('Or', fmt(S.gold), '#ffc23a')}${chip('🔨', fmt(S.ham), '#e8dcc8')}${chip('Âmes', fmt(S.souls), '#c890ff')}${chip('Pages', fmt(S.pages), '#ff9a6a')}${chip('Coffre', S.forge, '#ffd27a')}${SPEED > 1 ? chip('Vitesse', '×' + SPEED, '#ff5a72') : ''}${B.god ? chip('', 'Invincible', '#ff5a72') : ''}</div>
   <div class="adtabs">${tabs.map(([k, n]) => `<button type="button" data-adt="${k}" class="${ADT === k ? 'on' : ''}">${n}</button>`).join('')}</div><div style="min-height:min(62vh,520px)">${body}</div>`);
   const A = {
     gold: () => S.gold += 1e6, ham: () => S.ham += 100, forge: () => S.forge++, forge5: () => S.forge += 5, souls: () => S.souls += 500, tp: () => S.tp += 20,
@@ -3441,7 +3443,7 @@ const TCL = {
 const TPIP = ['Dégâts', 'Résistance', 'Vitesse', 'Zone'];
 const TUTO = [
   ['sword', 'Le combat est automatique', 'Ton héros avance seul dans les cryptes et abat les démons. Chaque vague franchie te rapproche du <b>boss du chapitre</b>.'],
-  ['ham', 'Ouvre le coffre', 'Touche le <b>coffre</b> pour l\'ouvrir avec tes clés. Si l\'objet est meilleur, équipe-le. Sinon, recycle-le en <b>éclats</b> pour améliorer ton stuff.'],
+  ['ham', 'Ouvre le coffre', 'Touche le <b>coffre</b> pour l\'ouvrir avec tes clés. Si l\'objet est meilleur, équipe-le. Sinon, recycle-le en <b>or</b> pour améliorer ton stuff.'],
   ['tree', 'Monte en puissance', 'Chaque niveau donne un <b>point de talent</b>. Aux niveaux <b>15, 30 et 60</b>, ton héros évolue. Au 30, choisis ta voie : le choix est définitif.'],
   ['gate', 'Donjons et raid', 'Les <b>donjons</b> donnent de l\'or, de l\'XP et des pages grâce à des tickets qui se rechargent. Le <b>raid</b> te fait gagner des plumes pour débloquer des ailes.'],
   ['star', 'Même absent, tu progresses', 'Ton héros farme jusqu\'à <b>8 h</b> sans toi. Reviens chaque jour pour ta <b>récompense quotidienne</b>. Touche <b>?</b> en jeu pour revoir les ressources.'],
@@ -3535,9 +3537,8 @@ const COACH = [
   { t: forgeZone, h: 'Le coffre', p: 'Tout commence ici. Touche le <b>coffre</b> pour trouver ton premier objet.', act: 'forge', force: 'best' },
   { t: '#mbox', h: 'Ta première arme', p: 'Une arme <b>commune</b> (blanche) ! L\'objet trouvé est à gauche, ce que tu portes à droite. Elle est meilleure : touche <b>Équiper</b>.', act: 'close', only: 'eqB' },
   { t: forgeZone, h: 'Encore une fois', p: 'Chaque coffre donne un objet au hasard : arme, casque, bottes… plus ou moins rare. Ouvre-en un deuxième.', act: 'forge', force: 'worse' },
-  { t: '#mbox', h: 'Moins bonne ? On recycle !', p: 'Compare la <b>puissance</b> : cette arme est plus faible que la tienne. Touche <b>Recycler</b> : tu gagnes de l\'or et des <b>éclats</b> pour améliorer ton équipement.', act: 'close', only: 'sellB' },
-  { t: '#eqg', h: 'Ton équipement', p: '11 emplacements à gauche (un 12e plus tard), tes artefacts à droite. Touche une pièce équipée pour l\'<b>améliorer</b> avec de l\'or et des éclats : elle garde sa rareté et gagne en puissance.' },
-  { t: '.shardp', h: 'Les éclats', p: 'Ton stock d\'éclats s\'affiche ici. Recycle tout ce qui ne te sert pas pour en gagner.' },
+  { t: '#mbox', h: 'Moins bonne ? On recycle !', p: 'Compare la <b>puissance</b> : cette arme est plus faible que la tienne. Touche <b>Recycler</b> : tu gagnes de l\'<b>or</b> pour améliorer ton équipement.', act: 'close', only: 'sellB' },
+  { t: '#eqg', h: 'Ton équipement', p: '11 emplacements à gauche (un 12e plus tard), tes artefacts à droite. Touche une pièce équipée pour l\'<b>améliorer</b> avec de l\'or : elle garde sa rareté et gagne en puissance.' },
   { t: '#sumBtn', h: 'L\'invocation', p: 'Le portail des invocations : <b>familiers</b> avec les âmes, <b>pouvoirs</b> avec les pages. Une créature vedette change tous les 3 jours, avec des chances doublées.' },
   { t: '#famSlot', h: 'Les familiers', p: 'Invoque des familiers avec des <b>âmes</b> (boss, nouvelles étapes, raid). Celui que tu équipes combat à tes côtés et donne un bonus. Chaque doublon ajoute une <b>étoile</b>.' },
   { t: '#wingSlot', h: 'Les ailes', p: 'Un emplacement spécial. Les ailes se débloquent avec les <b>plumes</b> du raid (onglet Donjons) et apparaissent dans le dos de ton héros.' },
@@ -3587,7 +3588,7 @@ const TABTUTO = {
   ],
   dungeon: [
     { pre: '[data-dtab=res]', t: '#panel .ktabs', h: 'Trois sortes de donjons', p: '<b>Ressources</b> pour farmer, <b>Sets</b> pour les équipements de set, <b>Raid</b> pour les ailes.' },
-    { t: '#panel .rdun', h: 'Donjons de ressources', p: 'Or, XP, éclats, pages : chacun donne <b>2 tickets par jour</b>, remis à minuit, et se débloque en avançant. Le Repaire du Voleur donne des <b>clés</b>. <b>Combattre</b> fait monter le niveau du donjon, <b>Balayer</b> donne tout de suite la récompense d\'un niveau déjà battu.' },
+    { t: '#panel .rdun', h: 'Donjons de ressources', p: 'Or, XP, clés, pages : chacun donne <b>2 tickets par jour</b>, remis à minuit, et se débloque en avançant. Le Repaire du Voleur donne des <b>clés</b>. <b>Combattre</b> fait monter le niveau du donjon, <b>Balayer</b> donne tout de suite la récompense d\'un niveau déjà battu.' },
     { pre: '[data-dtab=sets]', t: '#panel .wdun', h: 'Les donjons de sets', p: 'Quatre donjons sur la carte, ouverts avec des <b>tickets</b>. Ils donnent des <b>Sceaux</b> pour invoquer des <b>reliques</b> (Sang, Os, Braises, Givre). Équipe-en 2, 4 ou 6 du même set sur l\'autel pour réveiller ses bonus.' },
     { pre: '[data-dtab=raid]', t: () => $('raidGo') && $('raidGo').closest('.kl'), h: 'Le raid', p: 'L\'Archidémon est immortel : inflige un maximum de dégâts en <b>30 secondes</b>. Chaque palier atteint rapporte des <b>plumes</b> pour les ailes. 2 essais par jour.', post: '[data-dtab=res]' },
   ],
