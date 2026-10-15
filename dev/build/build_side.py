@@ -9,8 +9,8 @@ from PIL import Image
 from scipy import ndimage
 D = os.path.dirname(os.path.abspath(__file__)) + '/../'
 path, key = sys.argv[1], sys.argv[2]; keepg = '--keep-green' in sys.argv
-S = 0.3                      # 320 px de haut (héros debout sans couronne) -> ~96 px, comme l'Écuyer
-CW, CH, FOOT, AX = 168, 128, 116, 92   # case de sortie, ligne des pieds, axe du corps
+S = float(os.environ.get('SIDE_S', '0.45'))   # 320 px de haut -> ~144 px : affiché pixel pour pixel sur téléphone (écran ×2)
+Q = S / 0.3; CW, CH, FOOT, AX = round(168 * Q), round(128 * Q), round(116 * Q), round(92 * Q)   # case, ligne des pieds, axe du corps
 im = Image.open(path).convert('RGB'); a = np.array(im).astype(int); H, W = a.shape[:2]
 bg = np.median(np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3), a[-8:, :8].reshape(-1, 3), a[-8:, -8:].reshape(-1, 3)]), 0)
 d = np.sqrt(((a - bg) ** 2).sum(-1)); r, g, b = a[..., 0], a[..., 1], a[..., 2]
@@ -57,7 +57,7 @@ for (ri, ci), ids in cells.items():
 b = io.BytesIO(); out.save(b, 'PNG', optimize=True)
 P = D + 'assets_side.js'; txt = open(P).read() if os.path.exists(P) else 'ASSETS.side = ASSETS.side || {};\n'
 txt = re.sub(r'ASSETS\.side\.%s = .*\n' % key, '', txt)
-txt += 'ASSETS.side.%s = %s;\n' % (key, json.dumps({'cw': CW, 'ch': CH, 'foot': FOOT, 'ax': AX, 'src': 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()}))
+txt += 'ASSETS.side.%s = %s;\n' % (key, json.dumps({'cw': CW, 'ch': CH, 'foot': FOOT, 'ax': AX, 'k': round(0.3 / S, 4), 'src': 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()}))
 open(P, 'w').write(txt)
 out.save(os.environ.get('PREVIEW', '/tmp') + '/side_%s.png' % key)
 print(key, 'ok', sorted(cells), len(b.getvalue()) // 1024, 'Ko')
