@@ -27,6 +27,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - Toujours là : 3 classes et évolutions, ailes, familiers, reliques, pouvoirs, ultime, talents, donjons + raid, quêtes, succès, hub illustré, déblocages progressifs, tutoriel.
 
 ## À faire / en attente
+- Plus d'amélioration d'objet (p12) : on progresse en trouvant mieux dans le coffre. Ailes de profil accrochées au dos (p13).
 - Éclats supprimés (p11) : recycler donne de l'or, améliorer coûte seulement de l'or.
 - **Retirer le mode test p09** (choix direct de n'importe quelle forme dans « Choisis ton héros ») : supprimer `dev/build/vue_cote/p09_test_formes.py` puis `rebuild.sh`.
 - Icônes des 3 nouvelles pièces (épaulettes, ceinture, bracelet), 5 raretés chacune — prompt donné.

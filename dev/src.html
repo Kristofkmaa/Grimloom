@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p11 sans eclats */
+<style id="sv">/* p13 ailes profil *//* p12 sans amelioration *//* p11 sans eclats */
 #forgeBtn .shd{border-radius:50%!important;background:radial-gradient(circle at 35% 35%,#fff6c0,#ffc94a 45%,#c87a18)!important;box-shadow:0 0 8px #ffb040!important}
 /* p09 test formes *//* p08 auras *//* patch v26 *//* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
@@ -1641,7 +1641,7 @@ function makeItem(r0, sl0) {
   return { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), slot: sl.id, ic: pick(ASSETS.icons.pool[sl.id][r]), r, L, main, subs, set, v: Math.round(4 * SCALE(L) * RMULT[r]) };
 }
 function round2(v) { return v >= 100 ? Math.round(v) : Math.round(v * 10) / 10; }
-function forgeCost() { return Math.round(400 * Math.pow(2.6, S.forge - 1)); }
+function forgeCost() { return Math.round(400 * Math.pow(2.6, S.forge - 1) * (1 - 0.05 * tr('a_up'))); }
 
 // ================= rendu : vue en perspective =================
 const cv = $('bt'), ctx = cv.getContext('2d'); window.__ctx0 = ctx; const BW = 360, BH = 420, CX = 104, YF = 372, YH = 104, K = 1.45, S1 = 1 / (1 + K), HW = 196, WALLH = 150;
@@ -2208,13 +2208,32 @@ function drawSideBg(VH) { const top = -OFFY; if (!SBG.complete || !SBG.naturalWi
   for (let x = -off; x < BW; x += w) ctx.drawImage(SBG, Math.floor(x), top, Math.ceil(w) + 1, VH);
   const bi = BIOMES.indexOf(biome()); if (bi > 0) { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = BIOMES[bi].tint; ctx.fillRect(0, top, BW, VH); ctx.globalCompositeOperation = 'source-over'; } }
 function drawSideLight(VH) { const top = -OFFY, g = ctx.createLinearGradient(0, top, 0, top + VH); g.addColorStop(0, 'rgba(6,2,8,.62)'); g.addColorStop(0.3, 'rgba(6,2,8,0)'); g.addColorStop(0.93, 'rgba(6,2,8,0)'); g.addColorStop(1, 'rgba(6,2,8,.5)'); ctx.fillStyle = g; ctx.fillRect(0, top, BW, VH); }
+// p13 : point d'accroche des ailes (omoplate) mesuré une fois par forme sur l'image d'attente
+const WANC = {}, WDARK = { c: null };
+function wingAnchor(SA, key) { if (WANC[key]) return WANC[key]; const im = SIDEI[key]; if (!im || !im.complete) return null;
+  const c = document.createElement('canvas'); c.width = SA.cw; c.height = SA.ch; const g = c.getContext('2d'); g.drawImage(im, 0, SA.ch, SA.cw, SA.ch, 0, 0, SA.cw, SA.ch);
+  const d = g.getImageData(0, 0, SA.cw, SA.ch).data, op = (x, y) => d[(y * SA.cw + x) * 4 + 3] > 120; let top = SA.foot;
+  for (let y = 0; y < SA.foot; y++) { let n = 0; for (let x = Math.max(0, SA.ax - 18); x < Math.min(SA.cw, SA.ax + 18); x++) if (op(x, y)) n++; if (n >= 4) { top = y; break; } }
+  const hgt = SA.foot - top, sy = Math.round(top + hgt * 0.22); let back = SA.ax; // dos : bord gauche du corps à hauteur des épaules (on ignore la cape flottante)
+  for (let x = SA.ax; x > SA.ax - hgt * 0.35; x--) { if (!op(x, sy)) break; back = x; }
+  return WANC[key] = { x: back + hgt * 0.06, y: sy, h: hgt }; }
+function wingDark() { if (WDARK.c || !WING_IMG.complete) return WDARK.c; const c = document.createElement('canvas'); c.width = WING_IMG.width; c.height = WING_IMG.height; const g = c.getContext('2d'); g.drawImage(WING_IMG, 0, 0);
+  g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(10,4,14,.5)'; g.fillRect(0, 0, c.width, c.height); return WDARK.c = c; }
+function sideWings(SA, key, time, sc, by) { const w = wEq(); if (!w || !WING_IMG.complete) return; const A = wingAnchor(SA, key); if (!A) return;
+  const fw = [0, 1, 2, 3, 2, 1][Math.floor(time * (B.walk ? 10 : 4.5)) % 6], row = WINGS[w].row, ws = A.h * sc * 1.1 / 105; // ~ la hauteur du héros
+  const rx = CX + (A.x - SA.ax) * sc, ry = YF + (A.y - SA.foot) * sc + by, RX = 83, RY = 58; // racine de l'aile dans la planche
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  const dk = wingDark(); if (dk) { ctx.save(); ctx.translate(rx + 7 * sc, ry - 6 * sc); ctx.rotate(0.62); ctx.scale(-0.8 * ws, 0.86 * ws); // aile lointaine : moitié droite retournée, plus petite et sombre
+    ctx.drawImage(dk, fw * 168 + 84, row * 168, 84, 168, -(168 - 84 - RX), -RY, 84, 168); ctx.restore(); }
+  ctx.translate(rx, ry); ctx.rotate(0.42); ctx.scale(ws, ws); ctx.drawImage(WING_IMG, fw * 168, row * 168, 84, 168, -RX, -RY, 84, 168); ctx.restore(); // aile proche
+  if (w === 'enfer' || w === 'givre' || w === 'dechu') { if (Math.random() < 0.25) B.fx.push({ k: 'p', x: rx - rand(5, 60) * ws, y: ry + rand(-20, 50) * ws, vx: 0, vy: w === 'givre' ? 10 : -16, g: 0, c: WINGS[w].c, t: 0, d: 0.7, r: 1 }); } }
 function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];
   if (SA) { const im = SIDEI[curForm()], sc = HSC * 0.69 * (SA.k || 1); let row = 1, f = 0, by = 0; // rangées : marche · sort · touché (2) + mort (2)
     if (h.dead) { row = 2; f = h.deadT < 0.3 ? 2 : 3; } else if (anim === 'course') { row = 0; f = Math.floor(time * 10) % 4; }
     else if (anim === 'tir') { f = clamp(Math.floor((B.t - (h.shotAt || 0)) / 0.32 * 4), 0, 3); } else if (anim === 'touche') { row = 2; f = 0; } else by = Math.round(Math.sin(time * 2.6) * 1.2);
-    const w = wEq(); if (w && WING_IMG.complete && !h.dead) { const fw = [0, 1, 2, 3, 2, 1][Math.floor(time * (B.walk ? 9 : 5)) % 6], ws = 0.62; ctx.save(); ctx.imageSmoothingEnabled = false; ctx.translate(CX - 10, YF - 88); ctx.drawImage(WING_IMG, fw * 168, WINGS[w].row * 168, 168, 168, -84 * ws, -48 * ws, 168 * ws, 168 * ws); ctx.restore(); }
     if (!im || !im.complete) return; const x0 = Math.round(CX - SA.ax * sc), y0 = Math.round(YF - SA.foot * sc + by), ka = curForm(), hasA = !!SIDEA[ka];
     if (hasA) auraBack(SA, ka, f, row, x0, y0, sc, time);
+    if (!h.dead) sideWings(SA, ka, time, sc, by); // p13 ailes profil
     ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, f * SA.cw, row * SA.ch, SA.cw, SA.ch, x0, y0, Math.round(SA.cw * sc), Math.round(SA.ch * sc)); ctx.restore();
     if (hasA) { const now = performance.now(), dt2 = Math.min(0.05, (now - (B.auT || now)) / 1000); B.auT = now; auraFront(SA, ka, f, row, x0, y0, sc, time, dt2); } return; }
   const C = 109, sc = 0.7; let im = SHI, row = 2, f = Math.floor(time * 2.5) % 2 ? 2 : 0;
@@ -2461,11 +2480,8 @@ function showItem(it, mode) { // mode : true = forgé, null = équipé
     $('sellB').onclick = () => { rec(); closeM(); resume(); };
     $('eqB').onclick = () => { equipItem(it); save(); closeM(); equipFx(it); toast(`${nm} ${RAR[it.r].n.toLowerCase()} équipé`); resume(); };
   } else {
-    const ok = S.gold >= upCost(it);
     sheet(`<h3>${nm} <button class="x" type="button" aria-label="Fermer">✕</button></h3>${cardHTML(it, 'Équipé', null)}
-    <button class="btn gold" id="upI" type="button" style="width:100%;margin-top:12px" ${ok ? '' : 'disabled'}>Améliorer au niveau ${it.L + 1}<small>${fmt(upCost(it))} or — tu as ${fmt(S.gold)} or</small></button>
-`);
-    $('upI').onclick = () => { if (upgradeItem(it)) { B.gear = gear(); showItem(it, null); } };
+    <p style="margin:12px 4px 0;text-align:center;font:700 12.5px/1.4 var(--b);color:var(--dim)">Ouvre des coffres pour trouver mieux : un meilleur objet le remplace et l'ancien est recyclé en or.</p>`); // p12 sans amelioration
     if ($('egB')) $('egB').onclick = () => openEngrave(it, () => showItem(it, null));
   }
   $('mbox').querySelectorAll('[data-ci]').forEach(c => eqIcon(c, c.dataset.ci === 'Équipé actuellement' || c.dataset.ci === 'cur' ? cur : it));
@@ -2476,7 +2492,7 @@ function equipFx(it) { // petites étincelles de la couleur de la rareté qui mo
 }
 // ---------- aide : à quoi servent les ressources ----------
 const HELP = [
-  ['#ffc23a', '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>', 'Or', 'Démons tués, recyclage d\'objets (plus l\'objet est rare, plus il rapporte), quêtes, donjons.', 'Niveau du coffre, amélioration des objets, compagnons, réinitialiser les talents.'],
+  ['#ffc23a', '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="9"/></svg>', 'Or', 'Démons tués, recyclage d\'objets (plus l\'objet est rare, plus il rapporte), quêtes, donjons.', 'Niveau du coffre, compagnons, réinitialiser les talents.'],
   ['#d8dee8', IC.ham, 'Clés', '1 par démon vaincu sur une étape jamais franchie, 20 par nouveau boss, coffre hors ligne, donjon du Voleur, quêtes, connexion du jour. Rien en refarmant.', 'Ouvrir le coffre (1 clé par objet).'],
   ['#ff9a6a', '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5z"/></svg>', 'Pages de grimoire', 'Chaque vague, boss, donjons, quêtes.', 'Invoquer des pouvoirs (10 pages par invocation), onglet Pouvoirs.'],
   ['#f0c46a', IC.key, 'Tickets de set', '2 par jour (remis à minuit), +1 par boss de chapitre, certaines quêtes.', 'Entrer dans un donjon de set (le ticket n\'est perdu qu\'en cas de victoire).'],
@@ -2598,7 +2614,7 @@ const NODE = {
   r_leech: ['Sangsue', 3, 'drop', r => `Vol de vie +${r} %`], r_esq: ['Ombre fuyante', 5, 'wind', r => `Esquive +${1.5 * r} %`], r_thorns: ['Épines', 5, 'shield', r => `Renvoie ${20 * r} % des dégâts subis`],
   r_shield: ['Égide', 3, 'shield', r => `Bouclier de ${5 * r} % des PV au début de chaque vague`], r_undying: ['Indomptable', 1, 'heart', () => 'Une fois par vague, survit à un coup mortel avec 30 % de PV'],
   a_gold: ['Cupidité', 5, 'drop', r => `Or gagné +${6 * r} %`], a_shard: ['Récupérateur', 5, 'coin', r => `Or de recyclage +${10 * r} %`], a_xp: ['Érudit', 5, 'star', r => `Expérience +${8 * r} %`],
-  a_ham: ['Serrurier infatigable', 3, 'ham', r => `${8 * r} % de chances qu'un nouveau démon donne une clé en plus`], a_luck: ['Main bénie', 5, 'star', r => `Chances de rareté comme un coffre +${(0.6 * r).toFixed(1)} niveau`], a_up: ['Économe', 5, 'drop', r => `Améliorations ${5 * r} % moins chères`],
+  a_ham: ['Serrurier infatigable', 3, 'ham', r => `${8 * r} % de chances qu'un nouveau démon donne une clé en plus`], a_luck: ['Main bénie', 5, 'star', r => `Chances de rareté comme un coffre +${(0.6 * r).toFixed(1)} niveau`], a_up: ['Économe', 5, 'drop', r => `Niveau du coffre ${5 * r} % moins cher`],
   a_comp: ['Chasseur de raid', 3, 'star', r => `Plumes gagnées au raid +${15 * r} %`], a_twin: ['Clé bénie', 1, 'ham', () => '10 % de chances qu\'un coffre ne consomme pas de clé'],
   k_berserk: ['Berserker', 1, 'sword', () => 'Attaque +40 %<br><span style="color:#ff8a8a">Points de vie −20 %</span>'], k_fort: ['Forteresse', 1, 'shield', () => 'Points de vie +40 % · dégâts subis −10 %<br><span style="color:#ff8a8a">Vitesse d\'attaque −15 %</span>'], k_midas: ['Midas', 1, 'drop', () => 'Or gagné +60 %<br><span style="color:#ff8a8a">Attaque −10 %</span>'],
 };
@@ -2988,7 +3004,7 @@ const title = () => { const got = ACH.filter(a => S.ach[a[0]]); return got.lengt
 // ================= quêtes infinies =================
 const QT = [
   ['forge', n => `Ouvrir ${n} coffres`, 10], ['kill', n => `Tuer ${n} démons`, 60], ['equip', n => `Équiper ${n} objets`, 3], ['stage', n => `Terminer ${n} vagues`, 5],
-  ['forgeLv', n => `Améliorer le coffre ${n} fois`, 1], ['upgrade', n => `Améliorer ${n} objets`, 3], ['summon', n => `Invoquer ${n} pouvoirs`, 5], ['boss', n => `Vaincre ${n} boss`, 1],
+  ['forgeLv', n => `Améliorer le coffre ${n} fois`, 1], ['kill', n => `Tuer ${n} démons`, 120], ['summon', n => `Invoquer ${n} pouvoirs`, 5], ['boss', n => `Vaincre ${n} boss`, 1],
   ['dun', n => `Réussir ${n} donjons`, 1],
 ];
 const qCount = k => ({ forge: S.forged, kill: S.kills, equip: S.st.equip, stage: S.st.stage, forgeLv: S.st.forgeLv, upgrade: S.st.upg, summon: S.st.summon, boss: S.st.boss, comp: S.st.comp, dun: S.st.dun })[k];
@@ -3443,7 +3459,7 @@ const TCL = {
 const TPIP = ['Dégâts', 'Résistance', 'Vitesse', 'Zone'];
 const TUTO = [
   ['sword', 'Le combat est automatique', 'Ton héros avance seul dans les cryptes et abat les démons. Chaque vague franchie te rapproche du <b>boss du chapitre</b>.'],
-  ['ham', 'Ouvre le coffre', 'Touche le <b>coffre</b> pour l\'ouvrir avec tes clés. Si l\'objet est meilleur, équipe-le. Sinon, recycle-le en <b>or</b> pour améliorer ton stuff.'],
+  ['ham', 'Ouvre le coffre', 'Touche le <b>coffre</b> pour l\'ouvrir avec tes clés. Si l\'objet est meilleur, équipe-le. Sinon, recycle-le en <b>or</b> pour améliorer ton coffre.'],
   ['tree', 'Monte en puissance', 'Chaque niveau donne un <b>point de talent</b>. Aux niveaux <b>15, 30 et 60</b>, ton héros évolue. Au 30, choisis ta voie : le choix est définitif.'],
   ['gate', 'Donjons et raid', 'Les <b>donjons</b> donnent de l\'or, de l\'XP et des pages grâce à des tickets qui se rechargent. Le <b>raid</b> te fait gagner des plumes pour débloquer des ailes.'],
   ['star', 'Même absent, tu progresses', 'Ton héros farme jusqu\'à <b>8 h</b> sans toi. Reviens chaque jour pour ta <b>récompense quotidienne</b>. Touche <b>?</b> en jeu pour revoir les ressources.'],
@@ -3537,8 +3553,8 @@ const COACH = [
   { t: forgeZone, h: 'Le coffre', p: 'Tout commence ici. Touche le <b>coffre</b> pour trouver ton premier objet.', act: 'forge', force: 'best' },
   { t: '#mbox', h: 'Ta première arme', p: 'Une arme <b>commune</b> (blanche) ! L\'objet trouvé est à gauche, ce que tu portes à droite. Elle est meilleure : touche <b>Équiper</b>.', act: 'close', only: 'eqB' },
   { t: forgeZone, h: 'Encore une fois', p: 'Chaque coffre donne un objet au hasard : arme, casque, bottes… plus ou moins rare. Ouvre-en un deuxième.', act: 'forge', force: 'worse' },
-  { t: '#mbox', h: 'Moins bonne ? On recycle !', p: 'Compare la <b>puissance</b> : cette arme est plus faible que la tienne. Touche <b>Recycler</b> : tu gagnes de l\'<b>or</b> pour améliorer ton équipement.', act: 'close', only: 'sellB' },
-  { t: '#eqg', h: 'Ton équipement', p: '11 emplacements à gauche (un 12e plus tard), tes artefacts à droite. Touche une pièce équipée pour l\'<b>améliorer</b> avec de l\'or : elle garde sa rareté et gagne en puissance.' },
+  { t: '#mbox', h: 'Moins bonne ? On recycle !', p: 'Compare la <b>puissance</b> : cette arme est plus faible que la tienne. Touche <b>Recycler</b> : tu gagnes de l\'<b>or</b> pour monter le niveau du coffre.', act: 'close', only: 'sellB' },
+  { t: '#eqg', h: 'Ton équipement', p: '11 emplacements à gauche (un 12e plus tard), tes artefacts à droite. Pour progresser, trouve de <b>meilleurs objets</b> dans le coffre.' },
   { t: '#sumBtn', h: 'L\'invocation', p: 'Le portail des invocations : <b>familiers</b> avec les âmes, <b>pouvoirs</b> avec les pages. Une créature vedette change tous les 3 jours, avec des chances doublées.' },
   { t: '#famSlot', h: 'Les familiers', p: 'Invoque des familiers avec des <b>âmes</b> (boss, nouvelles étapes, raid). Celui que tu équipes combat à tes côtés et donne un bonus. Chaque doublon ajoute une <b>étoile</b>.' },
   { t: '#wingSlot', h: 'Les ailes', p: 'Un emplacement spécial. Les ailes se débloquent avec les <b>plumes</b> du raid (onglet Donjons) et apparaissent dans le dos de ton héros.' },
