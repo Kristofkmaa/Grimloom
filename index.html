@@ -3209,10 +3209,15 @@ $('eqTog').onclick = () => eqSet(!S.eqMin); eqTogPlace();
   addEventListener('touchstart', e => { const t = e.touches[0]; sy = bad(e.target) ? null : t.clientY; sx = t.clientX; st = performance.now(); }, { passive: true });
   addEventListener('touchend', e => { if (sy === null || tab !== 'forge') return; const t = e.changedTouches[0], dy = t.clientY - sy, dx = t.clientX - sx; sy = null; if (performance.now() - st > 700 || Math.abs(dy) < 50 || Math.abs(dx) > Math.abs(dy) * 0.6) return; eqSet(dy > 0); }, { passive: true }); } $('ultBtn').onclick = castUlt; $('sumBtn').onclick = () => sumPage(); $('hubAfk').onclick = afkSheet; $('hubLog').onclick = loginView; $('hubWh').onclick = wheelSheet; $('hubPs').onclick = passSheet; $('hubTog').onclick = () => { S.hubShut = !S.hubShut; save(); uiHub(); sfxPlay('click'); }; $('bossBtn').onclick = challenge; $('challengeBtn').onclick = challenge;
 // portrait animé du héros (panneau + pastille du HUD)
+const AVB = {};
+function avBox(key) { if (AVB[key] !== undefined) return AVB[key]; const A = ASSETS[key], R = A.anims.idle_6; if (!R) return AVB[key] = null; const c = document.createElement('canvas'); c.width = A.cw; c.height = A.ch; const g = c.getContext('2d'); g.drawImage(IMG[key], (R.f0 || 0) * A.cw, R.row * A.ch, A.cw, A.ch, 0, 0, A.cw, A.ch);
+  const d = g.getImageData(0, 0, A.cw, A.ch).data; let t = A.ch, b = 0, l = A.cw, r = 0; for (let y = 0; y < A.ch; y++) for (let x = 0; x < A.cw; x++) if (d[(y * A.cw + x) * 4 + 3] > 40) { if (y < t) t = y; if (y > b) b = y; if (x < l) l = x; if (x > r) r = x; }
+  return AVB[key] = b > t ? { t, b, l, r } : null; }
 function heroPortrait(time) {
   const H = HEROES[S.hero], c = $('heroC');
   if (c) { const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); const big = c.width > 100; sprH(H.key, 'idle_6', time * 10, c.width / 2, c.height - 2, H.sc * (big ? 1.0 : 0.95), 1, g); }
-  const a = $('avatar'), g = a.getContext('2d'); g.clearRect(0, 0, 40, 40); g.save(); g.beginPath(); g.arc(20, 20, 20, 0, TAU); g.clip(); sprH(H.key, 'idle_6', time * 10, 20, 20 + 46 * H.sc, H.sc * 1.05, 1, g); g.restore();
+  const a = $('avatar'), g = a.getContext('2d'), A = ASSETS[H.key], R = 80; if (a.width !== R) { a.width = a.height = R; } g.clearRect(0, 0, R, R);
+  if (A && IMG[H.key] && IMG[H.key].complete) { const bb = avBox(H.key); if (bb) { const ch = bb.b - bb.t, z = R / (ch * 0.55), cx = (bb.l + bb.r) / 2; g.save(); g.beginPath(); g.arc(R / 2, R / 2, R / 2, 0, TAU); g.clip(); sprH(H.key, 'idle_6', time * 10, R / 2 - (cx - A.cw / 2) * z, R * 0.12 + (A.ch - A.foot - bb.t) * z, z, 1, g); g.restore(); } }
 }
 let last = performance.now(), clock = 0, uiT = 0;
 function frame(now) {
