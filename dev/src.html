@@ -1643,7 +1643,7 @@ function stageSet(st) { const wrap = $('stageWrap'), w = wrap.clientWidth || 360
 function stageTween(A, Bs, ms) { const t0 = performance.now(); stageSet(A); const step = () => { const k = Math.min(1, (performance.now() - t0) / ms), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; stageSet({ h: Math.round(A.h + (Bs.h - A.h) * e), o: A.o + (Bs.o - A.o) * e, z: A.z + (Bs.z - A.z) * e }); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
 function fit() { appScale(); // combat en haut (~44 % de l'écran), le reste pour les sorts, l'équipement et le coffre
   const wrap = $('stageWrap'), w = wrap.clientWidth || 360, H0 = $('app').clientHeight, h = Math.round(Math.max(250, Math.min(H0 * 0.44, w * 1.05)));
-  wrap.style.height = h + 'px'; const dpr = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); CAMZ = 1; OFFY = 0; eqSize();
+  wrap.style.height = h + 'px'; const dpr = Math.min(3, devicePixelRatio || 1); cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); CAMZ = 1; OFFY = 0; eqSize();
 }
 function eqSize() { // taille des cases : 6 colonnes en largeur, 3 rangées + le coffre en hauteur
   const a = $('app'); if (!a) return; const W = a.clientWidth, H0 = a.clientHeight, st = $('stageWrap').offsetHeight || H0 * 0.44, nav = $('nav').offsetHeight || 62, room = H0 - st - 56 - nav - 128 - 16;
@@ -2134,7 +2134,7 @@ function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS
     if (h.dead) { row = 2; f = h.deadT < 0.3 ? 2 : 3; } else if (anim === 'course') { row = 0; f = Math.floor(time * 10) % 4; }
     else if (anim === 'tir') { f = clamp(Math.floor((1 - Math.max(0, h.shootT) / 0.3) * 4), 0, 3); } else if (anim === 'touche') { row = 2; f = 0; } else by = Math.round(Math.sin(time * 2.6) * 1.2);
     const w = wEq(); if (w && WING_IMG.complete && !h.dead) { const fw = [0, 1, 2, 3, 2, 1][Math.floor(time * (B.walk ? 9 : 5)) % 6], ws = 0.5; ctx.save(); ctx.imageSmoothingEnabled = false; ctx.translate(CX - 8, YF - 70); ctx.drawImage(WING_IMG, fw * 168, WINGS[w].row * 168, 168, 168, -84 * ws, -48 * ws, 168 * ws, 168 * ws); ctx.restore(); }
-    if (!im || !im.complete) return; ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(im, f * SA.cw, row * SA.ch, SA.cw, SA.ch, Math.round(CX - SA.ax * sc), Math.round(YF - SA.foot * sc + by), Math.round(SA.cw * sc), Math.round(SA.ch * sc)); ctx.restore(); return; }
+    if (!im || !im.complete) return; ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, f * SA.cw, row * SA.ch, SA.cw, SA.ch, Math.round(CX - SA.ax * sc), Math.round(YF - SA.foot * sc + by), Math.round(SA.cw * sc), Math.round(SA.ch * sc)); ctx.restore(); return; }
   const C = 109, sc = 0.7; let im = SHI, row = 2, f = Math.floor(time * 2.5) % 2 ? 2 : 0;
   if (anim === 'course') { im = SHW; row = 0; f = Math.floor(time * 16) % 8; }
   else if (anim === 'tir') { row = 1; f = clamp(Math.floor((1 - Math.max(0, h.shootT) / 0.3) * 4), 0, 3); }

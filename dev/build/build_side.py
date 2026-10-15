@@ -10,7 +10,7 @@ from PIL import Image
 from scipy import ndimage
 D = os.path.dirname(os.path.abspath(__file__)) + '/../'
 path, key = sys.argv[1], sys.argv[2]; keepg = '--keep-green' in sys.argv
-S = float(os.environ.get('SIDE_S', '0.45'))   # 320 px de haut -> ~144 px : affiché pixel pour pixel sur téléphone (écran ×2)
+S = float(os.environ.get('SIDE_S', '0.6'))   # 320 px de haut -> ~144 px : affiché pixel pour pixel sur téléphone (écran ×2)
 Q = S / 0.3; CW, CH, FOOT, AX = round(int(os.environ.get('SIDE_W', '190')) * Q), round(128 * Q), round(116 * Q), round(92 * Q)   # case, ligne des pieds, axe du corps
 im = Image.open(path).convert('RGB'); a = np.array(im).astype(int); H, W = a.shape[:2]
 bg = np.median(np.concatenate([a[:8, :8].reshape(-1, 3), a[:8, -8:].reshape(-1, 3), a[-8:, :8].reshape(-1, 3), a[-8:, -8:].reshape(-1, 3)]), 0)
@@ -70,13 +70,13 @@ for (ri, ci), ids in cells.items():
     fr = rgba.copy(); fr[..., 3] = np.where(msk, fr[..., 3], 0)
     x0 = int(ci * W / 4); crop = Image.fromarray(fr).crop((x0 - 140, y1 - int(CH / S), x0 - 140 + int(CW / S), y1 + 1))
     sm = crop.resize((round(crop.width * S), round(crop.height * S)), Image.LANCZOS)
-    arr = np.array(sm); arr[..., 3] = np.where(arr[..., 3] > 100, 255, 0); sm = Image.fromarray(arr)
+    arr = np.array(sm); arr[..., 3] = np.clip((arr[..., 3].astype(int) - 40) * 255 // 150, 0, 255); sm = Image.fromarray(arr)
     # le corps est vers x0+170 dans la case source -> AX dans la case de sortie
     ox = round(AX - (140 + 170) * S); sm = sm.crop((max(0, -ox), 0, min(sm.width, CW - ox), sm.height)); out.alpha_composite(sm, (ci * CW + max(0, ox), ri * CH + FOOT - sm.height))
-b = io.BytesIO(); out.save(b, 'PNG', optimize=True)
+b = io.BytesIO(); out.save(b, 'WEBP', quality=90, method=6, alpha_quality=100)
 P = D + 'assets_side.js'; txt = open(P).read() if os.path.exists(P) else 'ASSETS.side = ASSETS.side || {};\n'
 txt = re.sub(r'ASSETS\.side\.%s = .*\n' % key, '', txt)
-txt += 'ASSETS.side.%s = %s;\n' % (key, json.dumps({'cw': CW, 'ch': CH, 'foot': FOOT, 'ax': AX, 'k': round(0.3 / S, 4), 'src': 'data:image/png;base64,' + base64.b64encode(b.getvalue()).decode()}))
+txt += 'ASSETS.side.%s = %s;\n' % (key, json.dumps({'cw': CW, 'ch': CH, 'foot': FOOT, 'ax': AX, 'k': round(0.3 / S, 4), 'src': 'data:image/webp;base64,' + base64.b64encode(b.getvalue()).decode()}))
 open(P, 'w').write(txt)
 out.save(os.environ.get('PREVIEW', '/tmp') + '/side_%s.png' % key)
 print(key, 'ok', sorted(cells), len(b.getvalue()) // 1024, 'Ko')
