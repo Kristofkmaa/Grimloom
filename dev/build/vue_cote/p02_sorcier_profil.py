@@ -1,6 +1,6 @@
 # patch v19 : Sorcier de profil (8 formes) dans le combat de côté. Les planches sont dans assets_side.js (build_side.py).
 import sys, os
-D = os.path.dirname(os.path.abspath(__file__)) + '/../'
+D = os.path.dirname(os.path.abspath(__file__)) + '/../../'
 P = sys.argv[1] if len(sys.argv) > 1 else D + 'src.html'
 s = open(P).read(); assert 'patch v19' not in s
 def rep(old, new, cnt=1):

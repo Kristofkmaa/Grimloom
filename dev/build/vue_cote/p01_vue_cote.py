@@ -4,7 +4,7 @@
 #  - coffre à clés à la place de la forge (marteaux -> clés, anciennes clés de donjon -> tickets)
 # usage : python3 dev/build/patch_v18.py [src.html]   (modifie le fichier en place)
 import re, sys, os
-D = os.path.dirname(os.path.abspath(__file__)) + '/../'
+D = os.path.dirname(os.path.abspath(__file__)) + '/../../'
 P = sys.argv[1] if len(sys.argv) > 1 else D + 'src.html'
 s = open(P).read()
 assert 'patch v18' not in s, 'déjà appliqué'

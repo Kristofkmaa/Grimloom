@@ -1,6 +1,6 @@
 # patch v21 : le Chasseur passe des deux arbalètes à l'arc (textes ; tir double conservé = deux flèches)
 import sys, os
-D = os.path.dirname(os.path.abspath(__file__)) + '/../'
+D = os.path.dirname(os.path.abspath(__file__)) + '/../../'
 P = sys.argv[1] if len(sys.argv) > 1 else D + 'src.html'
 s = open(P).read(); assert 'patch v21' not in s
 def rep(old, new, cnt=1):
