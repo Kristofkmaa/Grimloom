@@ -1241,6 +1241,16 @@ body:not(.full) #panel{flex:1 1 auto!important;min-height:0!important;overflow:h
 .cfly{position:absolute;left:0;top:0;width:32px;height:32px;z-index:30;pointer-events:none;image-rendering:pixelated;filter:drop-shadow(0 0 6px var(--rc)) drop-shadow(0 0 2px #fff)}
 body.full #app #dock{display:none!important}
 #toast{top:200px!important}body.full #toast{top:110px!important}
+
+/* p10 cases : équipement plus grand */
+body:not(.full) #panel{padding:6px 5px 0!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+#eqg{gap:4px!important}#eqg .gl,#eqg .gr{gap:5px!important}#eqg .sep{margin:2px 1px!important}
+#eqg .slot canvas{width:calc(var(--ss,56px) * .84)!important;height:calc(var(--ss,56px) * .84)!important}
+#eqg .slot .lv{font-size:11px!important;left:3px!important;bottom:1px!important}
+#app #dock{height:108px!important;padding-bottom:4px!important}
+#app #dock #forgeBtn{height:104px!important;width:110px!important}
+#app #forgeBtn .chest{width:92px!important;height:104px!important;margin-left:-46px!important;bottom:12px!important}
+#app #dock .dk{width:54px!important;height:54px!important;margin-bottom:8px!important}
 </style>
 <div id="app">
   <div id="topBar">
@@ -1645,9 +1655,10 @@ function fit() { appScale(); // combat en haut (~44 % de l'écran), le reste pou
   const wrap = $('stageWrap'), w = wrap.clientWidth || 360, H0 = $('app').clientHeight, h = Math.round(Math.max(250, Math.min(H0 * 0.44, w * 1.05)));
   wrap.style.height = h + 'px'; const dpr = Math.min(3, devicePixelRatio || 1); cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); CAMZ = 1; OFFY = 0; eqSize();
 }
+const DOCKH = 108; // p10 : hauteur de la zone du coffre
 function eqSize() { // taille des cases : 6 colonnes en largeur, 3 rangées + le coffre en hauteur
-  const a = $('app'); if (!a) return; const W = a.clientWidth, H0 = a.clientHeight, st = $('stageWrap').offsetHeight || H0 * 0.44, nav = $('nav').offsetHeight || 62, room = H0 - st - 56 - nav - 128 - 16;
-  const ss = Math.max(42, Math.min(64, Math.floor((W - 16 - 5 * 6 - 14) / 6), Math.floor((room - 12) / 3)));
+  const a = $('app'); if (!a) return; const W = a.clientWidth, H0 = a.clientHeight, st = $('stageWrap').offsetHeight || H0 * 0.44, nav = $('nav').offsetHeight || 62, room = H0 - st - 56 - nav - DOCKH - 10;
+  const ss = Math.max(42, Math.min(72, Math.floor((W - 10 - 5 * 5 - 12) / 6), Math.floor((room - 10) / 3)));
   document.documentElement.style.setProperty('--ss', ss + 'px'); }
 addEventListener('resize', fit);
 const TL = { floor: [[736, 320], [784, 320], [736, 368], [784, 368], [736, 272]], seg: [[80, 272], [176, 272], [80, 496], [176, 496], [368, 208], [304, 336], [384, 336]], pillar: [672, 144, 16, 48], door: [640, 208, 32, 48] };
