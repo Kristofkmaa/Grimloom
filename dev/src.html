@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p15 familiers multi */
+<style id="sv">/* p16 chevalier melee *//* p15 familiers multi */
 .fslots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px}
 .fsl{position:relative;aspect-ratio:1;border-radius:12px;border:2px solid #4a2a36;background:radial-gradient(circle at 50% 40%,#3a2030,#170b11);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px;color:#a08a78;overflow:hidden}
 .fsl.on{border-color:var(--rc);box-shadow:0 0 10px -3px var(--rc)}.fsl.on>*:first-child{width:70%!important;height:auto!important;max-height:62%}
@@ -1818,6 +1818,7 @@ function heroFire() {
   const t = alive.reduce((a, b) => (b.z < a.z ? b : a));
   const crit = Math.random() * 100 < st.crit, dmg = st.atk * (crit ? st.cdmg / 100 : 1) * rand(0.92, 1.08) * (1 + (t.boss || t.elite ? st.bigDmg : 0) + (t.chill > 0 ? st.slowBonus : 0) + (t.hp < t.max * 0.3 ? st.exec : 0));
   if (st.meteor && (B.shotN = (B.shotN || 0) + 1) % 4 === 0) meteorShower(st.atk * 5, 6);
+  if (S.cls === 'knight') { knightSwing(t, dmg, crit, st, H); return; } // p16 chevalier melee
   const shot = { X: 0, z: 0.02, h: 78, tg: t, dmg, crit, t: 0, fx: H.fx, prj: H.prj, solid: H.solid, splash: st.splash, splashK: st.splashK, chill: st.chill, wr: (B.gear || gear()).w }; B.shots.push(shot);
   const extra = (st.multi && Math.random() < st.multi ? 1 : 0) + (st.dbl && (B.dblN = (B.dblN || 0) + 1) % 3 === 0 ? 1 : 0) + (H.twin ? 1 : 0);
   for (let i = 0; i < extra; i++) { const o = alive.filter(e => e !== t); B.shots.push(Object.assign({}, shot, { tg: o.length ? pick(o) : t, X: (i ? -1 : 1) * 0.06, h: 68 })); }
@@ -1826,6 +1827,19 @@ function heroFire() {
 const alive = () => B.en.filter(e => !e.dead && e.spawn <= 0);
 const RANGE = 0.66; // patch v25 : distance d engagement (~75 % de l écran)
 const inRange = () => B.en.some(e => !e.dead && e.spawn <= 0 && e.z < RANGE);
+const MELEE = 0.26, inMelee = () => B.en.some(e => !e.dead && e.spawn <= 0 && e.z < MELEE); // portée de l'épée
+function knightSwing(t, dmg, crit, st, H) { // l'impact arrive au milieu du geste (image 2 de l'attaque)
+  const extra = (st.multi && Math.random() < st.multi ? 1 : 0) + (st.dbl && (B.dblN = (B.dblN || 0) + 1) % 3 === 0 ? 1 : 0);
+  B.mHits = B.mHits || []; B.mHits.push({ at: B.t + 0.15, t, dmg, crit, st, prj: H.prj, extra });
+  B.hero.shootT = 0.3; B.hero.altN = (B.hero.altN || 0) + 1; B.hero.shotAt = B.t; }
+function meleeTick() { if (!B.mHits || !B.mHits.length) return; const now = B.t, keep = [];
+  for (const m of B.mHits) { if (now < m.at) { keep.push(m); continue; } let t = m.t; if (t.dead || t.z > MELEE + 0.1) { const L = alive().filter(e => e.z < MELEE + 0.1); if (!L.length) continue; t = L.reduce((a, b) => b.z < a.z ? b : a); }
+    const x = ex(t), y = ey(t) - 18, el = { 1: '#b070ff', 2: '#ff8a30', 3: '#8ad8ff' }[m.prj] || '#ffffff';
+    B.fx.push({ k: 'slash', x: x - 10, y, t: 0, d: 0.22, c: el, big: m.crit }); if (m.prj) gfx('imp', m.prj, x, y, 90 * (m.crit ? 1.3 : 1) * 0.62, 0.3);
+    hitEnemy(t, m.dmg, m.crit); if (m.st.chill) t.chill = 1.5; B.shake = Math.max(B.shake, m.crit ? 3 : 1.5);
+    for (const o of alive()) if (o !== t && Math.abs(o.z - t.z) < 0.14) hitEnemy(o, m.dmg * (m.st.splash ? Math.max(0.5, m.st.splashK) : 0.5), false); // entaille ceux qui sont collés
+    const o2 = alive().filter(e => e !== t && e.z < MELEE + 0.1); for (let i = 0; i < m.extra && o2.length; i++) { const e = pick(o2); B.fx.push({ k: 'slash', x: ex(e) - 10, y: ey(e) - 18, t: -0.06, d: 0.22, c: el }); hitEnemy(e, m.dmg, false); } }
+  B.mHits = keep; }
 const ex = e => sx(e.X, e.z), ey = e => py(e.z) + e.X * LANE - 24 * sOf(e.z);
 function aoe(e0, rad, dmg, fx, col) { sfxPlay(fx === 'feu' ? 'fire' : fx === 'glace' ? 'ice' : 'bite'); // dégâts autour d'un point (explosions en chaîne possibles)
   sfx(fx, ex(e0), ey(e0), 90 * sOf(e0.z), 0.45); burst(ex(e0), ey(e0), col, 14, 200);
@@ -1844,7 +1858,7 @@ function novaFire(st) { // set Furie des Braises (6) : onde de feu sur tous les 
   for (const e of B.en) if (!e.dead && e.spawn <= 0) { sfx('feu', sx(e.X, e.z), py(e.z) - 20 * sOf(e.z), 70 * sOf(e.z), 0.4); hitEnemy(e, st.atk * 3, false); }
 }
 function hitEnemy(e, dmg, crit) {
-  if (e.dead) return; if (e.v === 'void' && !e.boss && !B.oneshot && Math.random() < 0.15) { num(sx(e.X, e.z), py(e.z) - 50 * sOf(e.z), 'Esquive', '#d8a0ff', 1); return; } if (e.frozen > 0) { const st0 = heroStats(); if (st0.frozenBonus) dmg *= 1 + st0.frozenBonus; } if (B.oneshot) dmg = Math.max(dmg, e.hp + 1); e.hp -= dmg; e.flash = 0.1; if (!e.aName && !e.boss) e.hitT = 0.25; e.kz += 0.04 * (e.boss ? 0.2 : 1);
+  if (e.dead) return; if (e.v === 'void' && !e.boss && !B.oneshot && Math.random() < 0.15) { num(sx(e.X, e.z), py(e.z) - 50 * sOf(e.z), 'Esquive', '#d8a0ff', 1); return; } if (e.frozen > 0) { const st0 = heroStats(); if (st0.frozenBonus) dmg *= 1 + st0.frozenBonus; } if (B.oneshot) dmg = Math.max(dmg, e.hp + 1); e.hp -= dmg; e.flash = 0.1; if (!e.aName && !e.boss) e.hitT = 0.25; e.kz += (S.cls === 'knight' ? 0.006 : 0.04) * (e.boss ? 0.2 : 1);
   sfxPlay(crit ? 'crit' : 'hit'); num(sx(e.X, e.z) + rand(-6, 6), py(e.z) - 50 * sOf(e.z), fmt(dmg) + (crit ? '!' : ''), crit ? '#ffd23a' : '#ffffff', crit ? 1.4 : 1); B.dmg.push([B.t, Math.min(dmg, e.hp + dmg)]); B.waveDmg += Math.min(dmg, e.hp + dmg);
   const st = heroStats(); if (st.vol) B.hero.hp = Math.min(B.hero.hpMax, B.hero.hp + dmg * st.vol / 100); if (crit && st.critFreeze && !e.boss) e.frozen = Math.max(e.frozen || 0, 1);
   burst(sx(e.X, e.z), py(e.z) - 24 * sOf(e.z), '#c2142a', 4, 120);
@@ -1959,14 +1973,15 @@ function update(dt) {
     if (h.psT > 0 && !B.god) { h.psT -= dt; h.hp -= h.psD * dt; h.psN = (h.psN || 0) + h.psD * dt; if (h.psN >= Math.max(1, h.hpMax * 0.01)) { num(CX + rand(-16, 16), YF - 70, '-' + fmt(h.psN), '#9aff3a', 0.9); h.psN = 0; } if (Math.random() < dt * 8) B.fx.push({ k: 'p', x: CX + rand(-14, 14), y: YF - rand(10, 50), vx: 0, vy: -20, g: -10, c: '#9aff3a', t: 0, d: 0.7, r: 1.1 }); if (h.hp <= 0) { h.hp = 0; h.dead = 1; h.deadT = 0; if (!B.dun) B.banner = { a: 'Repli !', b: 'Le poison a eu raison du héros', t: 1.6 }; } }
     if (h.icT > 0 && Math.random() < dt * 8) B.fx.push({ k: 'p', x: CX + rand(-16, 16), y: YF - rand(10, 60), vx: 0, vy: 12, g: 0, c: '#c8f0ff', t: 0, d: 0.6, r: 1 });
     h.cd -= dt; h.shootT -= dt; h.hurt -= dt; if (st.regen) h.hp = Math.min(h.hpMax, h.hp + st.regen * dt * h.hpMax / 100);
-    if (!B.walk && h.cd <= 0 && inRange()) { heroFire(); h.cd = 1 / st.rate; }
+    if (!B.walk && h.cd <= 0 && (S.cls === 'knight' ? inMelee() : inRange())) { heroFire(); h.cd = 1 / st.rate; }
+    meleeTick();
     B.cs = B.cs || []; if (raidOn() && 0) { B.dun.allies.forEach((a, i) => { const cs = B.cs[i] = B.cs[i] || { cd: rand(0.2, 0.8) }; cs.cd -= dt; cs.shootT = (cs.shootT || 0) - dt; if (cs.cd <= 0) { const t = alive()[0]; if (t) { const H0 = HEROES[a.c]; B.shots.push({ X: PARTY_X[i], z: 0.0, h: 30, tg: t, dmg: st.atk * a.pct / 100 * rand(0.9, 1.1), crit: false, t: 0, fx: H0.fx, solid: H0.solid, wr: -1 }); cs.shootT = 0.3; cs.face = Math.atan2(-(py(t.z) - YF), sx(t.X, t.z) - (CX + PARTY_X[i] * HW)); } cs.cd = 1 / a.rate; } }); }
     else for (let i = 0; i < 0; i++) { const id = S.party[i]; if (!id || !S.comps[id]) continue; const cs = B.cs[i] = B.cs[i] || { cd: rand(0.2, 0.8) }; cs.cd -= dt; cs.shootT = (cs.shootT || 0) - dt; if (!B.walk && cs.cd <= 0) { compFire(id, i); cs.cd = 1 / compRate(id); } }
   }
   spawnTick(dt);
   for (const e of B.en) {
     if (e.dead) { e.deadT += dt; continue; } e.flash -= dt; if (e.spawn > 0) { e.spawn -= dt; continue; } if (e.frozen > 0) { e.frozen -= dt; continue; } e.t += dt; e.chill -= dt;
-    const stop = e.ranged ? 0.42 : 0.07, sp = e.spd * (e.chill > 0 ? 0.5 : 1);
+    const stop = e.ranged && S.cls !== 'knight' ? 0.42 : 0.07, sp = e.spd * (e.chill > 0 ? 0.5 : 1);
     if (e.z > stop && !e.aName) { e.z -= sp * dt * (e.z > 1.1 ? 3.2 : e.z > RANGE ? 1.7 : 1); const tx = e.X; e.X += (tx - e.X) * Math.min(1, dt * 0.9); e.moving = 1; } else e.moving = 0;
     e.z += e.kz; e.kz *= 0.8; if (e.raid) { e.z = 0.3; e.X = 0; e.kz = 0; } e.flip = sx(e.X, e.z) > CX;
     // séparation
@@ -2025,6 +2040,7 @@ function draw(time) {
       else { const q = (f.t - FALL) / (f.d - FALL); if (!f.boom) { f.boom = 1; B.shake = Math.max(B.shake, 3); } drawG(f.sh, 2, 3 + q * 3, f.x, f.y - 34 * sc, 220 * sc * (f.sh === 'ult' ? 1.15 : 1), 0, Math.min(1, (1 - q) * 3)); }
       continue; }
     if (f.k === 'w') { drawWisp(f); continue; }
+    if (f.k === 'slash') { const q = clamp(f.t / f.d, 0, 1); if (f.t < 0) continue; const R = f.big ? 34 : 26; ctx.save(); ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - q; ctx.strokeStyle = f.c; ctx.lineCap = 'round'; for (const [w, r] of [[7 * (1 - q) + 1, R], [3, R - 5]]) { ctx.lineWidth = w; ctx.beginPath(); ctx.arc(0, 0, r, -1.9 + q * 0.6, -1.9 + 0.6 + q * 2.4); ctx.stroke(); } ctx.restore(); continue; }
     if (f.k === 'g') { const A = ASSETS['fx_' + f.sh]; drawG(f.sh, f.row, f.loop ? 1 + (f.t * 10) % 3 : p * A.n, f.x, f.y, f.w, f.a || 0, f.loop ? Math.min(1, (1 - p) * 4) * (f.al || 1) : Math.min(1, (1 - p) * 3)); continue; } if (f.k === 'p') { ctx.globalAlpha = 1 - p; ctx.fillStyle = f.c; ctx.fillRect(f.x - f.r, f.y - f.r, f.r * 2, f.r * 2); } else { ctx.globalCompositeOperation = 'lighter'; drawFx(f.id, p * 15, f.x, f.y, f.a, f.w, 1 - p); ctx.globalCompositeOperation = 'source-over'; } }
   ctx.globalAlpha = 1;
   // lumière : pénombre de crypte, halos des flammes et du héros
