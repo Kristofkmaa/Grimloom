@@ -1107,6 +1107,7 @@ html,body{background:#050204}
 .spTabs button.stlk{opacity:.45;filter:grayscale(1)}.spTabs button.stlk svg{width:12px;height:12px;margin-right:4px;vertical-align:-1px}
 #nav{position:relative;z-index:8}
 .srow1{display:flex;align-items:center;justify-content:space-between;gap:6px}#dpsChip{display:flex;align-items:center;gap:3px;padding:1px 7px;border-radius:9px;background:#000a;border:1px solid #6a3a48;font:800 9.5px var(--b);color:#e8c0a0;white-space:nowrap}#dpsChip svg{width:11px;height:11px;color:#ff9a6a}#dpsChip b{font:400 12px var(--n);color:#ffe2a8}
+#sndBtn,#helpBtn,#mapBtn{display:none!important}#ribbon{cursor:pointer}
 .kcf{position:absolute;inset:0;z-index:50;background:#000b;display:grid;place-items:center;padding:20px}
 .kcfb{width:100%;max-width:330px;text-align:center}.kcfb p{margin:4px 0 14px;font:800 15px/1.45 var(--b);color:var(--txt)}.kcfb p small{display:block;margin-top:6px;font:700 12px var(--b);color:var(--dim)}
 .kcfr{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn.red2{border-color:#ff8a9a;background:linear-gradient(#e0405a,#9a1a30);color:#fff}
@@ -3293,6 +3294,7 @@ function titleView() {
       <div class="tOpt" style="border:0"><span>Volume<small id="tVolT">${vol} %</small></span><input type="range" min="0" max="100" value="${vol}" id="tVol" aria-label="Volume"></div>
     </div>
     <div class="tLinks">
+      <button class="btn" type="button" id="tHelp">Astuces et aide</button>
       <button class="btn" type="button" id="tTuto">Revoir le tutoriel</button>
       <button class="btn" type="button" id="tTabs">Revoir les tutos des onglets<small>ils se relancent à l'ouverture de chaque onglet</small></button>
       <button class="btn" type="button" id="tAdm">Panneau admin</button>
@@ -3301,7 +3303,7 @@ function titleView() {
     $('tSnd').onclick = () => { S.snd = !S.snd; save(); if (S.snd) { audioInit(); music(true); } else music(false); if (typeof sndIcon === 'function') sndIcon(); titleView(); };
     $('tVol').oninput = e => { S.vol = e.target.value / 100; $('tVolT').textContent = e.target.value + ' %'; if (MUSG && S.snd) MUSG.gain.setTargetAtTime(0.3 * S.vol, AC.currentTime, 0.05); };
     $('tVol').onchange = () => save();
-    $('tTuto').onclick = () => { TAFTER = 'coach'; titleClose(); };
+    $('tHelp').onclick = () => { titleClose(); setTimeout(showHelp, 250); }; $('tTuto').onclick = () => { TAFTER = 'coach'; titleClose(); };
     $('tTabs').onclick = () => { S.tabTuto = {}; S.tutoDone = 1; save(); toast('Les tutos des onglets sont réactivés'); };
     $('tAdm').onclick = () => { titleClose(); showAdmin(); };
     $('tWipe').onclick = () => kConfirm('Effacer toute ta progression ?<br><small>Héros, équipement, or, niveaux : tout repart de zéro. Cette action est définitive.</small>', 'Tout effacer', wipeSave, 1);
