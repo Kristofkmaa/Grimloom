@@ -26,11 +26,11 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 
 ## À faire / en attente
 - Icônes des 3 nouvelles pièces (épaulettes, ceinture, bracelet), 5 raretés chacune — prompt donné.
-- Redessiner de profil : Chasseur (8 formes), autres ennemis/élites/boss, ailes vues de côté.
+- Redessiner de profil : Chasseur à l'arc (8 formes, prompts donnés), autres ennemis/élites/boss, ailes vues de côté.
 - Icônes définitives des Épaulettes, Ceinture, Bracelet (provisoirement celles du plastron, des jambières et de l'anneau).
 - Décors extérieurs des biomes 2-7. Contenu de la 12e case et de la Monture.
 - Remplacer tous les assets de packs achetés (priorité), vérifier licences (icônes, audio, UI zLizard), page Crédits.
-- Événement temporaire, archère à arbalète, sauvegarde en ligne, puis Android (Capacitor).
+- Événement temporaire, sauvegarde en ligne, puis Android (Capacitor).
 
 ## Méthode
 - Chris génère les images dans ChatGPT à partir de prompts complets ; fond vert #00FF00 pour sprites/icônes ; pixel art net, palette sombre (noir, rouge sang, or vieilli), pas trop « brillant/IA ».

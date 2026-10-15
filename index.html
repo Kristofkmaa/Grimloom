@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">
+<style id="sv">/* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
 #app{background:radial-gradient(120% 60% at 50% 100%,#3a1a10,#140810 70%)!important}
 #eqTog,#eqCols,#eqBg,#botBar,#hubTog{display:none!important}
@@ -1391,7 +1391,7 @@ const EVO = {
   givre: { n: 'Le Chevalier de Givre', st: 2, lv: 30, path: 'givre', atk: 1.3, hp: 1.4, fx: 'pglace', chill: 1, d: 'Voie de la glace · tirs ralentissants' },
   smort: { n: 'Le Seigneur de la Mort', st: 3, lv: 60, path: 'mort', atk: 1.8, hp: 1.7, fx: 'pmort', leech: 0.12, d: 'Forme ultime · vol de vie +12 %' },
   sfeu: { n: 'Le Seigneur des Flammes', st: 3, lv: 60, path: 'enfer', atk: 1.95, hp: 1.55, fx: 'pfeu', splash: 1, d: 'Forme ultime · explosions renforcées' },
-  h_novice: { n: 'Le Pisteur novice', cls: 'hunter', st: 0, lv: 1, atk: 1, hp: 1, d: 'Un jeune pisteur en cuir usé. Deux arbalètes et beaucoup à prouver.' },
+  h_novice: { n: 'Le Pisteur novice', cls: 'hunter', st: 0, lv: 1, atk: 1, hp: 1, d: 'Un jeune pisteur en cuir usé. Un arc de frêne et beaucoup à prouver.' },
   hunter: { n: 'Le Chasseur de démons', cls: 'hunter', st: 1, lv: 15, atk: 1.15, hp: 1.15, d: 'Armure de chasseur · attaque et PV +15 %' },
   h_ombre: { n: 'Le Rôdeur de l\'Ombre', cls: 'hunter', st: 2, lv: 30, path: 'ombre', atk: 1.45, hp: 1.2, crit: 10, d: 'Voie de l\'ombre · critique +10 %' },
   h_sang: { n: 'Le Chasseur de Sang', cls: 'hunter', st: 2, lv: 30, path: 'sang', atk: 1.35, hp: 1.3, leech: 0.06, d: 'Voie du sang · vol de vie +6 %' },
@@ -2255,7 +2255,7 @@ function ui() {
     document.querySelectorAll('#eqg [data-s]').forEach(el => el.onclick = () => { const it = S.eq[el.dataset.s]; if (it) showItem(it, null); else toast('Ouvre le coffre pour trouver : ' + SLOTS.find(x => x.id === el.dataset.s).n); });
     eqSize();
   } else if (tab === 'hero') {
-    const CL = { knight: ['Chevalier', 'Épée · équilibré', S.form], hunter: ['Chasseur', 'Deux arbalètes · rapide', S.hform], mage: ['Sorcier', 'Orbes explosives · lent', S.mform] };
+    const CL = { knight: ['Chevalier', 'Épée · équilibré', S.form], hunter: ['Chasseur', 'Arc · rapide', S.hform], mage: ['Sorcier', 'Orbes explosives · lent', S.mform] };
     const clsCard = c => { const on = S.cls === c, k = CL[c][2]; return `<div class="kt evc ${on ? 'gd' : ''}" style="min-height:130px"><canvas data-ev="${k}" width="96" height="104"></canvas><b>${CL[c][0]}</b><small>${on ? 'Classe actuelle' : CL[c][1]}</small>${on ? '' : `<button class="btn gold sm" type="button" data-cls="${c}">Choisir</button>`}</div>`; };
     const H = HEROES[S.hero], nAch = ACH.filter(a => S.ach[a[0]]).length, G = gear(), sc = setCounts();
     const tile = (ic, c, cap, val, cls) => `<div class="kt ${cls || ''}" style="--c:${c}"><i class="ki">${IC[ic]}</i><span><small>${cap}</small><b>${val}</b></span></div>`;
@@ -2268,7 +2268,7 @@ function ui() {
     } else if (HSUB === 'evo') {
       const T = ETREE[S.cls], f = curForm(), cur = EVO[f], cm = evoMul(cur), card = k => { const E = EVO[k], own = k === f, past = E.st < cur.st && (E.st < 2 || E.path === cur.path), next = EVO_NEXT[f].includes(k), can = next && S.lvl >= E.lv, closed = E.st >= 2 && cur.st >= 2 && E.path !== cur.path;
         return `<div class="kt evc ${own ? 'gd' : ''} ${closed || (!own && !past && !next) ? 'lock' : ''}"><canvas data-ev="${k}" width="96" height="104"></canvas><b>${E.n.replace(/^(Le |L')/, '')}</b><small>${own ? 'Forme actuelle' : past ? 'Passée' : closed ? 'Autre voie' : 'Niveau ' + E.lv}</small>${can ? `<button class="btn gold sm" type="button" data-evo="${k}">Évoluer</button>` : ''}</div>`; };
-      body = `<h4 class="kh" style="margin-top:0">Classe</h4><div class="evrow three">${clsCard('knight')}${clsCard('hunter')}${clsCard('mage')}</div><h4 class="kh">Évolution ${T.t}</h4><div class="kl evcur"><canvas data-ev="${f}" data-big="1" width="150" height="160"></canvas><div class="kri"><b style="font-size:16px">${cur.n}</b><small>${cur.d}</small><div class="kult">Ultime : <b>${ULT[ultKey()][0]}</b><br>${ULT[ultKey()][1]}</div><small class="kdim">Attaque ×${cm[0].toFixed(2)} · PV ×${cm[1].toFixed(2)}${S.cls === 'hunter' ? ' · cadence ×1.4 · deux carreaux' : S.cls === 'mage' ? ` · cadence ×${(0.9 * (cur.spd || 1)).toFixed(2)} · explosions` : ''}</small>${EVO_NEXT[f].length ? `<small class="kdim">Prochaine évolution au niveau <b style="color:#ffd890">${Math.min(...EVO_NEXT[f].map(k => EVO[k].lv))}</b> (tu es niveau ${S.lvl})</small>` : '<small style="color:#ffd890">Forme ultime atteinte</small>'}</div></div>
+      body = `<h4 class="kh" style="margin-top:0">Classe</h4><div class="evrow three">${clsCard('knight')}${clsCard('hunter')}${clsCard('mage')}</div><h4 class="kh">Évolution ${T.t}</h4><div class="kl evcur"><canvas data-ev="${f}" data-big="1" width="150" height="160"></canvas><div class="kri"><b style="font-size:16px">${cur.n}</b><small>${cur.d}</small><div class="kult">Ultime : <b>${ULT[ultKey()][0]}</b><br>${ULT[ultKey()][1]}</div><small class="kdim">Attaque ×${cm[0].toFixed(2)} · PV ×${cm[1].toFixed(2)}${S.cls === 'hunter' ? ' · cadence ×1.4 · deux flèches' : S.cls === 'mage' ? ` · cadence ×${(0.9 * (cur.spd || 1)).toFixed(2)} · explosions` : ''}</small>${EVO_NEXT[f].length ? `<small class="kdim">Prochaine évolution au niveau <b style="color:#ffd890">${Math.min(...EVO_NEXT[f].map(k => EVO[k].lv))}</b> (tu es niveau ${S.lvl})</small>` : '<small style="color:#ffd890">Forme ultime atteinte</small>'}</div></div>
       ${T.b.length ? `<h4 class="kh">Les débuts</h4><div class="evrow">${T.a.map(card).join('')}</div>
       <h4 class="kh">Choisis ta voie <small>au niveau 30 · le choix est définitif</small></h4><div class="evrow three">${T.b.map(card).join('')}</div>
       <h4 class="kh">Formes ultimes <small>au niveau 60</small></h4><div class="evrow three">${T.c.map(card).join('')}</div>` : ''}
@@ -3009,7 +3009,7 @@ const ULT = {
   mort: ['Faucheuse', 'Un vortex d\'ombre frappe tout (500 %) et te soigne de 20 %.'],
   enfer: ['Déluge infernal', '10 météores s\'abattent sur le champ de bataille (350 % chacun).'],
   givre: ['Hiver éternel', 'Gèle tous les démons 4 s et les frappe (400 %).'],
-  base_h: ['Pluie de carreaux', '14 carreaux tombent du ciel (180 % chacun).'],
+  base_h: ['Pluie de flèches', '14 flèches tombent du ciel (180 % chacun).'],
   ombre: ['Danse des ombres', 'Des lames frappent chaque démon 3 fois, toujours en critique.'],
   sang: ['Moisson sanglante', 'Brûle tous les démons (450 %) et te soigne de 30 %.'],
   argent: ['Jugement', 'Des piliers sacrés frappent tout (400 %, ×2 sur les boss et élites).'],
@@ -3382,7 +3382,7 @@ const TIA = {"bOn": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAggAAAByCAYAA
 let TITLE = false, TV = 'home', TCLS = null, TPAGE = 0, TAFTER = null, TFIRST = true;
 const TCL = {
   knight: { n: 'Chevalier', r: 'Épée · équilibré', d: 'Un guerrier en armure qui tient bon face aux hordes. Robuste et régulier, il se soigne un peu à chaque coup.', pip: [3, 5, 3, 1] },
-  hunter: { n: 'Chasseur', r: 'Deux arbalètes · rapide', d: 'Agile et implacable : il tire deux carreaux à chaque attaque. Fragile, mais rien ne le suit en vitesse.', pip: [4, 2, 5, 1] },
+  hunter: { n: 'Chasseur', r: 'Arc · rapide', d: 'Agile et implacable : il décoche deux flèches à chaque attaque. Fragile, mais rien ne le suit en vitesse.', pip: [4, 2, 5, 1] },
   mage: { n: 'Sorcier', r: 'Orbes explosives · lent', d: 'Ses orbes explosent au contact et frappent tous les démons autour. Lent et fragile, mais redoutable en groupe.', pip: [4, 2, 2, 5] },
 };
 const TPIP = ['Dégâts', 'Résistance', 'Vitesse', 'Zone'];
