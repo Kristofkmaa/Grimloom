@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* patch v23 *//* patch v22 *//* patch v21 */
+<style id="sv">/* patch v25 *//* patch v23 *//* patch v22 *//* patch v21 */
 /* ===== patch v18 : disposition façon Legend of Mushroom, combat de côté, coffre ===== */
 #app{background:radial-gradient(120% 60% at 50% 100%,#3a1a10,#140810 70%)!important}
 #eqTog,#eqCols,#eqBg,#botBar,#hubTog{display:none!important}
@@ -1829,7 +1829,7 @@ function spawnTick(dt) {
 }
 function heroFire() {
   const H = HEROES[S.hero], st = heroStats(), alive = B.en.filter(e => !e.dead && e.spawn <= 0); if (!alive.length) return;
-  const t = alive.reduce((a, b) => (b.z + Math.abs(b.X) * 0.2 < a.z + Math.abs(a.X) * 0.2 ? b : a));
+  const t = alive.reduce((a, b) => (b.z < a.z ? b : a));
   const crit = Math.random() * 100 < st.crit, dmg = st.atk * (crit ? st.cdmg / 100 : 1) * rand(0.92, 1.08) * (1 + (t.boss || t.elite ? st.bigDmg : 0) + (t.chill > 0 ? st.slowBonus : 0) + (t.hp < t.max * 0.3 ? st.exec : 0));
   if (st.meteor && (B.shotN = (B.shotN || 0) + 1) % 4 === 0) meteorShower(st.atk * 5, 6);
   const shot = { X: 0, z: 0.02, h: 78, tg: t, dmg, crit, t: 0, fx: H.fx, prj: H.prj, solid: H.solid, splash: st.splash, splashK: st.splashK, chill: st.chill, wr: (B.gear || gear()).w }; B.shots.push(shot);
@@ -1838,6 +1838,8 @@ function heroFire() {
   B.hero.shootT = H.twin ? 1 / st.rate + 0.2 : 0.3; B.hero.altN = (B.hero.altN || 0) + 1; B.hero.shotAt = B.t; B.hero.face = Math.atan2(-(py(t.z) - YF), sx(t.X, t.z) - CX);
 }
 const alive = () => B.en.filter(e => !e.dead && e.spawn <= 0);
+const RANGE = 0.36; // patch v25 : distance d'engagement (~milieu de l'écran)
+const inRange = () => B.en.some(e => !e.dead && e.spawn <= 0 && e.z < RANGE);
 const ex = e => sx(e.X, e.z), ey = e => py(e.z) + e.X * LANE - 24 * sOf(e.z);
 function aoe(e0, rad, dmg, fx, col) { sfxPlay(fx === 'feu' ? 'fire' : fx === 'glace' ? 'ice' : 'bite'); // dégâts autour d'un point (explosions en chaîne possibles)
   sfx(fx, ex(e0), ey(e0), 90 * sOf(e0.z), 0.45); burst(ex(e0), ey(e0), col, 14, 200);
@@ -1888,13 +1890,13 @@ function challenge() { // remonter soi-même à l'étape suivante
   if (B.dun) return; if (!S.farm && (PS() !== 10 || B.bossGo)) return; S.farm = false; if (S.s === 10) B.bossGo = 1; save(); uiTop(); if (B.walk) return; B.pend = 0; B.pendFn = null; B.en = []; B.es = []; B.shots = []; B.wave = null; B.hero.dead = 0; beginWalk();
 }
 function combatTick(dt) { // sets (déclencheurs) + sorts + timer du donjon
-  const h = B.hero, fighting = !B.walk && !h.dead && B.wave && alive().length > 0, st = heroStats();
+  const h = B.hero, fighting = !B.walk && !h.dead && (B.wave || B.dun) && inRange(), st = heroStats();
   B.frenzyT = (B.frenzyT || 0) - dt; B.frenzyCd = (B.frenzyCd || 0) - dt; B.spFrT = (B.spFrT || 0) - dt; if (B.flash) { B.flash.t -= dt; if (B.flash.t <= 0) B.flash = null; }
   if (st.frenzy && h.hp < h.hpMax * 0.3 && B.frenzyCd <= 0 && !h.dead) { B.frenzyT = 5; B.frenzyCd = 20; B.banner = { a: 'Frénésie', b: 'Vitesse d\'attaque ×2', t: 1.2 }; }
   if (st.boneShield) { B.shT = (B.shT || 0) - dt; if (B.shT <= 0) { B.shT = 10; B.shield = Math.max(B.shield || 0, h.hpMax * 0.2); } }
   if (S.fam && FAM[S.fam] && S.fams[S.fam] && fighting) { B.famT = (B.famT || 1) - dt; if (B.famT <= 0) { B.famT = 2.5; const L = alive(); if (L.length) { const F = FAM[S.fam], t = L.reduce((a, b) => b.z < a.z ? b : a); B.shots.push({ X: 0, z: -0.34, h: 122, tg: t, dmg: st.atk * 0.18 * (1 + 0.3 * F.r) * (1 + 0.25 * (famStar(S.fam) - 1)), crit: false, t: 0, fx: 'arc', prj: F.p, solid: 0, wr: -1, comp: 'fam' }); } } }
-  if (!B.hero.dead && alive().length) ultGain(100 / ULT_CD * dt); // recharge de base : prêt toutes les ULT_CD s, chaque kill accélère
-  if ((B.ult || 0) >= 100 && B.ultFullT && S.ultAuto !== false && B.t - B.ultFullT > 0.4) castUlt(); // bouton AUTO de la barre de sorts
+  if (!B.hero.dead && fighting) ultGain(100 / ULT_CD * dt); // recharge de base : prêt toutes les ULT_CD s, chaque kill accélère
+  if (fighting && (B.ult || 0) >= 100 && B.ultFullT && S.ultAuto !== false && B.t - B.ultFullT > 0.4) castUlt(); // bouton AUTO de la barre de sorts
   if (B.plague) { B.plague.t -= dt; B.plague.tick -= dt; if (B.plague.tick <= 0) { B.plague.tick = 0.5; for (const e of alive()) hitEnemy(e, B.plague.dps * 0.5, false); const PL = alive(); for (let i = 0; i < Math.min(3, PL.length); i++) { const e = pick(PL); gfx('spl', 5, ex(e), ey(e) - 10 * sOf(e.z), 150 * sOf(e.z), 0.9); } } if (B.plague.t <= 0) B.plague = null; }
   if (B.dun && !B.dun.end) { B.dun.t -= dt; if (B.dun.t <= 0) { if (B.dun.raid) dunEnd(true); else dunEnd(false, 'Temps écoulé'); } }
   if (fighting) { // ailes
@@ -1969,15 +1971,15 @@ function update(dt) {
     if (h.psT > 0 && !B.god) { h.psT -= dt; h.hp -= h.psD * dt; h.psN = (h.psN || 0) + h.psD * dt; if (h.psN >= Math.max(1, h.hpMax * 0.01)) { num(CX + rand(-16, 16), YF - 70, '-' + fmt(h.psN), '#9aff3a', 0.9); h.psN = 0; } if (Math.random() < dt * 8) B.fx.push({ k: 'p', x: CX + rand(-14, 14), y: YF - rand(10, 50), vx: 0, vy: -20, g: -10, c: '#9aff3a', t: 0, d: 0.7, r: 1.1 }); if (h.hp <= 0) { h.hp = 0; h.dead = 1; h.deadT = 0; if (!B.dun) B.banner = { a: 'Repli !', b: 'Le poison a eu raison du héros', t: 1.6 }; } }
     if (h.icT > 0 && Math.random() < dt * 8) B.fx.push({ k: 'p', x: CX + rand(-16, 16), y: YF - rand(10, 60), vx: 0, vy: 12, g: 0, c: '#c8f0ff', t: 0, d: 0.6, r: 1 });
     h.cd -= dt; h.shootT -= dt; h.hurt -= dt; if (st.regen) h.hp = Math.min(h.hpMax, h.hp + st.regen * dt * h.hpMax / 100);
-    if (!B.walk && h.cd <= 0 && B.en.some(e => !e.dead && e.spawn <= 0 && e.z < 1.05)) { heroFire(); h.cd = 1 / st.rate; }
+    if (!B.walk && h.cd <= 0 && inRange()) { heroFire(); h.cd = 1 / st.rate; }
     B.cs = B.cs || []; if (raidOn() && 0) { B.dun.allies.forEach((a, i) => { const cs = B.cs[i] = B.cs[i] || { cd: rand(0.2, 0.8) }; cs.cd -= dt; cs.shootT = (cs.shootT || 0) - dt; if (cs.cd <= 0) { const t = alive()[0]; if (t) { const H0 = HEROES[a.c]; B.shots.push({ X: PARTY_X[i], z: 0.0, h: 30, tg: t, dmg: st.atk * a.pct / 100 * rand(0.9, 1.1), crit: false, t: 0, fx: H0.fx, solid: H0.solid, wr: -1 }); cs.shootT = 0.3; cs.face = Math.atan2(-(py(t.z) - YF), sx(t.X, t.z) - (CX + PARTY_X[i] * HW)); } cs.cd = 1 / a.rate; } }); }
     else for (let i = 0; i < 0; i++) { const id = S.party[i]; if (!id || !S.comps[id]) continue; const cs = B.cs[i] = B.cs[i] || { cd: rand(0.2, 0.8) }; cs.cd -= dt; cs.shootT = (cs.shootT || 0) - dt; if (!B.walk && cs.cd <= 0) { compFire(id, i); cs.cd = 1 / compRate(id); } }
   }
   spawnTick(dt);
   for (const e of B.en) {
     if (e.dead) { e.deadT += dt; continue; } e.flash -= dt; if (e.spawn > 0) { e.spawn -= dt; continue; } if (e.frozen > 0) { e.frozen -= dt; continue; } e.t += dt; e.chill -= dt;
-    const stop = e.ranged ? 0.42 : 0.07, sp = e.spd * (e.chill > 0 ? 0.5 : 1);
-    if (e.z > stop && !e.aName) { e.z -= sp * dt * (e.z > 1 ? 2.4 : 1); const tx = e.X; e.X += (tx - e.X) * Math.min(1, dt * 0.9); e.moving = 1; } else e.moving = 0;
+    const stop = e.ranged ? 0.28 : 0.07, sp = e.spd * (e.chill > 0 ? 0.5 : 1);
+    if (e.z > stop && !e.aName) { e.z -= sp * dt * (e.z > 1.1 ? 3.2 : e.z > RANGE ? 1.7 : 1); const tx = e.X; e.X += (tx - e.X) * Math.min(1, dt * 0.9); e.moving = 1; } else e.moving = 0;
     e.z += e.kz; e.kz *= 0.8; if (e.raid) { e.z = 0.3; e.X = 0; e.kz = 0; } e.flip = sx(e.X, e.z) > CX;
     // séparation
     for (const o of B.en) if (o !== e && !o.dead) { const dx = (e.X - o.X) * 1.4, dz = e.z - o.z, d = hyp(dx, dz); if (d < 0.1 && d > 0.0001) { e.X += dx / d * 0.25 * dt; e.z += dz / d * 0.15 * dt; } }
