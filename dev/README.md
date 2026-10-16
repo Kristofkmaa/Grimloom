@@ -37,6 +37,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - **Retirer le mode test p09** (choix direct de n'importe quelle forme dans « Choisis ton héros ») : supprimer `dev/build/vue_cote/p09_test_formes.py` puis `rebuild.sh`.
 - Icônes des 3 nouvelles pièces (épaulettes, ceinture, bracelet), 5 raretés chacune — prompt donné.
 - Biome 1 complet en HD (p21) : goule, chauve-souris, crâne de feu, acolyte, garde d'os, prêtresse de sang, Démon écarlate, Bête ailée (+ diablotin d'os déjà fait). Biomes 2-7 : encore les anciens démons recolorés.
+- Raid refait (p22) : Archidémon HD (`raid_arch`, planche fond magenta, 4e rangée « rage » via `--row4`), salle du trône (`dev/assets_raid.js` : décor + illustration de la carte), rage + bandeau à chaque palier franchi, le Chevalier peut le frapper au corps à corps.
 - Icônes définitives des Épaulettes, Ceinture, Bracelet (provisoirement celles du plastron, des jambières et de l'anneau).
 - Décors extérieurs des biomes 2-7. Contenu de la 12e case et de la Monture.
 - Remplacer tous les assets de packs achetés (priorité), vérifier licences (icônes, audio, UI zLizard), page Crédits.

@@ -1,6 +1,6 @@
 # Planche ChatGPT fond vert 4×3 d'ENNEMI de profil (regard vers la GAUCHE) -> sprite HD pour le combat de côté.
 # Rangée 0 : marche (4) · rangée 1 : attaque (4) · rangée 2 : touché (1) puis mort (3).
-# usage : python3 dev/build/build_enemy_hd.py planche.png clé [--h=hauteur affichée] [--bg=magenta]
+# usage : python3 dev/build/build_enemy_hd.py planche.png clé [--h=hauteur affichée] [--bg=magenta] [--row4=r,c;r,c…] [--anims={json}]
 #   clé = n_ghoul, n_bat… : remplace l'ancienne planche (même taille affichée qu'avant, sauf --h)
 # Écrit/complète dev/assets_enemy.js (ASSETS.DEMHD[clé]), fusionné dans ASSETS.DEM par p21.
 import sys, os, io, re, json, base64
@@ -40,11 +40,12 @@ seg = watershed(-dist, mk, mask=fg)
 if (fg & (seg == 0)).any():
     _, (iy, ix) = ndimage.distance_transform_edt(seg == 0, return_indices=True); seg = np.where(fg, seg[iy, ix], 0)
 # position : chaque image garde sa place dans sa case (pieds sur la même ligne), avec une marge pour ce qui déborde
-M = int(cw * 0.25); MT = int(ch * 0.3)
+M = int(cw * float(opt.get('m', 0.25))); MT = int(ch * 0.3)
 walk = [seg == v for v in (1, 2, 3, 4)]
 foot = int(np.median([np.where(m)[0].max() for m in walk if m.any()]))   # ligne des pieds (rangée 0, repère de la case)
 CW, CH = round((cw + 2 * M) * S), round((ch + MT) * S)
-out = Image.new('RGBA', (CW * 4, CH * 3))
+extra = [tuple(map(int, x.split(','))) for x in opt['row4'].split(';')] if 'row4' in opt else []   # --row4=r,c;r,c… : 4e rangée faite d'images existantes (ex. rage)
+out = Image.new('RGBA', (CW * 4, CH * (4 if extra else 3)))
 for v in range(1, 13):
     msk = seg == v
     if msk.sum() < 300: continue
@@ -55,6 +56,8 @@ for v in range(1, 13):
     sm = crop.resize((CW, CH), Image.LANCZOS)
     arr = np.array(sm); arr[..., 3] = np.clip((arr[..., 3].astype(int) - 30) * 255 // 170, 0, 255)
     out.alpha_composite(Image.fromarray(arr), (ci * CW, ri * CH))
+    for j, (er, ec) in enumerate(extra):
+        if (er, ec) == (ri, ci): out.alpha_composite(Image.fromarray(arr), (j * CW + int(opt.get('row4dx', 0)), 3 * CH))
 FOOT = (foot + MT) * S   # depuis le haut de la case
 w0 = walk[0]; ys, xs = np.where(w0)
 ax = (np.median(xs) + M) * S; top = (ys.min()) * S; bh = FOOT - (ys.min() + MT) * S
@@ -66,7 +69,7 @@ for f in [D + 'src.html']:
 k = float(opt['h']) / bh if 'h' in opt else (int(old.group(4)) * float(old.group(5)) / bh if old else 0.5)
 spd = 0.5
 m = {'cw': CW, 'ch': CH, 'foot': round(CH - FOOT, 1), 'bh': round(bh, 1), 'k': round(k, 4), 'spd': spd, 'ax': round(float(ax), 1), 'hd': 1,
-     'anims': {'walk_S': [0, 4], 'atk_S': [1, 4], 'hit_S': [2, 1], 'die_S': [2, 4], 'idle_S': [0, 1]}}
+     'anims': json.loads(opt['anims']) if 'anims' in opt else {'walk_S': [0, 4], 'atk_S': [1, 4], 'hit_S': [2, 1], 'die_S': [2, 4], 'idle_S': [0, 1]}}
 bb = io.BytesIO(); out.save(bb, 'WEBP', quality=88, method=6, alpha_quality=100)
 m['src'] = 'data:image/webp;base64,' + base64.b64encode(bb.getvalue()).decode()
 P = D + 'assets_enemy.js'; txt = open(P).read() if os.path.exists(P) else 'ASSETS.DEMHD = ASSETS.DEMHD || {};\n'
@@ -77,7 +80,7 @@ if pv:
     bgim = Image.new('RGBA', out.size, (40, 30, 40, 255)); bgim.alpha_composite(out)
     from PIL import ImageDraw
     dr = ImageDraw.Draw(bgim)
-    for ri in range(3):
+    for ri in range(out.height // CH):
         for ci in range(4): dr.line([(ci * CW, ri * CH + FOOT), (ci * CW + CW, ri * CH + FOOT)], fill=(255, 255, 0, 120)); dr.line([(ci * CW + ax, ri * CH), (ci * CW + ax, ri * CH + CH)], fill=(0, 255, 255, 80))
     bgim.save(pv + '/en_' + key + '.png')
 print(key, 'ok', CW, 'x', CH, 'k', m['k'], 'bh', m['bh'], len(bb.getvalue()) // 1024, 'Ko')
