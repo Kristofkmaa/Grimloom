@@ -1,4 +1,4 @@
-const V = 'grimloom-202610160733';
+const V = 'grimloom-202610160734';
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png']))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 // réseau d'abord (pour recevoir les mises à jour), cache si hors ligne

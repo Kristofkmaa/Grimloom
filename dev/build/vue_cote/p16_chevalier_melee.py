@@ -30,6 +30,6 @@ rep("const stop = e.ranged ? 0.42 : 0.07,", "const stop = e.ranged && S.cls !== 
 # l'entaille : un arc lumineux en croissant
 rep("    if (f.k === 'w') { drawWisp(f); continue; }",
     "    if (f.k === 'w') { drawWisp(f); continue; }\n    if (f.k === 'slash') { const q = clamp(f.t / f.d, 0, 1); if (f.t < 0) continue; const R = f.big ? 34 : 26; ctx.save(); ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - q; ctx.strokeStyle = f.c; ctx.lineCap = 'round'; for (const [w, r] of [[7 * (1 - q) + 1, R], [3, R - 5]]) { ctx.lineWidth = w; ctx.beginPath(); ctx.arc(0, 0, r, -1.9 + q * 0.6, -1.9 + 0.6 + q * 2.4); ctx.stroke(); } ctx.restore(); continue; }")
-rep("e.kz += 0.04 * (e.boss ? 0.2 : 1);", "e.kz += (S.cls === 'knight' ? 0.006 : 0.04) * (e.boss ? 0.2 : 1);") # au contact, presque pas de recul
+rep("e.kz += 0.04 * (e.boss ? 0.2 : 1);", "") # aucun recul : comme dans Mushroom, les démons avancent quoi qu'il arrive
 s = s.replace('<style id="sv">', '<style id="sv">/* p16 chevalier melee */', 1)
 open(P, 'w').write(s); print('p16 chevalier melee ok')

@@ -1923,7 +1923,7 @@ function novaFire(st) { // set Furie des Braises (6) : onde de feu sur tous les 
 }
 const FALL = 0.26; // p18 chute : durée de la chute des effets
 function hitEnemy(e, dmg, crit) { if (B.hitDelay) { setTimeout(() => hitEnemy(e, dmg, crit), B.hitDelay); return; }
-  if (e.dead) return; if (e.v === 'void' && !e.boss && !B.oneshot && Math.random() < 0.15) { num(sx(e.X, e.z), py(e.z) - 50 * sOf(e.z), 'Esquive', '#d8a0ff', 1); return; } if (e.frozen > 0) { const st0 = heroStats(); if (st0.frozenBonus) dmg *= 1 + st0.frozenBonus; } if (B.oneshot) dmg = Math.max(dmg, e.hp + 1); e.hp -= dmg; e.flash = 0.1; if (!e.aName && !e.boss) e.hitT = 0.25; e.kz += (S.cls === 'knight' ? 0.006 : 0.04) * (e.boss ? 0.2 : 1);
+  if (e.dead) return; if (e.v === 'void' && !e.boss && !B.oneshot && Math.random() < 0.15) { num(sx(e.X, e.z), py(e.z) - 50 * sOf(e.z), 'Esquive', '#d8a0ff', 1); return; } if (e.frozen > 0) { const st0 = heroStats(); if (st0.frozenBonus) dmg *= 1 + st0.frozenBonus; } if (B.oneshot) dmg = Math.max(dmg, e.hp + 1); e.hp -= dmg; e.flash = 0.1; if (!e.aName && !e.boss) e.hitT = 0.25; 
   sfxPlay(crit ? 'crit' : 'hit'); num(sx(e.X, e.z) + rand(-6, 6), py(e.z) - 50 * sOf(e.z), fmt(dmg) + (crit ? '!' : ''), crit ? '#ffd23a' : '#ffffff', crit ? 1.4 : 1); B.dmg.push([B.t, Math.min(dmg, e.hp + dmg)]); B.waveDmg += Math.min(dmg, e.hp + dmg);
   const st = heroStats(); if (st.vol) B.hero.hp = Math.min(B.hero.hpMax, B.hero.hp + dmg * st.vol / 100); if (crit && st.critFreeze && !e.boss) e.frozen = Math.max(e.frozen || 0, 1);
   burst(sx(e.X, e.z), py(e.z) - 24 * sOf(e.z), '#c2142a', 4, 120);
