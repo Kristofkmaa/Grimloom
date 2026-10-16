@@ -11,7 +11,8 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - `dev/build/patch_vNN.py` = ancien historique des modifications de `src.html` (avant la vue de côté).
 - `dev/build/vue_cote/p01…p08_*.py` = modifications depuis la vue de côté, à appliquer dans l'ordre (`dev/build/vue_cote/rebuild.sh` reconstruit `src.html` à partir du commit eb32ca7). Ajouter les suivantes en p09, p10…
 - `dev/build/build_side.py` = découpe des planches de héros → `dev/assets_side.js`.
-- `dev/build_enemy.py` = découpe une planche ChatGPT fond vert 4×3 en sprite d'ennemi.
+- `dev/build_enemy.py` = ancienne découpe d'ennemi (petites cases pixel).
+- `dev/build/build_enemy_hd.py planche.png <clé> [--h=hauteur] [--bg=magenta]` = ennemi de profil HD (regard à GAUCHE ; marche ×4 · attaque ×4 · touché + mort ×3) → `dev/assets_enemy.js` (ASSETS.DEMHD, fusionné par p21, dessiné lissé ; même taille affichée que l'ancienne planche).
 - `dev/maquette/` = maquette de la NOUVELLE direction (vue de côté) + essai jouable + sprites découpés.
 
 ## Publication
@@ -35,7 +36,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - Éclats supprimés (p11) : recycler donne de l'or, améliorer coûte seulement de l'or.
 - **Retirer le mode test p09** (choix direct de n'importe quelle forme dans « Choisis ton héros ») : supprimer `dev/build/vue_cote/p09_test_formes.py` puis `rebuild.sh`.
 - Icônes des 3 nouvelles pièces (épaulettes, ceinture, bracelet), 5 raretés chacune — prompt donné.
-- Redessiner de profil : autres ennemis/élites/boss, ailes vues de côté.
+- Biome 1 complet en HD (p21) : goule, chauve-souris, crâne de feu, acolyte, garde d'os, prêtresse de sang, Démon écarlate, Bête ailée (+ diablotin d'os déjà fait). Biomes 2-7 : encore les anciens démons recolorés.
 - Icônes définitives des Épaulettes, Ceinture, Bracelet (provisoirement celles du plastron, des jambières et de l'anneau).
 - Décors extérieurs des biomes 2-7. Contenu de la 12e case et de la Monture.
 - Remplacer tous les assets de packs achetés (priorité), vérifier licences (icônes, audio, UI zLizard), page Crédits.
