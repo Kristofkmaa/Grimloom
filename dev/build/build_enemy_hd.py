@@ -26,6 +26,14 @@ if opt.get('bg') != 'magenta':  # reflet vert sur les bords
     edge = fg & ndimage.binary_dilation(~fg, iterations=3); m = edge & (g > np.maximum(r, b)); a[..., 1] = np.where(m, np.maximum(r, b), g)
 else:
     edge = fg & ndimage.binary_dilation(~fg, iterations=3); m = edge & (np.minimum(r, b) > g + 20); a[..., 0] = np.where(m, g, r); a[..., 2] = np.where(m, g, b)
+semi = (al > 0.02) & (al < 0.98)   # bords et fumées : on retire la couleur du fond mélangée au dessin
+un = (a - (1 - al[..., None]) * bg) / np.maximum(al[..., None], 0.25)
+a = np.where(semi[..., None], np.clip(un, 0, 255), a).astype(int)
+if opt.get('bg') == 'magenta':   # fumées roses : part du magenta du fond -> rendue transparente
+    mg = np.clip((np.minimum(a[..., 0], a[..., 2]) - a[..., 1] - 25) / 200, 0, 0.85) * fg
+    a = np.clip((a - mg[..., None] * bg) / (1 - mg[..., None]), 0, 255).astype(int); al = al * (1 - mg)
+    rr, gg, bb = a[..., 0], a[..., 1], a[..., 2]; pk = fg & (rr > gg + 12) & (bb > gg + 12)   # teinte rose restante -> fumée jaune pâle
+    L = (0.3 * rr + 0.55 * gg + 0.15 * bb); a = np.where(pk[..., None], np.dstack([L * 1.02, L, L * 0.72]).clip(0, 255), a).astype(int); al = np.where(pk, al * 0.85, al)
 rgba = np.dstack([a, (al * 255).astype(int)]).astype('uint8')
 # partage entre les 12 images : bassins autour du gros morceau de chaque case, puis chaque éclat va à l'image la plus proche
 dist = ndimage.distance_transform_edt(fg); mk = np.zeros(fg.shape, int)

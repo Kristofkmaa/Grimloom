@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p23 decors biomes *//* p22 raid *//* p21 ennemis hd *//* p20 fin donjon */
+<style id="sv">/* p24 ennemis biomes *//* p23 decors biomes *//* p22 raid *//* p21 ennemis hd *//* p20 fin donjon */
 #dunEnd{position:absolute;inset:0;z-index:45;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 40%,#2a1008e8,#050204f2 70%);animation:deIn .35s ease-out}
 @keyframes deIn{from{opacity:0}}
 #dunEnd .deGlow{position:absolute;left:50%;top:38%;width:520px;height:520px;margin:-260px;border-radius:50%;background:repeating-conic-gradient(#ffd27a22 0 8deg,transparent 8deg 22deg);animation:deSpin 14s linear infinite;pointer-events:none}
@@ -1717,12 +1717,16 @@ const BMOBS = [
   { v: 'ice', tip: 'Démons de givre : leurs coups te ralentissent', pool: ['spawn4', 'spawn7', 'spawn8', 'spawn10', 'spawn11', 'imp4', 'imp9'], elites: ['elite5', 'elite4'], boss: [['beast4', 'La Bête ailée du givre'], ['beast5', 'La Wyverne de glace']] },
   { v: 'void', tip: 'Démons du Néant : esquivent 15 % des coups', pool: ['spawn3', 'spawn8', 'spawn11', 'spawn1', 'imp6', 'imp10', 'spawn12'], elites: ['elite3', 'elite6'], boss: [['p_idle', 'Le Démon du Néant'], ['beast3', 'La Tisseuse du Néant']] },
 ];
+const BHD = { // p24 ennemis biomes : index du biome -> monstres HD
+  1: { pool: ['b2_escargot', 'b2_escargot', 'b2_cercueil', 'b2_cercueil', 'b2_molosse', 'b2_champi', 'b2_sonneur'], elites: ['b2_gardien', 'b2_moine'], boss: [['b2_reine', 'La Reine Mycélienne'], ['b2_colosse', 'Le Colosse d\'ossuaire']], ranged: ['b2_champi', 'b2_sonneur', 'b2_moine'] },
+};
+for (const i in BHD) { const H = BHD[i], all = [...H.pool, ...H.elites, ...H.boss.map(b => b[0])]; if (all.every(k => ASSETS.DEM[k])) { Object.assign(BMOBS[i], { pool: H.pool, elites: H.elites, boss: H.boss }); } }
 const bossOf = ch => { const bi = (ch - 1) % BIOMES.length, L = BMOBS[bi].boss[Math.floor((ch - 1) / BIOMES.length) % 2]; return { key: L[0], n: L[1], v: BMOBS[bi].v, bi }; };
 // ---------- recoloration des démons (faite une fois par feuille, en tâche de fond) ----------
 const VARS = { bone: [45, 0.35, 1.15], drown: [170, 0.75, 1.0], fire: [28, 1.1, 1.15], poison: [95, 0.95, 1.05], ice: [195, 0.55, 1.35], void: [280, 0.85, 1.0] };
 const VCOL = { bone: '#e8dcb0', drown: '#50e0c8', fire: '#ffa030', poison: '#9aff3a', ice: '#c8f0ff', void: '#c070ff' };
 const DV = {}, DVQ = [];
-function demImg(key, v) { const im = IMG['D_' + key]; if (!v || !VARS[v]) return im; const k = key + '@' + v; if (DV[k]) return DV[k]; if (DVQ.indexOf(k) < 0) DVQ.push(k); return im; }
+function demImg(key, v) { const im = IMG['D_' + key]; if (!v || !VARS[v] || (ASSETS.DEM[key] && ASSETS.DEM[key].hd)) return im; const k = key + '@' + v; if (DV[k]) return DV[k]; if (DVQ.indexOf(k) < 0) DVQ.push(k); return im; }
 let DVJ = null; // recoloration découpée en tranches pour ne jamais bloquer une image
 function recolorStep() {
   const t0 = performance.now();
@@ -1808,7 +1812,7 @@ function placeDeco() {
 // ================= combat =================
 const B = { dmg: [], waveDmg: 0, en: [], shots: [], es: [], fx: [], nums: [], hero: { hp: 1, hpMax: 1, cd: 0, shootT: 0, hurt: 0, dead: 0 }, wave: null, t: 0, shake: 0, banner: null, scene: 'corridor', scroll: 0, walk: null, fade: 1, pend: 0, pendFn: null };
 const bmobs = () => BMOBS[(B.bi === undefined ? (PC() - 1) : B.bi) % BMOBS.length];
-const RANGED = { n_elite_priest: 1, n_acolyte: 1, n_skull: 1, imp6: 1, spawn1: 1, spawn6: 1, spawn8: 1, spawn10: 1, spawn11: 1, spawn13: 1 };
+const RANGED = { b2_champi: 1, b2_sonneur: 1, b2_moine: 1, n_elite_priest: 1, n_acolyte: 1, n_skull: 1, imp6: 1, spawn1: 1, spawn6: 1, spawn8: 1, spawn10: 1, spawn11: 1, spawn13: 1 };
 function enemyStats(n, boss) { return { hp: 18 * Math.pow(1.2, n) * (boss ? 14 : 1), atk: 2.4 * Math.pow(1.155, n) * (boss ? 2.6 : 1) }; }
 function startWave() {
   if (B.dun) return startDunWave();

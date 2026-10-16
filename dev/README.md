@@ -36,7 +36,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - Éclats supprimés (p11) : recycler donne de l'or, améliorer coûte seulement de l'or.
 - **Retirer le mode test p09** (choix direct de n'importe quelle forme dans « Choisis ton héros ») : supprimer `dev/build/vue_cote/p09_test_formes.py` puis `rebuild.sh`.
 - Icônes des 3 nouvelles pièces (épaulettes, ceinture, bracelet), 5 raretés chacune — prompt donné.
-- Biome 1 complet en HD (p21) : goule, chauve-souris, crâne de feu, acolyte, garde d'os, prêtresse de sang, Démon écarlate, Bête ailée (+ diablotin d'os déjà fait). Biomes 2-7 : encore les anciens démons recolorés.
+- Biome 1 complet en HD (p21) : goule, chauve-souris, crâne de feu, acolyte, garde d'os, prêtresse de sang, Démon écarlate, Bête ailée (+ diablotin d'os déjà fait). Biomes 2-7 : nouveaux monstres HD branchés par p24 (table `BHD` : pool/élites/boss/à distance, clés `bN_*`) ; un biome bascule quand toutes ses planches sont découpées. Fait : biome 2 (Ossuaire). Planches sans rangée de mort → `--anims` avec die_S:[0,1] (fondu). Fond magenta : fumées roses nettoyées automatiquement.
 - Raid refait (p22) : Archidémon HD (`raid_arch`, planche fond magenta, 4e rangée « rage » via `--row4`), salle du trône (`dev/assets_raid.js` : décor + illustration de la carte), rage + bandeau à chaque palier franchi, le Chevalier peut le frapper au corps à corps.
 - Icônes définitives des Épaulettes, Ceinture, Bracelet (provisoirement celles du plastron, des jambières et de l'anneau).
 - Contenu de la 12e case et de la Monture.
