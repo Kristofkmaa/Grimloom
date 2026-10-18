@@ -80,8 +80,9 @@ m = {'cw': CW, 'ch': CH, 'foot': round(CH - FOOT, 1), 'bh': round(bh, 1), 'k': r
      'anims': json.loads(opt['anims']) if 'anims' in opt else {'walk_S': [0, 4], 'atk_S': [1, 4], 'hit_S': [2, 1], 'die_S': [2, 4], 'idle_S': [0, 1]}}
 bb = io.BytesIO(); out.save(bb, 'WEBP', quality=88, method=6, alpha_quality=100)
 m['src'] = 'data:image/webp;base64,' + base64.b64encode(bb.getvalue()).decode()
-P = D + 'assets_enemy.js'; txt = open(P).read() if os.path.exists(P) else 'ASSETS.DEMHD = ASSETS.DEMHD || {};\n'
-txt = re.sub(r'ASSETS\.DEMHD\.%s = .*\n' % key, '', txt) + 'ASSETS.DEMHD.%s = %s;\n' % (key, json.dumps(m))
+NS, FN = ('MOUNT', 'assets_mount.js') if opt.get('dst') == 'mount' else ('DEMHD', 'assets_enemy.js')   # --dst=mount : planche de monture
+P = D + FN; txt = open(P).read() if os.path.exists(P) else 'ASSETS.%s = ASSETS.%s || {};\n' % (NS, NS)
+txt = re.sub(r'ASSETS\.%s\.%s = .*\n' % (NS, key), '', txt) + 'ASSETS.%s.%s = %s;\n' % (NS, key, json.dumps(m))
 open(P, 'w').write(txt)
 pv = os.environ.get('PREVIEW')
 if pv:

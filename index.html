@@ -1166,12 +1166,12 @@ body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 <style id="sv">/* p34 montures */
 .mgrid{display:flex;flex-direction:column;gap:10px}
 .mcard{border-radius:14px;padding:10px;background:linear-gradient(#2a141c,#140a0e);border:2px solid color-mix(in srgb,var(--sc) 55%,#3a2028)}.mcard.eq{box-shadow:0 0 14px -4px var(--sc)}.mcard.lock{opacity:.85;border-color:#4a2a36}
-.mtop{display:flex;align-items:center;gap:10px}.mtop .mic{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;color:var(--sc);background:radial-gradient(#3a1a20,#0c0507);border:2px solid var(--sc);flex:none}.mtop .mic svg{width:24px;height:24px}
+.mtop{display:flex;align-items:center;gap:10px}.mtop .mic{width:72px;height:63px;border-radius:12px;background:radial-gradient(#3a1a20,#0c0507);border:2px solid var(--sc);flex:none}
 .mtop b{display:block;font:400 16px var(--n);color:#fff}.mtop small{font:700 11px var(--b);color:#c8b098}.mtop em{margin-left:auto;font:800 10px var(--b);font-style:normal;color:#000;background:var(--sc);border-radius:8px;padding:2px 7px}
 .mst{margin:8px 0 4px;font:700 12px var(--b);color:#d8c0b0}.mst b{color:var(--sc)}
 .mset small{font:800 10px var(--b);letter-spacing:.08em;text-transform:uppercase;color:var(--sc)}.mset p{margin:3px 0;font:700 11px/1.3 var(--b);color:#7a6a60}.mset p.on{color:#f0e0d0}.mset p i{font-style:normal;display:inline-block;min-width:38px;color:var(--sc);font-weight:900}
 .mbt{display:flex;gap:6px;margin-top:8px}.mbt .btn{flex:1}
-#eqg .mmini{display:grid;place-items:center;width:36px;height:36px}#eqg .mmini svg{width:30px;height:30px}
+#eqg .mmini{width:88%;height:auto;max-height:66%}
 /* p33 decors donjons *//* p32 passe vertical */
 .s-passv .sknX{width:8cqw;height:8cqw;font-size:4cqw;right:2%;top:1%}
 .s-passv .psHead{gap:2cqw;padding:0 3cqw}.s-passv .psHead b{font-size:4.2cqw}.s-passv .psHead .skBar{height:2.4cqw}.s-passv .psHead small{font-size:3cqw}
@@ -1452,6 +1452,15 @@ ASSETS.dunBg.sang = 'a/241891fa5e96.webp';
 ASSETS.dunBg.os = 'a/4b997c9d32b0.webp';
 ASSETS.dunBg.braise = 'a/bcad2bae693f.webp';
 ASSETS.dunBg.raid = 'a/ca46ecb27cd7.webp';
+ASSETS.dunBg.givre = 'a/16de924e0fb6.webp';
+
+ASSETS.MOUNT = ASSETS.MOUNT || {};
+ASSETS.MOUNT.destrier_os = {"cw": 228, "ch": 197, "foot": 24.8, "bh": 122.2, "k": 0.4909, "spd": 0.5, "ax": 133.1, "hd": 1, "anims": {"walk_S": [0, 4], "idle_S": [1, 4], "act_S": [2, 4]}, "src": "a/83c58ec677fc.webp"};
+ASSETS.MOUNT.destrier_rouge = {"cw": 228, "ch": 197, "foot": 24.4, "bh": 118.4, "k": 0.5066, "spd": 0.5, "ax": 131.5, "hd": 1, "anims": {"walk_S": [0, 4], "idle_S": [1, 4], "act_S": [2, 4]}, "src": "a/d136c0bbf2b6.webp"};
+ASSETS.MOUNT.chopper = {"cw": 228, "ch": 197, "foot": 29.8, "bh": 96.6, "k": 0.6211, "spd": 0.5, "ax": 121.4, "hd": 1, "anims": {"walk_S": [0, 4], "idle_S": [1, 4], "act_S": [2, 4]}, "src": "a/188a085e315e.webp"};
+ASSETS.MOUNT.cercueil = {"cw": 228, "ch": 197, "foot": 26.1, "bh": 91.6, "k": 0.6553, "spd": 0.5, "ax": 108.8, "hd": 1, "anims": {"walk_S": [0, 4], "idle_S": [1, 4], "act_S": [2, 4]}, "src": "a/08850f2f6f71.webp"};
+ASSETS.MOUNT.coq = {"cw": 228, "ch": 197, "foot": 17.2, "bh": 126.0, "k": 0.4762, "spd": 0.5, "ax": 120.5, "hd": 1, "anims": {"walk_S": [0, 4], "idle_S": [1, 4], "act_S": [2, 4]}, "src": "a/97283a9550d0.webp"};
+ASSETS.MOUNT.escargot = {"cw": 228, "ch": 197, "foot": 25.2, "bh": 121.8, "k": 0.4926, "spd": 0.5, "ax": 105.8, "hd": 1, "anims": {"walk_S": [0, 4], "idle_S": [1, 4], "act_S": [2, 4]}, "src": "a/56265f02ecaf.webp"};
 
 const $ = id => document.getElementById(id);
 if (ASSETS.icons && ASSETS.icons.pool) { const P = ASSETS.icons.pool; P.epaulettes = P.epaulettes || P.plastron; P.ceinture = P.ceinture || P.jambieres; P.bracelet = P.bracelet || P.anneau; } // icônes provisoires des nouvelles pièces
@@ -1699,7 +1708,7 @@ const SETS = {
   givre: { n: 'Murmure du Givre', c: '#7ad8ff', b: [[2, 'Critique +12 %'], [4, 'Tirs ralentissants · les critiques gèlent 1 s'], [6, 'Toutes les 6 s : blizzard qui gèle tout 2 s · démons gelés +100 % de dégâts, ils éclatent en mourant (300 %)']] },
 };
 const SETK = Object.keys(SETS);
-function setCounts(eq) { const n = {}, k = S.mountEq, lv = k && S.mounts && S.mounts[k] || 0; if (lv) n[k] = lv >= 20 ? 6 : lv >= 10 ? 4 : 2; return n; } // p34 montures
+function setCounts(eq) { const n = {}, k = S.mountEq, lv = k && S.mounts && S.mounts[k] || 0; if (lv && MNT[k]) n[MNT[k].set] = lv >= 20 ? 6 : lv >= 10 ? 4 : 2; return n; } // p34 montures
 function heroStats() {
   const H = HEROES[S.hero], t = { atk: 8, pv: 80, def: 0, crit: 5, cdmg: 150, vit: 0, atkp: 0, pvp: 0, vol: (H.leech || 0) * 100, regen: 0, esq: 0 };
   for (const sl of SLOTS) { const it = S.eq[sl.id]; if (!it) continue; const o = itemStats(it); for (const k in o) t[k] = (t[k] || 0) + o[k]; }
@@ -1720,7 +1729,7 @@ function heroStats() {
   if (B.frenzyT > 0) o.rate *= 2; if (B.spFrT > 0) o.rate *= 1 + 0.6 * (B.spFrK || 1); if (B.howlT > 0) o.rate *= 1.3;
   const T = S.tal, A = achBonus(), PT = S.pet;
   o.atk *= (1 + 0.03 * tr('c_atk') + A.atk / 100) * (PT === 'braise' ? 1.06 : 1); o.pv *= 1 + 0.04 * tr('r_pv') + A.pv / 100; o.crit += tr('c_crit'); o.cdmg += 8 * tr('c_cdmg') + (PT === 'griffe' ? 10 : 0); o.rate *= 1 + 0.03 * tr('c_rate'); if (PT === 'sangsue') o.vol += 2;
-  { const k = S.mountEq, lv = k && S.mounts && S.mounts[k] || 0; if (lv) { const v = MNT[k].v * lv; if (MNT[k].k === 'atk') o.atk *= 1 + v / 100; else if (MNT[k].k === 'pv') o.pv *= 1 + v / 100; else if (MNT[k].k === 'rate') o.rate *= 1 + v / 100; else o.crit += v; } }
+  { const k = S.mountEq, lv = k && S.mounts && S.mounts[k] || 0; if (lv && MNT[k]) { const v = MNT[k].v * lv; if (MNT[k].k === 'atk') o.atk *= 1 + v / 100; else if (MNT[k].k === 'pv') o.pv *= 1 + v / 100; else if (MNT[k].k === 'rate') o.rate *= 1 + v / 100; else o.crit += v; } }
   { const fc = famColl() / 100; o.atk *= 1 + fc + famK('atk') / 100; o.pv *= 1 + fc + famK('pv') / 100; o.rate *= 1 + famK('rate') / 100; o.crit += famK('crit'); o.cdmg += famK('cdmg'); o.vol += famK('vol'); o.esq += famK('esq'); o.regen += famK('regen'); }
   if (tr('k_berserk')) { o.atk *= 1.4; o.pv *= 0.8; } if (tr('k_fort')) { o.pv *= 1.4; o.dmgRed += 0.1; o.rate *= 0.85; } if (tr('k_midas')) o.atk *= 0.9;
   o.bigDmg += 0.08 * tr('c_boss') + (H.boss || 0); o.splashK += H.splashX || 0; o.crit += H.crit || 0; o.exec = 0.06 * tr('c_exec'); o.multi = 0.05 * tr('c_multi'); o.dbl = tr('c_double') > 0;
@@ -2452,7 +2461,7 @@ function sideWings(SA, key, time, sc, by) { const w = wEq(); if (!w) return; con
     const q2 = WDARK.q; ctx.drawImage(dk, (fw * 168 + 84) * q2, row * 168 * q2, 84 * q2, 168 * q2, -(168 - 84 - RX), -RY, 84, 168); ctx.restore(); }
   ctx.translate(rx, ry); ctx.rotate(0.42); ctx.scale(ws, ws); const [I, q] = WIM(); ctx.drawImage(I, fw * 168 * q, row * 168 * q, 84 * q, 168 * q, -RX, -RY, 84, 168); ctx.restore(); // aile proche
   if (w === 'enfer' || w === 'givre' || w === 'dechu') { if (Math.random() < 0.25) B.fx.push({ k: 'p', x: rx - rand(5, 60) * ws, y: ry + rand(-20, 50) * ws, vx: 0, vy: w === 'givre' ? 10 : -16, g: 0, c: WINGS[w].c, t: 0, d: 0.7, r: 1 }); } }
-function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];
+function drawSideHero(time, anim) { if (!B.mntIn && typeof mountDraw === 'function' && mountDraw(time, anim)) return; const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];
   if (SA) { const im = SIDEI[curForm()], sc = HSC * 0.69 * (SA.k || 1); let row = 1, f = 3, by = 0; // attente = « retour en garde » (épée basse) // rangées : marche · sort · touché (2) + mort (2)
     if (h.dead) { row = 2; f = h.deadT < 0.3 ? 2 : 3; } else if (anim === 'course') { row = 0; f = Math.floor(time * 10) % 4; }
     else if (anim === 'tir') { f = clamp(Math.floor((B.t - (h.shotAt || 0)) / 0.32 * 4), 0, 3); } else if (anim === 'touche') { row = 2; f = 0; } else by = Math.round(Math.sin(time * 2.6) * 1.2);
@@ -2545,10 +2554,10 @@ function ui() {
     $('panel').innerHTML = `<div id="eqg"><div class="gl">${GRID.map(id => id ? slotHTML(SLOTS.find(q => q.id === id)) : `<button type="button" class="slot lockd" id="slot12"><i class="flk">${IC.lock}</i><span class="nm">${S.best >= 41 ? 'Bientôt' : 'Étape 5-1'}</span></button>`).join('')}</div><i class="sep"></i><div class="gr">${
       art('wingSlot', 'aile', 'Ailes', w ? `<canvas id="wingMini" width="84" height="54"></canvas><span class="lv">Nv ${wlv(w)}</span>` : '<i class="wplus">+</i>', !!w, w ? WINGS[w].c : '')}${
       art('famSlot', 'invoc', 'Familier', fam ? `<canvas id="famMini" width="64" height="64"></canvas><span class="lv">${S.famEq.length}/${famSlots()}</span>` : '<i class="wplus">+</i>', !!fam, fam ? FRC[FAM[S.fam].r] : '')}${
-      art('relSlot', 'rel', 'Monture', mk ? `<i class="mmini" style="color:${SETS[mk].c}">${IC[MNT[mk].ic]}</i><span class="lv">Nv ${S.mounts[mk]}</span>` : '<i class="wplus">+</i>', !!mk, mk ? SETS[mk].c : '')}${
+      art('relSlot', 'rel', 'Monture', mk ? `<canvas class="mmini" data-mnt="${mk}" width="96" height="84"></canvas><span class="lv">Nv ${S.mounts[mk]}</span>` : '<i class="wplus">+</i>', !!mk, mk ? SETS[MNT[mk].set].c : '')}${
       art('spSlot', 'grim', 'Pouvoirs', nSp ? `<span class="spmini">${S.slots.filter(Boolean).slice(0, 4).map(id => spIcon(id, 12)).join('')}</span><span class="lv">${nSp}/${slotCount()}</span>` : '<i class="wplus">+</i>', nSp > 0, '#b48aff')}
       <button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button><button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button></div></div>`;
-    const bind = (id, fn) => { const e = $(id); if (e && !e.dataset.fk) e.onclick = fn; }; bind('wingSlot', wingSheet); bind('famSlot', famSheet); bind('relSlot', mountSheet); bind('spSlot', openSkills);
+    const bind = (id, fn) => { const e = $(id); if (e && !e.dataset.fk) e.onclick = fn; }; bind('wingSlot', wingSheet); bind('famSlot', famSheet); bind('relSlot', mountSheet); mntIcons($('panel')); bind('spSlot', openSkills);
     document.querySelectorAll('#eqg [data-fk]').forEach(e => e.onclick = () => toast(featMsg(e.dataset.fk)));
     document.querySelectorAll('#eqg [data-soon]').forEach(e => e.onclick = () => toast(`${e.dataset.soon} : bientôt disponible`));
     $('slot12').onclick = () => toast(S.best >= 41 ? 'Nouvel emplacement : bientôt disponible' : 'Emplacement débloqué à l\'étape 5-1');
@@ -3091,21 +3100,41 @@ function relReveal(got, n) {
   <div class="sfbtns"><button class="btn" type="button" id="sfOk">Fermer</button><button class="btn gold" type="button" id="sfAgain" ${sealTot() < n * 10 ? 'disabled' : ''}>Invoquer ×${n}<small>${n * 10} Sceaux · tu as ${fmt(sealTot())}</small></button></div>`;
   $('app').appendChild(d); $('sfOk').onclick = () => { d.remove(); B.gear = gear(); ui(); if ($('sumPg')) sumPage(); else relSheet(); }; $('sfAgain').onclick = () => { d.remove(); relSummon(n); };
 }
-const MNT = { sang: { n: 'Chopper d\'ossements', k: 'atk', v: 1.5, ic: 'skull', d: 'Une moto faite d\'os, phare en crâne, pots d\'échappement en tibias' }, os: { n: 'Cercueil à roulettes', k: 'pv', v: 2, ic: 'shield', d: 'Un cercueil sur roues de charrette, propulsé par un petit moteur qui crachote' }, braise: { n: 'Coq des enfers', k: 'rate', v: 1.2, ic: 'wind', d: 'Un poulet démoniaque géant, très en colère, qui court très vite' }, givre: { n: 'Escargot de siège', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une petite tour de guet sur sa coquille' } };
-const MNT_MAX = 30, mntUnl = 20, mntCost = lv => 6 + lv * 2, MKN = { atk: 'Attaque', pv: 'Points de vie', rate: 'Vitesse d\'attaque', crit: 'Critique' };
-S.mounts = S.mounts || {}; if (S.mountEq === undefined) S.mountEq = null;
+const MNT = { // set : pouvoirs réveillés · any : se paie avec n'importe quels Sceaux · seat : selle dans la case de la planche (ASSETS.MOUNT)
+  chopper: { n: 'Chopper d\'ossements', set: 'sang', k: 'atk', v: 1.5, ic: 'skull', d: 'Une moto faite d\'os, phare en crâne, pots d\'échappement en tibias', seat: [92, 100] },
+  cercueil: { n: 'Cercueil à roulettes', set: 'os', k: 'pv', v: 2, ic: 'shield', d: 'Un cercueil sur roues propulsé par un petit moteur qui crachote', seat: [126, 112] },
+  coq: { n: 'Coq des enfers', set: 'braise', k: 'rate', v: 1.2, ic: 'wind', d: 'Un poulet démoniaque géant, très en colère, qui court très vite', seat: [115, 90] },
+  escargot: { n: 'Escargot de siège', set: 'givre', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une tour de guet sur sa coquille', seat: [166, 100] },
+  destrier_rouge: { n: 'Destrier écarlate', set: 'sang', any: 1, k: 'atk', v: 2.2, ic: 'flame', d: 'Un destrier démoniaque à la crinière de flammes · se paie avec tous tes Sceaux', seat: [104, 88] },
+  destrier_os: { n: 'Destrier d\'os', set: 'os', any: 1, k: 'pv', v: 3, ic: 'snow', d: 'Un cheval squelette aux flammes bleues · se paie avec tous tes Sceaux', seat: [112, 90] } };
+const MKS = Object.keys(MNT), MNT_MAX = 30, mntUnl = k => MNT[k].any ? 45 : 20, mntCost = (k, lv) => Math.round((6 + lv * 2) * (MNT[k].any ? 1.5 : 1)), MKN = { atk: 'Attaque', pv: 'Points de vie', rate: 'Vitesse d\'attaque', crit: 'Critique' };
+const mSeals = k => MNT[k].any ? sealTot() : S.seals[MNT[k].set], mPay = (k, c) => MNT[k].any ? sealPay(c) : (S.seals[MNT[k].set] >= c && (S.seals[MNT[k].set] -= c, true));
+S.mounts = S.mounts || {}; if (S.mountEq === undefined) S.mountEq = null; { const OLD = { sang: 'chopper', os: 'cercueil', braise: 'coq', givre: 'escargot' }; for (const o in OLD) if (S.mounts[o]) { S.mounts[OLD[o]] = Math.max(S.mounts[OLD[o]] || 0, S.mounts[o]); delete S.mounts[o]; } if (OLD[S.mountEq]) S.mountEq = OLD[S.mountEq]; if (S.mountEq && !MNT[S.mountEq]) S.mountEq = null; }
 if (!S.relGone) { S.relGone = 1; let g = 0; for (const id in (S.rels || {})) { const R = REL[id]; if (!R) continue; const n = (R.r + 1) * 6 * (S.rels[id].s || 1); S.seals[R.set] += n; g += n; } S.rels = {}; S.relEq = [null, null, null, null, null, null]; if (g) setTimeout(() => toast(`Les reliques deviennent des montures : +${g} Sceaux rendus`), 3000); }
 function mountSheet() {
-  const card = k => { const M = MNT[k], St = SETS[k], lv = S.mounts[k] || 0, eq = S.mountEq === k, c = lv ? mntCost(lv) : mntUnl, ok = S.seals[k] >= c && lv < MNT_MAX, tier = lv >= 20 ? 6 : lv >= 10 ? 4 : lv ? 2 : 0;
-    return `<div class="mcard ${lv ? '' : 'lock'} ${eq ? 'eq' : ''}" style="--sc:${St.c}"><div class="mtop"><i class="mic">${IC[M.ic]}</i><div><b>${M.n}</b><small>${lv ? `Niveau ${lv} / ${MNT_MAX}` : M.d}</small></div>${eq ? '<em>Montée</em>' : ''}</div>
+  const card = k => { const M = MNT[k], St = SETS[M.set], lv = S.mounts[k] || 0, eq = S.mountEq === k, c = lv ? mntCost(k, lv) : mntUnl(k), ok = mSeals(k) >= c && lv < MNT_MAX, tier = lv >= 20 ? 6 : lv >= 10 ? 4 : lv ? 2 : 0;
+    return `<div class="mcard ${lv ? '' : 'lock'} ${eq ? 'eq' : ''}" style="--sc:${St.c}"><div class="mtop"><canvas class="mic" data-mnt="${k}" width="96" height="84"></canvas><div><b>${M.n}</b><small>${lv ? `Niveau ${lv} / ${MNT_MAX}` : M.d}</small></div>${eq ? '<em>Montée</em>' : ''}</div>
       <div class="mst">${MKN[M.k]} <b>+${(M.v * Math.max(1, lv)).toFixed(M.v % 1 ? 1 : 0)}${M.k === 'crit' ? ' pts' : ' %'}</b>${lv ? '' : ' au niveau 1'}</div>
       <div class="mset"><small>${St.n}</small>${St.b.map(([n, t], i) => `<p class="${tier >= n ? 'on' : ''}"><i>Nv ${[1, 10, 20][i]}</i>${t}</p>`).join('')}</div>
-      <div class="mbt">${lv ? `<button class="btn ${eq ? '' : 'gold'}" type="button" data-meq="${k}">${eq ? 'Descendre' : 'Monter'}</button>` : ''}<button class="btn gold" type="button" data-mup="${k}" ${ok ? '' : 'disabled'}>${lv ? (lv >= MNT_MAX ? 'Niveau max' : 'Améliorer') : 'Débloquer'}<small>${lv >= MNT_MAX ? '' : `${c} Sceaux · tu as ${S.seals[k]}`}</small></button></div></div>`; };
-  sheet(`<h3>Montures <button class="x" type="button" aria-label="Fermer">✕</button></h3><p class="knote" style="margin-top:0">Débloque et améliore les montures avec les <b>Sceaux</b> des donjons de set. Une seule montée à la fois : elle donne son bonus et réveille les pouvoirs de son set aux niveaux 1, 10 et 20.</p><div class="mgrid">${SETK.map(card).join('')}</div>`);
+      <div class="mbt">${lv ? `<button class="btn ${eq ? '' : 'gold'}" type="button" data-meq="${k}">${eq ? 'Descendre' : 'Monter'}</button>` : ''}<button class="btn gold" type="button" data-mup="${k}" ${ok ? '' : 'disabled'}>${lv ? (lv >= MNT_MAX ? 'Niveau max' : 'Améliorer') : 'Débloquer'}<small>${lv >= MNT_MAX ? '' : `${c} Sceaux${M.any ? ' (tous)' : ''} · tu as ${mSeals(k)}`}</small></button></div></div>`; };
+  sheet(`<h3>Montures <button class="x" type="button" aria-label="Fermer">✕</button></h3><p class="knote" style="margin-top:0">Débloque et améliore les montures avec les <b>Sceaux</b> des donjons de set. Une seule montée à la fois : elle donne son bonus et réveille les pouvoirs de son set aux niveaux 1, 10 et 20.</p><div class="mgrid">${MKS.map(card).join('')}</div>`);
   const m = $('mbox');
-  m.querySelectorAll('[data-mup]').forEach(b => b.onclick = () => { const k = b.dataset.mup, lv = S.mounts[k] || 0, c = lv ? mntCost(lv) : mntUnl; if (S.seals[k] < c || lv >= MNT_MAX) return; S.seals[k] -= c; S.mounts[k] = lv + 1; if (!lv && !S.mountEq) S.mountEq = k; sfxPlay('reward'); toast(lv ? `${MNT[k].n} niveau ${lv + 1}` : `${MNT[k].n} débloqué !`); save(); ui(); mountSheet(); });
+  m.querySelectorAll('[data-mup]').forEach(b => b.onclick = () => { const k = b.dataset.mup, lv = S.mounts[k] || 0, c = lv ? mntCost(k, lv) : mntUnl(k); if (lv >= MNT_MAX || !mPay(k, c)) return; S.mounts[k] = lv + 1; if (!lv && !S.mountEq) S.mountEq = k; sfxPlay('reward'); toast(lv ? `${MNT[k].n} niveau ${lv + 1}` : `${MNT[k].n} débloqué !`); save(); ui(); mountSheet(); });
+  mntIcons(m);
   m.querySelectorAll('[data-meq]').forEach(b => b.onclick = () => { const k = b.dataset.meq; S.mountEq = S.mountEq === k ? null : k; save(); ui(); mountSheet(); });
 }
+function mntIcons(root) { root.querySelectorAll('canvas[data-mnt]').forEach(c => { const k = c.dataset.mnt, A = ASSETS.MOUNT && ASSETS.MOUNT[k], im = MNTI[k]; if (!A || !im) return; const dr = () => { if (!c.isConnected) return; if (!im.complete || !im.naturalWidth) return setTimeout(dr, 120); const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); g.imageSmoothingEnabled = true; const sc = Math.min(c.width / A.cw, c.height / A.ch) * 1.25; g.drawImage(im, 0, A.ch, A.cw, A.ch, (c.width - A.cw * sc) / 2, c.height - (A.ch - A.foot * 0.6) * sc, A.cw * sc, A.ch * sc); }; dr(); }); }
+const MNTI = {}; for (const k in (ASSETS.MOUNT || {})) MNTI[k] = lazyImg(ASSETS.MOUNT[k].src);
+// en combat : la monture sous le héros (course pendant les avances, attente, action au début de chaque vague)
+function mountDraw(time, anim) { const k = S.mountEq, A = k && ASSETS.MOUNT && ASSETS.MOUNT[k], im = k && MNTI[k], h = B.hero; if (!A || !im || h.dead || !im.complete || !im.naturalWidth) return false;
+  if (B.walk) B.mntW = 1; else if (B.mntW) { B.mntW = 0; B.mntAct = B.t; }
+  const msc = (A.k || 0.5) * 1.35, M = MNT[k], act = B.t - (B.mntAct ?? -9), [qx, qy] = M.seat, foot = A.ch - A.foot; let row = 1, f = Math.floor(time * 4) % 4, up = 0;
+  if (B.walk) { row = 0; f = Math.floor(time * 11) % 4; } else if (act < 0.9) { row = 2; f = clamp(Math.floor(act / 0.9 * 4), 0, 3); up = Math.sin(act / 0.9 * Math.PI) * 10; }
+  const x0 = CX - (qx - 0) * msc, y0 = YF - foot * msc, seatY = y0 + qy * msc, lift = YF - seatY - 24 + up;
+  ctx.save(); ctx.beginPath(); ctx.rect(-50, -OFFY - 300, BW + 100, seatY + 8 - up + OFFY + 300); ctx.clip(); ctx.translate(0, -lift); B.mntIn = 1; try { drawSideHero(time, anim === 'course' ? 'idle' : anim); } finally { B.mntIn = 0; } ctx.restore();
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, f * A.cw, row * A.ch, A.cw, A.ch, Math.round(x0), Math.round(y0), Math.round(A.cw * msc), Math.round(A.ch * msc)); ctx.restore();
+  if (B.walk && Math.random() < 0.4) B.fx.push({ k: 'p', x: x0 + rand(10, 40) * msc, y: YF - rand(0, 6), vx: rand(-40, -10), vy: rand(-20, -5), g: 0, c: '#8a7a6a', t: 0, d: 0.5, r: rand(1, 2.2) });
+  return true; }
 function relSheet() {
   const sc = setCounts(), own = Object.keys(S.rels).length;
   sheet(`<h3>Autel des reliques <button class="x" type="button" aria-label="Fermer">✕</button></h3>
