@@ -36,7 +36,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - Plus d'amélioration d'objet (p12) : on progresse en trouvant mieux dans le coffre. Ailes de profil HD (p13-p14) : planche 4 images en ligne, fond vert, racine au bord droit → `python3 dev/build/build_wings.py planche.png corbeau|os|enfer|givre|dechu` (→ `dev/assets_wings.js`).
 - Plusieurs familiers équipés (p15) : 1 emplacement, +1 aux étapes 3-1, 4-1, 5-1, 6-1 (5 max) ; chacun tire et donne son bonus.
 - Chevalier au corps à corps (p16) : coup d'épée sans projectile, entaille les démons collés à la cible ; contre lui, même les démons à distance viennent au contact.
-- Familiers (p19, PROVISOIRE) : chacun lance un pouvoir offensif non équipé par le joueur (50 %, +20 %/étoile), en attendant des sorts de familiers.
+- Familiers (p19) : chaque espèce a son sort (`FSPL` : Nuée de corbeaux, Morsure vampirique, Rapine, Poudre d'oubli, Vague d'ossements, Regard du vide, Spores, Toile, Éclaboussure, Feux follets, Rempart, Hurlement) ; puissance 55 % + 20 %/rareté, +20 %/étoile.
 - Écran de fin de donjon / raid (p20) et messages « équipé / meilleur objet / recyclé » supprimés.
 - Éclats supprimés (p11) : recycler donne de l'or, améliorer coûte seulement de l'or.
 - **Retirer le mode test p09** (choix direct de n'importe quelle forme dans « Choisis ton héros ») : supprimer `dev/build/vue_cote/p09_test_formes.py` puis `rebuild.sh`.
