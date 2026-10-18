@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p32 passe vertical */
+<style id="sv">/* p33 decors donjons *//* p32 passe vertical */
 .s-passv .sknX{width:8cqw;height:8cqw;font-size:4cqw;right:2%;top:1%}
 .s-passv .psHead{gap:2cqw;padding:0 3cqw}.s-passv .psHead b{font-size:4.2cqw}.s-passv .psHead .skBar{height:2.4cqw}.s-passv .psHead small{font-size:3cqw}
 .s-passv .skBtn{font-size:4.6cqw}.s-passv .skNote{font-size:3.4cqw;display:grid;place-items:center;color:#e8d0b0}
@@ -1432,6 +1432,17 @@ ASSETS.biomeBg[5] = 'a/2363b5d2e239.webp';
 ASSETS.biomeBg[6] = 'a/19f8ee4ffd8c.webp';
 
 ASSETS.passV = 'a/0c04d9b67fd9.webp';
+
+ASSETS.dunBg = ASSETS.dunBg || {};
+ASSETS.dunBg.or = 'a/d9cc544b19df.webp';
+ASSETS.dunBg.xp = 'a/cfad16da3a8b.webp';
+ASSETS.dunBg.eclats = 'a/a3274be3ca00.webp';
+ASSETS.dunBg.ham = 'a/2f0609c13dca.webp';
+ASSETS.dunBg.pages = 'a/37d7889d1f1b.webp';
+ASSETS.dunBg.sang = 'a/241891fa5e96.webp';
+ASSETS.dunBg.os = 'a/4b997c9d32b0.webp';
+ASSETS.dunBg.braise = 'a/bcad2bae693f.webp';
+ASSETS.dunBg.raid = 'a/ca46ecb27cd7.webp';
 
 const $ = id => document.getElementById(id);
 if (ASSETS.icons && ASSETS.icons.pool) { const P = ASSETS.icons.pool; P.epaulettes = P.epaulettes || P.plastron; P.ceinture = P.ceinture || P.jambieres; P.bracelet = P.bracelet || P.anneau; } // icônes provisoires des nouvelles pièces
@@ -2391,7 +2402,9 @@ const HSC = 1.25; // taille du héros de profil
 const sideHero = () => (S.cls === 'knight' && S.form === 'ecuyer') || !!(ASSETS.side && ASSETS.side[curForm()]);
 const RBG = ASSETS.raidBg ? lazyImg(ASSETS.raidBg.src) : new Image();
 const BBG = {}; for (const k in (ASSETS.biomeBg || {})) BBG[k] = lazyImg(ASSETS.biomeBg[k]); // p23 decors biomes
+const DNBG = {}; for (const k in (ASSETS.dunBg || {})) DNBG[k] = lazyImg(ASSETS.dunBg[k]); // p33 decors donjons
 function drawSideBg(VH) { const top = -OFFY;
+  { const dk = B.dun && (B.dun.raid ? 'raid' : B.dun.k), I = dk && DNBG[dk]; if (I && I.complete && I.naturalWidth) { const s3 = VH / I.naturalHeight, w = I.naturalWidth * s3; ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(I, Math.round((BW - w) / 2 + (B.dun.raid ? w * 0.08 : 0)), top, w, VH); return; } }
   if (B.dun && B.dun.raid && RBG.complete && RBG.naturalWidth) { const s3 = VH / RBG.naturalHeight, w = RBG.naturalWidth * s3, x0 = clamp(sx(0, 0.3) + 40 - ASSETS.raidBg.tx * s3, BW - w, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(RBG, x0, top, w, VH); const gd = ctx.createLinearGradient(0, top, 0, top + VH); gd.addColorStop(0, 'rgba(8,2,6,.55)'); gd.addColorStop(0.62, 'rgba(8,2,6,.42)'); gd.addColorStop(1, 'rgba(8,2,6,.2)'); ctx.fillStyle = gd; ctx.fillRect(0, top, BW, VH); return; }
   const dunC = B.dun && !B.dun.raid && DCOL[B.dun.k];
   const bi = BIOMES.indexOf(biome()), BI = BBG[bi] && BBG[bi].complete && BBG[bi].naturalWidth ? BBG[bi] : SBG; if (!BI.complete || !BI.naturalWidth) { ctx.fillStyle = '#1a1028'; ctx.fillRect(0, top, BW, VH); return; }
@@ -3426,7 +3439,7 @@ function startRaid() {
 }
 const DBOSS = { sang: 'Le Seigneur de sang', os: 'Le Gardien de l\'Ossuaire', braise: 'Le Maître-forgeron', givre: 'La Sentinelle gelée', or: 'Le Roi des trésors', xp: 'Le Dévoreur d\'âmes', eclats: 'La Reine de cristal', ham: 'Le Voleur de clés', pages: 'Le Bibliothécaire maudit' }; // p27 donjons
 const DCOL = { sang: '#ff2040', os: '#d8c890', braise: '#ff7a20', givre: '#8ad8ff', or: '#ffc23a', xp: '#7aff9a', eclats: '#b48aff', ham: '#e8dcc8', pages: '#ff9a6a' };
-function startDunWave() {
+function startDunWave() { { const dk = B.dun && (B.dun.raid ? 'raid' : B.dun.k); if (dk && DNBG[dk]) DNBG[dk].load(); }
   if (B.dun.raid) { const D = B.dun; B.bi = 6; B.scene = 'arena'; placeDeco(); B.en = []; B.es = []; B.shots = [];
     B.wave = { n: stageIndex(), boss: true, left: 0, spawnT: 99, total: 1, killed: 0, dun: true };
     const st = enemyStats(stageIndex(), true); st.hp = 1e18; st.atk *= 0.6; spawnEnemy(ASSETS.DEM.raid_arch ? 'raid_arch' : 'beast4', 0, 0.3, st, true, ASSETS.DEM.raid_arch ? null : 'void'); B.en[0].raid = 1; B.en[0].tierN = 0; B.en[0].ranged = true; B.en[0].spd = 0;
