@@ -1163,7 +1163,16 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p33 decors donjons *//* p32 passe vertical */
+<style id="sv">/* p34 montures */
+.mgrid{display:flex;flex-direction:column;gap:10px}
+.mcard{border-radius:14px;padding:10px;background:linear-gradient(#2a141c,#140a0e);border:2px solid color-mix(in srgb,var(--sc) 55%,#3a2028)}.mcard.eq{box-shadow:0 0 14px -4px var(--sc)}.mcard.lock{opacity:.85;border-color:#4a2a36}
+.mtop{display:flex;align-items:center;gap:10px}.mtop .mic{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;color:var(--sc);background:radial-gradient(#3a1a20,#0c0507);border:2px solid var(--sc);flex:none}.mtop .mic svg{width:24px;height:24px}
+.mtop b{display:block;font:400 16px var(--n);color:#fff}.mtop small{font:700 11px var(--b);color:#c8b098}.mtop em{margin-left:auto;font:800 10px var(--b);font-style:normal;color:#000;background:var(--sc);border-radius:8px;padding:2px 7px}
+.mst{margin:8px 0 4px;font:700 12px var(--b);color:#d8c0b0}.mst b{color:var(--sc)}
+.mset small{font:800 10px var(--b);letter-spacing:.08em;text-transform:uppercase;color:var(--sc)}.mset p{margin:3px 0;font:700 11px/1.3 var(--b);color:#7a6a60}.mset p.on{color:#f0e0d0}.mset p i{font-style:normal;display:inline-block;min-width:38px;color:var(--sc);font-weight:900}
+.mbt{display:flex;gap:6px;margin-top:8px}.mbt .btn{flex:1}
+#eqg .mmini{display:grid;place-items:center;width:36px;height:36px}#eqg .mmini svg{width:30px;height:30px}
+/* p33 decors donjons *//* p32 passe vertical */
 .s-passv .sknX{width:8cqw;height:8cqw;font-size:4cqw;right:2%;top:1%}
 .s-passv .psHead{gap:2cqw;padding:0 3cqw}.s-passv .psHead b{font-size:4.2cqw}.s-passv .psHead .skBar{height:2.4cqw}.s-passv .psHead small{font-size:3cqw}
 .s-passv .skBtn{font-size:4.6cqw}.s-passv .skNote{font-size:3.4cqw;display:grid;place-items:center;color:#e8d0b0}
@@ -1604,7 +1613,7 @@ const SETS = {
   givre: { n: 'Murmure du Givre', c: '#7ad8ff', b: [[2, 'Critique +12 %'], [4, 'Tirs ralentissants · les critiques gèlent 1 s'], [6, 'Toutes les 6 s : blizzard qui gèle tout 2 s · démons gelés +100 % de dégâts, ils éclatent en mourant (300 %)']] },
 };
 const SETK = Object.keys(SETS);
-function setCounts(eq) { const n = {}; for (const id of (S.relEq || [])) { const R = id && typeof REL !== 'undefined' && REL[id]; if (R) n[R.set] = (n[R.set] || 0) + 1; } return n; }
+function setCounts(eq) { const n = {}, k = S.mountEq, lv = k && S.mounts && S.mounts[k] || 0; if (lv) n[k] = lv >= 20 ? 6 : lv >= 10 ? 4 : 2; return n; } // p34 montures
 function heroStats() {
   const H = HEROES[S.hero], t = { atk: 8, pv: 80, def: 0, crit: 5, cdmg: 150, vit: 0, atkp: 0, pvp: 0, vol: (H.leech || 0) * 100, regen: 0, esq: 0 };
   for (const sl of SLOTS) { const it = S.eq[sl.id]; if (!it) continue; const o = itemStats(it); for (const k in o) t[k] = (t[k] || 0) + o[k]; }
@@ -1625,7 +1634,7 @@ function heroStats() {
   if (B.frenzyT > 0) o.rate *= 2; if (B.spFrT > 0) o.rate *= 1 + 0.6 * (B.spFrK || 1); if (B.howlT > 0) o.rate *= 1.3;
   const T = S.tal, A = achBonus(), PT = S.pet;
   o.atk *= (1 + 0.03 * tr('c_atk') + A.atk / 100) * (PT === 'braise' ? 1.06 : 1); o.pv *= 1 + 0.04 * tr('r_pv') + A.pv / 100; o.crit += tr('c_crit'); o.cdmg += 8 * tr('c_cdmg') + (PT === 'griffe' ? 10 : 0); o.rate *= 1 + 0.03 * tr('c_rate'); if (PT === 'sangsue') o.vol += 2;
-  for (const id of S.relEq) if (id && S.rels[id]) { const v = relVal(id), k = RSTAT[REL[id].set]; if (k === 'atk') o.atk *= 1 + v / 100; else if (k === 'pv') o.pv *= 1 + v / 100; else if (k === 'rate') o.rate *= 1 + v / 100; else o.crit += v; }
+  { const k = S.mountEq, lv = k && S.mounts && S.mounts[k] || 0; if (lv) { const v = MNT[k].v * lv; if (MNT[k].k === 'atk') o.atk *= 1 + v / 100; else if (MNT[k].k === 'pv') o.pv *= 1 + v / 100; else if (MNT[k].k === 'rate') o.rate *= 1 + v / 100; else o.crit += v; } }
   { const fc = famColl() / 100; o.atk *= 1 + fc + famK('atk') / 100; o.pv *= 1 + fc + famK('pv') / 100; o.rate *= 1 + famK('rate') / 100; o.crit += famK('crit'); o.cdmg += famK('cdmg'); o.vol += famK('vol'); o.esq += famK('esq'); o.regen += famK('regen'); }
   if (tr('k_berserk')) { o.atk *= 1.4; o.pv *= 0.8; } if (tr('k_fort')) { o.pv *= 1.4; o.dmgRed += 0.1; o.rate *= 0.85; } if (tr('k_midas')) o.atk *= 0.9;
   o.bigDmg += 0.08 * tr('c_boss') + (H.boss || 0); o.splashK += H.splashX || 0; o.crit += H.crit || 0; o.exec = 0.06 * tr('c_exec'); o.multi = 0.05 * tr('c_multi'); o.dbl = tr('c_double') > 0;
@@ -1667,7 +1676,7 @@ function rarityWeights(lvl) { const base = [100, 32, 8, 1.6, 0.3, 0.05, 0.008]; 
 function rollRarity() { const w = rarityWeights(S.forge + 0.6 * tr('a_luck')); let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < w.length; i++) { if ((r -= w[i]) < 0) return i; } return 0; }
 const PC = () => S.farm && S.fc ? S.fc : S.c, PS = () => S.farm && S.fs ? S.fs : S.s; // chapitre / étape réellement jouée
 const label = (c, s) => `${c}-${s}`;
-const FEAT = { coffre: [4, 'Coffre de temps'], talent: [6, 'Talents'], auto: [11, 'Ouverture auto'], invoc: [13, 'Invocation et Familiers'], dungeon: [15, 'Donjons'], grim: [18, 'Grimoire et Pouvoirs'], roue: [21, 'Roue de la fortune'], passe: [23, 'Passe de saison'], rel: [26, 'Reliques'], aile: [31, 'Ailes'] };
+const FEAT = { coffre: [4, 'Coffre de temps'], talent: [6, 'Talents'], auto: [11, 'Ouverture auto'], invoc: [13, 'Invocation et Familiers'], dungeon: [15, 'Donjons'], grim: [18, 'Grimoire et Pouvoirs'], roue: [21, 'Roue de la fortune'], passe: [23, 'Passe de saison'], rel: [26, 'Montures'], aile: [31, 'Ailes'] };
 const featOK = k => !FEAT[k] || S.best >= FEAT[k][0] || !!(S.unl && S.unl[k]) || (k === 'auto' && S.autoUnl);
 const featMsg = k => `${FEAT[k][1]} : se débloque à l'étape ${stName(FEAT[k][0])}`;
 let FQ = [], FQT = 0;
@@ -1680,7 +1689,7 @@ const FINFO = {
   grim: [null, 'Le <b>Grimoire</b> s\'ouvre dans le portail : invoque des pouvoirs avec tes pages. Ce sont des sorts qui se lancent seuls en combat, à équiper depuis la case Pouvoirs.', () => sumPage('grim')],
   roue: ['hubWh', 'Un <b>tour gratuit</b> chaque jour pour gagner clés, or, âmes ou Sceaux. Le passe de saison donne des jetons en plus.', () => wheelSheet()],
   passe: ['hubPs', 'Tout ce que tu fais rapporte des <b>points</b> : démons, coffres, donjons, invocations… Monte les 100 paliers avant la fin de la saison.', () => passSheet()],
-  rel: [null, 'Invoque des <b>reliques</b> avec les Sceaux des donjons, puis place-les sur l\'autel : 6 emplacements et des bonus de set.', () => relSheet()],
+  rel: [null, 'Débloque des <b>montures</b> avec les Sceaux des donjons de set : chacune donne un bonus et réveille les pouvoirs de son set.', () => mountSheet()],
   aile: [null, 'Affronte l\'Archidémon au raid pour gagner des <b>plumes</b> et débloquer des ailes. Une paire équipée se voit sur ton héros.', () => wingSheet()],
 };
 function featPop() {
@@ -2445,15 +2454,15 @@ function ui() {
   { document.body.classList.remove('eqmode'); $('eqBg').hidden = true; $('eqCols').hidden = true; $('eqCols').innerHTML = ''; }
   if (tab === 'forge') { // disposition Mushroom : 12 pièces à gauche, 6 artefacts à droite
     const GRID = ['arme', 'casque', 'epaulettes', 'plastron', 'gants', 'ceinture', 'jambieres', 'bottes', 'anneau', 'amulette', 'bracelet', null];
-    const fam = famSync().length && S.fam, w = wEq(), nRel = S.relEq.filter(Boolean).length, nSp = S.slots.filter(Boolean).length;
+    const fam = famSync().length && S.fam, w = wEq(), mk = S.mountEq, nSp = S.slots.filter(Boolean).length;
     const art = (id, k, name, inner, on, rc) => !featOK(k) ? `<button type="button" id="${id}" class="slot art lockd" data-fk="${k}"><i class="flk">${IC.lock}</i><span class="nm">${name}</span><em class="stg">Étape ${stName(FEAT[k][0])}</em></button>` : `<button type="button" id="${id}" class="slot art ${on ? 'on' : 'empty'}" style="${on ? `--rc:${rc}` : ''}">${inner}<span class="nm">${name}</span></button>`;
     $('panel').innerHTML = `<div id="eqg"><div class="gl">${GRID.map(id => id ? slotHTML(SLOTS.find(q => q.id === id)) : `<button type="button" class="slot lockd" id="slot12"><i class="flk">${IC.lock}</i><span class="nm">${S.best >= 41 ? 'Bientôt' : 'Étape 5-1'}</span></button>`).join('')}</div><i class="sep"></i><div class="gr">${
       art('wingSlot', 'aile', 'Ailes', w ? `<canvas id="wingMini" width="84" height="54"></canvas><span class="lv">Nv ${wlv(w)}</span>` : '<i class="wplus">+</i>', !!w, w ? WINGS[w].c : '')}${
       art('famSlot', 'invoc', 'Familier', fam ? `<canvas id="famMini" width="64" height="64"></canvas><span class="lv">${S.famEq.length}/${famSlots()}</span>` : '<i class="wplus">+</i>', !!fam, fam ? FRC[FAM[S.fam].r] : '')}${
-      art('relSlot', 'rel', 'Reliques', nRel ? `<span class="rmini">${S.relEq.filter(Boolean).slice(0, 4).map(id => relSp(id)).join('')}</span><span class="lv">${nRel}/6</span>` : '<i class="wplus">+</i>', nRel > 0, '#ffc23a')}${
+      art('relSlot', 'rel', 'Monture', mk ? `<i class="mmini" style="color:${SETS[mk].c}">${IC[MNT[mk].ic]}</i><span class="lv">Nv ${S.mounts[mk]}</span>` : '<i class="wplus">+</i>', !!mk, mk ? SETS[mk].c : '')}${
       art('spSlot', 'grim', 'Pouvoirs', nSp ? `<span class="spmini">${S.slots.filter(Boolean).slice(0, 4).map(id => spIcon(id, 12)).join('')}</span><span class="lv">${nSp}/${slotCount()}</span>` : '<i class="wplus">+</i>', nSp > 0, '#b48aff')}
-      <button type="button" class="slot art lockd" data-soon="Monture"><i class="flk">${IC.lock}</i><span class="nm">Monture</span></button><button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button></div></div>`;
-    const bind = (id, fn) => { const e = $(id); if (e && !e.dataset.fk) e.onclick = fn; }; bind('wingSlot', wingSheet); bind('famSlot', famSheet); bind('relSlot', relSheet); bind('spSlot', openSkills);
+      <button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button><button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button></div></div>`;
+    const bind = (id, fn) => { const e = $(id); if (e && !e.dataset.fk) e.onclick = fn; }; bind('wingSlot', wingSheet); bind('famSlot', famSheet); bind('relSlot', mountSheet); bind('spSlot', openSkills);
     document.querySelectorAll('#eqg [data-fk]').forEach(e => e.onclick = () => toast(featMsg(e.dataset.fk)));
     document.querySelectorAll('#eqg [data-soon]').forEach(e => e.onclick = () => toast(`${e.dataset.soon} : bientôt disponible`));
     $('slot12').onclick = () => toast(S.best >= 41 ? 'Nouvel emplacement : bientôt disponible' : 'Emplacement débloqué à l\'étape 5-1');
@@ -2631,7 +2640,7 @@ const HELP = [
   ['#f0c46a', IC.key, 'Tickets de set', '2 par jour (remis à minuit), +1 par boss de chapitre, certaines quêtes.', 'Entrer dans un donjon de set (le ticket n\'est perdu qu\'en cas de victoire).'],
   ['#7aff9a', IC.coin, 'Tickets de donjon', 'Chaque donjon de ressources en donne 2 par jour, remis à minuit.', 'Entrer dans la Mine aux trésors, le Puits des âmes, le Caveau de cristal ou le Scriptorium (perdu seulement si tu gagnes), ou balayer un niveau déjà battu.'],
   ['#c070ff', IC.star, 'Plumes', 'Affronter l\'Archidémon (Donjons › Raid), 2 essais par jour. Plus tu infliges de dégâts, plus tu en gagnes.', 'Débloquer et améliorer les ailes (Héros › Ailes), qui apparaissent sur le chevalier et ont un effet unique.'],
-  ['#ff4a5a', IC.shield, 'Sceaux', 'Réussir les donjons des sets.', 'Invoquer des reliques (page Invocation). 2, 4 ou 6 reliques du même set réveillent ses bonus.'],
+  ['#ff4a5a', IC.shield, 'Sceaux', 'Réussir les donjons des sets.', 'Débloquer et améliorer les montures (case Monture). Niveaux 1, 10 et 20 : les pouvoirs de son set se réveillent.'],
   ['#7aff9a', IC.star, 'Expérience et niveaux', 'Tuer des démons.', 'Chaque niveau donne 1 point de talent pour l\'arbre (onglet Talents).'],
   ['#ffe3a0', IC.sword, 'Puissance', 'Calculée à partir de ton équipement, de tes talents et de ton évolution.', 'Indique ta force : compare-la à la difficulté des étapes.'],
 ];
@@ -2945,12 +2954,12 @@ function relPage(pg) {
   $('spOne').onclick = () => relSummon(1); $('spTen').onclick = () => relSummon(10); $('spColl').onclick = () => { pg.remove(); relSheet(); };
 }
 const SUMK = { fam: 'invoc', grim: 'grim', rel: 'rel' };
-function sumTabs(on) { return `<div class="spTabs">${[['fam', 'Familiers'], ['grim', 'Grimoire'], ['rel', 'Reliques']].map(([k, n]) => `<button type="button" data-st="${k}" class="${on === k ? 'on' : ''} ${featOK(SUMK[k]) ? '' : 'stlk'}">${featOK(SUMK[k]) ? '' : IC.lock}${n}</button>`).join('')}</div>`; }
+function sumTabs(on) { return `<div class="spTabs">${[['fam', 'Familiers'], ['grim', 'Grimoire']].map(([k, n]) => `<button type="button" data-st="${k}" class="${on === k ? 'on' : ''} ${featOK(SUMK[k]) ? '' : 'stlk'}">${featOK(SUMK[k]) ? '' : IC.lock}${n}</button>`).join('')}</div>`; }
 function sumPage(tab) { if (!featOK('invoc')) { toast(featMsg('invoc')); return; }
   if (tab && !featOK(SUMK[tab])) { toast(featMsg(SUMK[tab])); if ($('sumPg')) return; tab = 'fam'; }
   if (!featOK(SUMK[tab || SUMTAB])) SUMTAB = 'fam';
   if (tab) SUMTAB = tab; let pg = $('sumPg'); if (!pg) { pg = document.createElement('div'); pg.id = 'sumPg'; $('app').appendChild(pg); }
-  if (SUMTAB === 'rel') return relPage(pg); const fam = SUMTAB === 'fam', ff = famFeat(), sf = spFeat(), F = FAM[ff], SP = SPELLS[sf];
+  if (SUMTAB === 'rel') SUMTAB = 'fam'; const fam = SUMTAB === 'fam', ff = famFeat(), sf = spFeat(), F = FAM[ff], SP = SPELLS[sf];
   const cur = fam ? S.souls : S.pages, curN = fam ? 'âmes' : 'pages', pity = fam ? S.famPity : (S.spPity || 0);
   pg.innerHTML = `<div class="spHead"><button type="button" class="spX" aria-label="Fermer">‹</button><b>Invocation</b><div class="spCur">${fam ? '<i class="fsoul"></i>' : IC.book}<b>${fmt(cur)}</b><small>${curN}</small></div></div>
   ${sumTabs(SUMTAB)}
@@ -2995,6 +3004,21 @@ function relReveal(got, n) {
   d.innerHTML = `<div class="sfglow"></div><h2>Invocation</h2><div class="fgridR ${got.length > 1 ? 'many' : ''}">${got.map(([id, t], i) => `<div class="frv" style="--d:${0.25 + i * 0.15}s">${relTile(id, t)}</div>`).join('')}</div>
   <div class="sfbtns"><button class="btn" type="button" id="sfOk">Fermer</button><button class="btn gold" type="button" id="sfAgain" ${sealTot() < n * 10 ? 'disabled' : ''}>Invoquer ×${n}<small>${n * 10} Sceaux · tu as ${fmt(sealTot())}</small></button></div>`;
   $('app').appendChild(d); $('sfOk').onclick = () => { d.remove(); B.gear = gear(); ui(); if ($('sumPg')) sumPage(); else relSheet(); }; $('sfAgain').onclick = () => { d.remove(); relSummon(n); };
+}
+const MNT = { sang: { n: 'Destrier écarlate', k: 'atk', v: 1.5, ic: 'drop', d: 'Un destrier démoniaque à la crinière de sang' }, os: { n: 'Destrier d\'os', k: 'pv', v: 2, ic: 'shield', d: 'Un cheval squelette aux sabots de pierre' }, braise: { n: 'Cauchemar de braise', k: 'rate', v: 1.2, ic: 'flame', d: 'Une monture de feu qui laisse des braises' }, givre: { n: 'Loup du givre', k: 'crit', v: 0.5, ic: 'snow', d: 'Un loup géant au pelage de glace' } };
+const MNT_MAX = 30, mntUnl = 20, mntCost = lv => 6 + lv * 2, MKN = { atk: 'Attaque', pv: 'Points de vie', rate: 'Vitesse d\'attaque', crit: 'Critique' };
+S.mounts = S.mounts || {}; if (S.mountEq === undefined) S.mountEq = null;
+if (!S.relGone) { S.relGone = 1; let g = 0; for (const id in (S.rels || {})) { const R = REL[id]; if (!R) continue; const n = (R.r + 1) * 6 * (S.rels[id].s || 1); S.seals[R.set] += n; g += n; } S.rels = {}; S.relEq = [null, null, null, null, null, null]; if (g) setTimeout(() => toast(`Les reliques deviennent des montures : +${g} Sceaux rendus`), 3000); }
+function mountSheet() {
+  const card = k => { const M = MNT[k], St = SETS[k], lv = S.mounts[k] || 0, eq = S.mountEq === k, c = lv ? mntCost(lv) : mntUnl, ok = S.seals[k] >= c && lv < MNT_MAX, tier = lv >= 20 ? 6 : lv >= 10 ? 4 : lv ? 2 : 0;
+    return `<div class="mcard ${lv ? '' : 'lock'} ${eq ? 'eq' : ''}" style="--sc:${St.c}"><div class="mtop"><i class="mic">${IC[M.ic]}</i><div><b>${M.n}</b><small>${lv ? `Niveau ${lv} / ${MNT_MAX}` : M.d}</small></div>${eq ? '<em>Montée</em>' : ''}</div>
+      <div class="mst">${MKN[M.k]} <b>+${(M.v * Math.max(1, lv)).toFixed(M.v % 1 ? 1 : 0)}${M.k === 'crit' ? ' pts' : ' %'}</b>${lv ? '' : ' au niveau 1'}</div>
+      <div class="mset"><small>${St.n}</small>${St.b.map(([n, t], i) => `<p class="${tier >= n ? 'on' : ''}"><i>Nv ${[1, 10, 20][i]}</i>${t}</p>`).join('')}</div>
+      <div class="mbt">${lv ? `<button class="btn ${eq ? '' : 'gold'}" type="button" data-meq="${k}">${eq ? 'Descendre' : 'Monter'}</button>` : ''}<button class="btn gold" type="button" data-mup="${k}" ${ok ? '' : 'disabled'}>${lv ? (lv >= MNT_MAX ? 'Niveau max' : 'Améliorer') : 'Débloquer'}<small>${lv >= MNT_MAX ? '' : `${c} Sceaux · tu as ${S.seals[k]}`}</small></button></div></div>`; };
+  sheet(`<h3>Montures <button class="x" type="button" aria-label="Fermer">✕</button></h3><p class="knote" style="margin-top:0">Débloque et améliore les montures avec les <b>Sceaux</b> des donjons de set. Une seule montée à la fois : elle donne son bonus et réveille les pouvoirs de son set aux niveaux 1, 10 et 20.</p><div class="mgrid">${SETK.map(card).join('')}</div>`);
+  const m = $('mbox');
+  m.querySelectorAll('[data-mup]').forEach(b => b.onclick = () => { const k = b.dataset.mup, lv = S.mounts[k] || 0, c = lv ? mntCost(lv) : mntUnl; if (S.seals[k] < c || lv >= MNT_MAX) return; S.seals[k] -= c; S.mounts[k] = lv + 1; if (!lv && !S.mountEq) S.mountEq = k; sfxPlay('reward'); toast(lv ? `${MNT[k].n} niveau ${lv + 1}` : `${MNT[k].n} débloqué !`); save(); ui(); mountSheet(); });
+  m.querySelectorAll('[data-meq]').forEach(b => b.onclick = () => { const k = b.dataset.meq; S.mountEq = S.mountEq === k ? null : k; save(); ui(); mountSheet(); });
 }
 function relSheet() {
   const sc = setCounts(), own = Object.keys(S.rels).length;
@@ -3097,6 +3121,7 @@ function passRew(t) {
   const f = 1 + Math.floor(t / 20) * 0.5; return [{ ham: Math.round(30 * f) }, { souls: Math.round(15 * f) }, { gold: f }, { pages: Math.round(40 * f) }][t % 4];
 }
 const passTxt = r => Object.entries(r).map(([k, v]) => k === 'rel' ? `Relique ${FRN[v].toLowerCase()}` : k === 'fam' ? `Familier ${FRN[v].toLowerCase()}` : k === 'gold' ? 'Bourse d\'or' : `${v} ${RWI[k][2]}`).join(' · ');
+const PRW0 = passRew; passRew = t => { const r = PRW0(t); if (r && r.rel) { const o = Object.assign({}, r); o.seals = 15 * o.rel; delete o.rel; return o; } return r; };
 function passCard(r) { const k = Object.keys(r)[0];
   if (r.rel && r.fam) return `<i style="color:${FRC[4]}">${IC.star}</i><b style="color:${FRC[4]}">Mythiques</b><small>relique + familier</small>`;
   if (r.rel || r.fam) { const v = r.rel || r.fam; return `<i style="color:${FRC[v]}">${IC[r.rel ? 'gem' : 'drop']}</i><b style="color:${FRC[v]}">${r.rel ? 'Relique' : 'Familier'}</b><small>${FRN[v].toLowerCase()}</small>`; }
@@ -3786,7 +3811,7 @@ const TABTUTO = {
   dungeon: [
     { pre: '[data-dtab=res]', t: '#panel .ktabs', h: 'Trois sortes de donjons', p: '<b>Ressources</b> pour farmer, <b>Sets</b> pour les équipements de set, <b>Raid</b> pour les ailes.' },
     { t: '#panel .rdun', h: 'Donjons de ressources', p: 'Or, XP, clés, pages : chacun donne <b>2 tickets par jour</b>, remis à minuit, et se débloque en avançant. Le Repaire du Voleur donne des <b>clés</b>. <b>Combattre</b> fait monter le niveau du donjon, <b>Balayer</b> donne tout de suite la récompense d\'un niveau déjà battu.' },
-    { pre: '[data-dtab=sets]', t: '#panel .wdun', h: 'Les donjons de sets', p: 'Quatre donjons sur la carte, ouverts avec des <b>tickets</b>. Ils donnent des <b>Sceaux</b> pour invoquer des <b>reliques</b> (Sang, Os, Braises, Givre). Équipe-en 2, 4 ou 6 du même set sur l\'autel pour réveiller ses bonus.' },
+    { pre: '[data-dtab=sets]', t: '#panel .wdun', h: 'Les donjons de sets', p: 'Quatre donjons sur la carte, ouverts avec des <b>tickets</b>. Ils donnent des <b>Sceaux</b> pour débloquer et améliorer les <b>montures</b> (Sang, Os, Braises, Givre). Chaque monture réveille les pouvoirs de son set.' },
     { pre: '[data-dtab=raid]', t: () => $('raidGo') && $('raidGo').closest('.kl'), h: 'Le raid', p: 'L\'Archidémon est immortel : inflige un maximum de dégâts en <b>30 secondes</b>. Chaque palier atteint rapporte des <b>plumes</b> pour les ailes. 2 essais par jour.', post: '[data-dtab=res]' },
   ],
 };
