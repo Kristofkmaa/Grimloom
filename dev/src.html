@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p35 gardiens */
+<style id="sv">/* p36 familiers sol *//* p35 gardiens */
 .mtop .mic svg{width:30px;height:30px}#eqg .mmini svg{width:30px;height:30px}
 /* p34 montures */
 .mgrid{display:flex;flex-direction:column;gap:10px}
@@ -2115,9 +2115,9 @@ function draw(time) {
   L.push({ z: 0, y: YF, f: () => drawHero(time) });
   if (!B.walk && !B.dun) L.push({ z: -0.001, y: YF + 60, f: drawHeroHp });
   L.push({ z: -0.02, f: () => { drawComp(0, time); drawComp(1, time); if (raidOn()) drawComp(2, time); } });
-  { const k = S.mountEq, A = k && ASSETS.PET && ASSETS.PET[k]; if (A && S.mounts[k]) L.push({ z: 0.04, y: YF - 2, f: () => { const im = PETI[k]; if (!im || !im.complete) return; const bob = Math.sin(time * 2) * 6, x = CX + GDPOS[0], y = YF + GDPOS[1] + bob, sc = 70 / A.ch, f = Math.floor(time * 8) % (A.n || 4); ctx.save(); ctx.imageSmoothingEnabled = true; ctx.drawImage(im, f * A.cw, 0, A.cw, A.ch, x - A.cw * sc / 2, y - A.ch * sc / 2, A.cw * sc, A.ch * sc); ctx.restore(); } }); }
-  famSync().forEach((id, i) => L.push({ z: 0.05 + i * 0.01, y: YF - 1 - i, f: () => { const F = FAM[id], im = IMG.fam_sp, P0 = FAMPOS[i], bob = Math.sin(time * 2.4 + i * 1.3) * 5, x = CX + P0[0], y = YF + P0[1] + bob, sz = (52 + F.r * 3) * (i ? 0.8 : 1);
-    ctx.globalCompositeOperation = 'lighter'; glow(x, y, 26 + F.r * 4, FRC[F.r], 0.28 + 0.06 * F.r); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#0006'; ctx.beginPath(); ctx.ellipse(x, YF - 6, 14, 3.5, 0, 0, 7); ctx.fill();
+  { const k = S.mountEq, A = k && ASSETS.PET && ASSETS.PET[k]; if (A && S.mounts[k]) L.push({ z: 0.04, y: YF - 2, f: () => { const im = PETI[k]; if (!im || !im.complete) return; const bob = Math.sin(time * 2) * 6, x = CX + GDPOS[0], y = YF + GDPOS[1] + bob, sc = 105 / A.ch, f = Math.floor(time * 8) % (A.n || 4); ctx.save(); ctx.imageSmoothingEnabled = true; ctx.drawImage(im, f * A.cw, 0, A.cw, A.ch, x - A.cw * sc / 2, y - A.ch * sc / 2, A.cw * sc, A.ch * sc); ctx.restore(); } }); }
+  famSync().forEach((id, i) => L.push({ z: 0.05 + i * 0.01, y: YF + FAMPOS[i][1] - 0.5, f: () => { const F = FAM[id], im = IMG.fam_sp, P0 = FAMPOS[i], sz = (40 + F.r * 3) * (i ? 0.85 : 1), hop = Math.abs(Math.sin(time * (B.walk ? 9 : 2.2) + i * 1.3)) * (B.walk ? 7 : 2.5), x = CX + P0[0], y = YF + P0[1] - sz * 0.42 - hop;
+    ctx.globalCompositeOperation = 'lighter'; glow(x, y, 26 + F.r * 4, FRC[F.r], 0.28 + 0.06 * F.r); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#0006'; ctx.beginPath(); ctx.ellipse(x, YF + FAMPOS[i][1] - 2, 13, 3.5, 0, 0, 7); ctx.fill();
     if (im && im.complete) { ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(im, F.i * 128, 0, 128, 128, x - sz / 2, y - sz / 2, sz, sz); ctx.restore(); } } }));
   if (false && S.pet && PETS[S.pet]) L.push({ z: 0.05, f: () => { const P0 = PETS[S.pet], bob = Math.sin(time * 3) * 4; dem(P0.dem, B.walk ? 'walk' : 'walk', 'S', time * (B.walk ? 14 : 6), CX + 46, YF - 74 + bob, 0.85, {}); ctx.globalCompositeOperation = 'lighter'; glow(CX + 46, YF - 92 + bob, 22, P0.c, 0.35); ctx.globalCompositeOperation = 'source-over'; } });
   L.sort((a, b) => ((a.y === undefined ? YF : a.y) - (b.y === undefined ? YF : b.y)) || (b.z - a.z)).forEach(o => o.f());
@@ -2892,8 +2892,8 @@ const FAM_UNL = [0, 11, 21, 31, 41]; // p15 familiers multi : étape (index) qui
 const famSlots = () => FAM_UNL.filter(i => (S.best || 1) >= i).length;
 function famSync() { if (!Array.isArray(S.famEq)) S.famEq = S.fam ? [S.fam] : []; if (S.fam && !S.famEq.length && S.fams[S.fam]) S.famEq.push(S.fam);
   S.famEq = S.famEq.filter((id, i, a) => FAM[id] && S.fams[id] && a.indexOf(id) === i).slice(0, famSlots()); S.fam = S.famEq[0] || null; return S.famEq; }
-const GDPOS = [-78, -150]; // p35 : position du gardien
-const FAMPOS = [[-44, -122], [26, -150], [-20, -176], [62, -118], [88, -168]]; // position de chaque familier (par rapport au héros)
+const GDPOS = [-56, -168]; // p35 : position du gardien
+const FAMPOS = [[-44, 2], [-70, 6], [-92, 1], [-30, 13], [-60, 15]]; // p36 familiers sol : au sol derrière le héros // position de chaque familier (par rapport au héros)
 const famK = k => famSync().reduce((a, id) => a + (FAM[id].k === k ? famVal(id) : 0), 0);
 const famStars = id => { const s = famStar(id); return [1, 2, 3, 4, 5].map(i => `<i class="${i <= s ? 'on' : ''}">★</i>`).join(''); };
 function famRoll(force) { let tier; if (force !== undefined) tier = force; else { let x = Math.random() * 100; tier = 0; for (let i = 4; i >= 0; i--) { const lo = FRATE.slice(i + 1).reduce((a, b) => a + b, 0); if (x < lo + FRATE[i] && x >= lo) { tier = i; break; } } const lo2 = 0; x = x; }
