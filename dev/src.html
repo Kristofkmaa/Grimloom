@@ -1163,7 +1163,9 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p34 montures */
+<style id="sv">/* p35 gardiens */
+.mtop .mic svg{width:30px;height:30px}#eqg .mmini svg{width:30px;height:30px}
+/* p34 montures */
 .mgrid{display:flex;flex-direction:column;gap:10px}
 .mcard{border-radius:14px;padding:10px;background:linear-gradient(#2a141c,#140a0e);border:2px solid color-mix(in srgb,var(--sc) 55%,#3a2028)}.mcard.eq{box-shadow:0 0 14px -4px var(--sc)}.mcard.lock{opacity:.85;border-color:#4a2a36}
 .mtop{display:flex;align-items:center;gap:10px}.mtop .mic{width:72px;height:63px;border-radius:12px;background:radial-gradient(#3a1a20,#0c0507);border:2px solid var(--sc);flex:none}
@@ -1676,7 +1678,7 @@ function rarityWeights(lvl) { const base = [100, 32, 8, 1.6, 0.3, 0.05, 0.008]; 
 function rollRarity() { const w = rarityWeights(S.forge + 0.6 * tr('a_luck')); let r = Math.random() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < w.length; i++) { if ((r -= w[i]) < 0) return i; } return 0; }
 const PC = () => S.farm && S.fc ? S.fc : S.c, PS = () => S.farm && S.fs ? S.fs : S.s; // chapitre / étape réellement jouée
 const label = (c, s) => `${c}-${s}`;
-const FEAT = { coffre: [4, 'Coffre de temps'], talent: [6, 'Talents'], auto: [11, 'Ouverture auto'], invoc: [13, 'Invocation et Familiers'], dungeon: [15, 'Donjons'], grim: [18, 'Grimoire et Pouvoirs'], roue: [21, 'Roue de la fortune'], passe: [23, 'Passe de saison'], rel: [26, 'Montures'], aile: [31, 'Ailes'] };
+const FEAT = { coffre: [4, 'Coffre de temps'], talent: [6, 'Talents'], auto: [11, 'Ouverture auto'], invoc: [13, 'Invocation et Familiers'], dungeon: [15, 'Donjons'], grim: [18, 'Grimoire et Pouvoirs'], roue: [21, 'Roue de la fortune'], passe: [23, 'Passe de saison'], rel: [26, 'Gardiens'], aile: [31, 'Ailes'] };
 const featOK = k => !FEAT[k] || S.best >= FEAT[k][0] || !!(S.unl && S.unl[k]) || (k === 'auto' && S.autoUnl);
 const featMsg = k => `${FEAT[k][1]} : se débloque à l'étape ${stName(FEAT[k][0])}`;
 let FQ = [], FQT = 0;
@@ -1689,7 +1691,7 @@ const FINFO = {
   grim: [null, 'Le <b>Grimoire</b> s\'ouvre dans le portail : invoque des pouvoirs avec tes pages. Ce sont des sorts qui se lancent seuls en combat, à équiper depuis la case Pouvoirs.', () => sumPage('grim')],
   roue: ['hubWh', 'Un <b>tour gratuit</b> chaque jour pour gagner clés, or, âmes ou Sceaux. Le passe de saison donne des jetons en plus.', () => wheelSheet()],
   passe: ['hubPs', 'Tout ce que tu fais rapporte des <b>points</b> : démons, coffres, donjons, invocations… Monte les 100 paliers avant la fin de la saison.', () => passSheet()],
-  rel: [null, 'Débloque des <b>montures</b> avec les Sceaux des donjons de set : chacune donne un bonus et réveille les pouvoirs de son set.', () => mountSheet()],
+  rel: [null, 'Débloque des <b>gardiens</b> volants avec les Sceaux des donjons de set : chacune donne un bonus et réveille les pouvoirs de son set.', () => mountSheet()],
   aile: [null, 'Affronte l\'Archidémon au raid pour gagner des <b>plumes</b> et débloquer des ailes. Une paire équipée se voit sur ton héros.', () => wingSheet()],
 };
 function featPop() {
@@ -1975,6 +1977,7 @@ function combatTick(dt) { // sets (déclencheurs) + sorts + timer du donjon
   if (st.frenzy && h.hp < h.hpMax * 0.3 && B.frenzyCd <= 0 && !h.dead) { B.frenzyT = 5; B.frenzyCd = 20; B.banner = { a: 'Frénésie', b: 'Vitesse d\'attaque ×2', t: 1.2 }; }
   if (st.boneShield) { B.shT = (B.shT || 0) - dt; if (B.shT <= 0) { B.shT = 10; B.shield = Math.max(B.shield || 0, h.hpMax * 0.2); } }
   if (fighting) { B.famSp = B.famSp || []; famSync().forEach((id, i) => { const S0 = famSpl(id); if (!S0) return; B.famSp[i] = (B.famSp[i] === undefined ? 2 + i * 1.3 : B.famSp[i]) - dt; if (B.famSp[i] > 0) return; B.famSp[i] = S0.cd; const P0 = FAMPOS[i]; famCast(id, [CX + P0[0], YF + P0[1]]); }); }
+  if (fighting && S.mountEq && S.mounts[S.mountEq]) { B.gdT = (B.gdT === undefined ? 1.5 : B.gdT) - dt; if (B.gdT <= 0) { B.gdT = 5; const L = alive(); if (L.length) { const t = L.reduce((a, b) => b.z < a.z ? b : a), lv = S.mounts[S.mountEq]; B.shots.push({ X: 0, z: (GDPOS[0] - 46) / ZW, h: -GDPOS[1] + 6, tg: t, dmg: st.atk * (1.2 + 0.08 * lv), crit: false, t: 0, fx: 'arc', prj: 1, solid: 0, wr: -1, comp: 'fam' }); } } }
   if (fighting) { B.famTs = B.famTs || []; famSync().forEach((id, i) => { B.famTs[i] = (B.famTs[i] === undefined ? 0.6 + i * 0.45 : B.famTs[i]) - dt; if (B.famTs[i] > 0) return; B.famTs[i] = 2.5; const L = alive(); if (!L.length) return; const F = FAM[id], t = L.reduce((a, b) => b.z < a.z ? b : a), P0 = FAMPOS[i]; B.shots.push({ X: 0, z: (P0[0] - 46) / ZW, h: -P0[1] + 6, tg: t, dmg: st.atk * 0.18 * (1 + 0.3 * F.r) * (1 + 0.25 * (famStar(id) - 1)), crit: false, t: 0, fx: 'arc', prj: F.p, solid: 0, wr: -1, comp: 'fam' }); }); }
   if (!B.hero.dead && !(!$('modal').hidden && $('sellB'))) ultGain(100 / ULT_CD * dt); // recharge de base : prêt toutes les ULT_CD s, chaque kill accélère
   if (fighting && (B.ult || 0) >= 100 && B.ultFullT && S.ultAuto !== false && B.t - B.ultFullT > 0.4) castUlt(); // bouton AUTO de la barre de sorts
@@ -2112,6 +2115,7 @@ function draw(time) {
   L.push({ z: 0, y: YF, f: () => drawHero(time) });
   if (!B.walk && !B.dun) L.push({ z: -0.001, y: YF + 60, f: drawHeroHp });
   L.push({ z: -0.02, f: () => { drawComp(0, time); drawComp(1, time); if (raidOn()) drawComp(2, time); } });
+  { const k = S.mountEq, A = k && ASSETS.PET && ASSETS.PET[k]; if (A && S.mounts[k]) L.push({ z: 0.04, y: YF - 2, f: () => { const im = PETI[k]; if (!im || !im.complete) return; const bob = Math.sin(time * 2) * 6, x = CX + GDPOS[0], y = YF + GDPOS[1] + bob, sc = 70 / A.ch, f = Math.floor(time * 8) % (A.n || 4); ctx.save(); ctx.imageSmoothingEnabled = true; ctx.drawImage(im, f * A.cw, 0, A.cw, A.ch, x - A.cw * sc / 2, y - A.ch * sc / 2, A.cw * sc, A.ch * sc); ctx.restore(); } }); }
   famSync().forEach((id, i) => L.push({ z: 0.05 + i * 0.01, y: YF - 1 - i, f: () => { const F = FAM[id], im = IMG.fam_sp, P0 = FAMPOS[i], bob = Math.sin(time * 2.4 + i * 1.3) * 5, x = CX + P0[0], y = YF + P0[1] + bob, sz = (52 + F.r * 3) * (i ? 0.8 : 1);
     ctx.globalCompositeOperation = 'lighter'; glow(x, y, 26 + F.r * 4, FRC[F.r], 0.28 + 0.06 * F.r); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#0006'; ctx.beginPath(); ctx.ellipse(x, YF - 6, 14, 3.5, 0, 0, 7); ctx.fill();
     if (im && im.complete) { ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(im, F.i * 128, 0, 128, 128, x - sz / 2, y - sz / 2, sz, sz); ctx.restore(); } } }));
@@ -2459,7 +2463,7 @@ function ui() {
     $('panel').innerHTML = `<div id="eqg"><div class="gl">${GRID.map(id => id ? slotHTML(SLOTS.find(q => q.id === id)) : `<button type="button" class="slot lockd" id="slot12"><i class="flk">${IC.lock}</i><span class="nm">${S.best >= 41 ? 'Bientôt' : 'Étape 5-1'}</span></button>`).join('')}</div><i class="sep"></i><div class="gr">${
       art('wingSlot', 'aile', 'Ailes', w ? `<canvas id="wingMini" width="84" height="54"></canvas><span class="lv">Nv ${wlv(w)}</span>` : '<i class="wplus">+</i>', !!w, w ? WINGS[w].c : '')}${
       art('famSlot', 'invoc', 'Familier', fam ? `<canvas id="famMini" width="64" height="64"></canvas><span class="lv">${S.famEq.length}/${famSlots()}</span>` : '<i class="wplus">+</i>', !!fam, fam ? FRC[FAM[S.fam].r] : '')}${
-      art('relSlot', 'rel', 'Monture', mk ? `<canvas class="mmini" data-mnt="${mk}" width="96" height="84"></canvas><span class="lv">Nv ${S.mounts[mk]}</span>` : '<i class="wplus">+</i>', !!mk, mk ? SETS[MNT[mk].set].c : '')}${
+      art('relSlot', 'rel', 'Gardien', mk ? `<i class="mmini" style="display:grid;place-items:center;color:${SETS[MNT[mk].set].c}">${IC[MNT[mk].ic]}</i><span class="lv">Nv ${S.mounts[mk]}</span>` : '<i class="wplus">+</i>', !!mk, mk ? SETS[MNT[mk].set].c : '')}${
       art('spSlot', 'grim', 'Pouvoirs', nSp ? `<span class="spmini">${S.slots.filter(Boolean).slice(0, 4).map(id => spIcon(id, 12)).join('')}</span><span class="lv">${nSp}/${slotCount()}</span>` : '<i class="wplus">+</i>', nSp > 0, '#b48aff')}
       <button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button><button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button></div></div>`;
     const bind = (id, fn) => { const e = $(id); if (e && !e.dataset.fk) e.onclick = fn; }; bind('wingSlot', wingSheet); bind('famSlot', famSheet); bind('relSlot', mountSheet); mntIcons($('panel')); bind('spSlot', openSkills);
@@ -2640,7 +2644,7 @@ const HELP = [
   ['#f0c46a', IC.key, 'Tickets de set', '2 par jour (remis à minuit), +1 par boss de chapitre, certaines quêtes.', 'Entrer dans un donjon de set (le ticket n\'est perdu qu\'en cas de victoire).'],
   ['#7aff9a', IC.coin, 'Tickets de donjon', 'Chaque donjon de ressources en donne 2 par jour, remis à minuit.', 'Entrer dans la Mine aux trésors, le Puits des âmes, le Caveau de cristal ou le Scriptorium (perdu seulement si tu gagnes), ou balayer un niveau déjà battu.'],
   ['#c070ff', IC.star, 'Plumes', 'Affronter l\'Archidémon (Donjons › Raid), 2 essais par jour. Plus tu infliges de dégâts, plus tu en gagnes.', 'Débloquer et améliorer les ailes (Héros › Ailes), qui apparaissent sur le chevalier et ont un effet unique.'],
-  ['#ff4a5a', IC.shield, 'Sceaux', 'Réussir les donjons des sets.', 'Débloquer et améliorer les montures (case Monture). Niveaux 1, 10 et 20 : les pouvoirs de son set se réveillent.'],
+  ['#ff4a5a', IC.shield, 'Sceaux', 'Réussir les donjons des sets.', 'Débloquer et améliorer les gardiens (case Gardien). Niveaux 1, 10 et 20 : les pouvoirs de son set se réveillent.'],
   ['#7aff9a', IC.star, 'Expérience et niveaux', 'Tuer des démons.', 'Chaque niveau donne 1 point de talent pour l\'arbre (onglet Talents).'],
   ['#ffe3a0', IC.sword, 'Puissance', 'Calculée à partir de ton équipement, de tes talents et de ton évolution.', 'Indique ta force : compare-la à la difficulté des étapes.'],
 ];
@@ -2888,6 +2892,7 @@ const FAM_UNL = [0, 11, 21, 31, 41]; // p15 familiers multi : étape (index) qui
 const famSlots = () => FAM_UNL.filter(i => (S.best || 1) >= i).length;
 function famSync() { if (!Array.isArray(S.famEq)) S.famEq = S.fam ? [S.fam] : []; if (S.fam && !S.famEq.length && S.fams[S.fam]) S.famEq.push(S.fam);
   S.famEq = S.famEq.filter((id, i, a) => FAM[id] && S.fams[id] && a.indexOf(id) === i).slice(0, famSlots()); S.fam = S.famEq[0] || null; return S.famEq; }
+const GDPOS = [-78, -150]; // p35 : position du gardien
 const FAMPOS = [[-44, -122], [26, -150], [-20, -176], [62, -118], [88, -168]]; // position de chaque familier (par rapport au héros)
 const famK = k => famSync().reduce((a, id) => a + (FAM[id].k === k ? famVal(id) : 0), 0);
 const famStars = id => { const s = famStar(id); return [1, 2, 3, 4, 5].map(i => `<i class="${i <= s ? 'on' : ''}">★</i>`).join(''); };
@@ -3012,23 +3017,30 @@ const MNT = { // set : pouvoirs réveillés · any : se paie avec n'importe quel
   escargot: { leg: -0.65, n: 'Escargot de siège', set: 'givre', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une tour de guet sur sa coquille', seat: [130, 108] },
   destrier_rouge: { leg: -0.5, n: 'Destrier écarlate', set: 'sang', any: 1, k: 'atk', v: 2.2, ic: 'flame', d: 'Un destrier démoniaque à la crinière de flammes · se paie avec tous tes Sceaux', seat: [104, 88] },
   destrier_os: { leg: -0.5, n: 'Destrier d\'os', set: 'os', any: 1, k: 'pv', v: 3, ic: 'snow', d: 'Un cheval squelette aux flammes bleues · se paie avec tous tes Sceaux', seat: [112, 90] } };
+Object.assign(MNT.chopper, { n: 'Crâne-hélice', ic: 'skull', d: 'Un crâne qui vole grâce à une hélice en os bricolée' }); // p35 gardiens
+Object.assign(MNT.cercueil, { n: 'Lanterne hantée', ic: 'sun', d: 'Une vieille lanterne où loge un petit fantôme grincheux' });
+Object.assign(MNT.coq, { n: 'Hibou squelette', ic: 'wind', d: 'Un hibou d\'os aux grands yeux lumineux, très sérieux' });
+Object.assign(MNT.escargot, { n: 'Raie des brumes', ic: 'drop', d: 'Une raie manta qui nage dans l\'air, lente et paisible' });
+Object.assign(MNT.destrier_rouge, { n: 'Dragonnet écarlate', ic: 'flame', d: 'Un petit dragon rouge très fier de lui · se paie avec tous tes Sceaux' });
+Object.assign(MNT.destrier_os, { n: 'Dragonnet d\'os', ic: 'snow', d: 'Un petit dragon squelette aux flammes bleues · se paie avec tous tes Sceaux' });
 const MKS = Object.keys(MNT), MNT_MAX = 30, mntUnl = k => MNT[k].any ? 45 : 20, mntCost = (k, lv) => Math.round((6 + lv * 2) * (MNT[k].any ? 1.5 : 1)), MKN = { atk: 'Attaque', pv: 'Points de vie', rate: 'Vitesse d\'attaque', crit: 'Critique' };
 const mSeals = k => MNT[k].any ? sealTot() : S.seals[MNT[k].set], mPay = (k, c) => MNT[k].any ? sealPay(c) : (S.seals[MNT[k].set] >= c && (S.seals[MNT[k].set] -= c, true));
 S.mounts = S.mounts || {}; if (S.mountEq === undefined) S.mountEq = null; { const OLD = { sang: 'chopper', os: 'cercueil', braise: 'coq', givre: 'escargot' }; for (const o in OLD) if (S.mounts[o]) { S.mounts[OLD[o]] = Math.max(S.mounts[OLD[o]] || 0, S.mounts[o]); delete S.mounts[o]; } if (OLD[S.mountEq]) S.mountEq = OLD[S.mountEq]; if (S.mountEq && !MNT[S.mountEq]) S.mountEq = null; }
 if (!S.relGone) { S.relGone = 1; let g = 0; for (const id in (S.rels || {})) { const R = REL[id]; if (!R) continue; const n = (R.r + 1) * 6 * (S.rels[id].s || 1); S.seals[R.set] += n; g += n; } S.rels = {}; S.relEq = [null, null, null, null, null, null]; if (g) setTimeout(() => toast(`Les reliques deviennent des montures : +${g} Sceaux rendus`), 3000); }
 function mountSheet() {
   const card = k => { const M = MNT[k], St = SETS[M.set], lv = S.mounts[k] || 0, eq = S.mountEq === k, c = lv ? mntCost(k, lv) : mntUnl(k), ok = mSeals(k) >= c && lv < MNT_MAX, tier = lv >= 20 ? 6 : lv >= 10 ? 4 : lv ? 2 : 0;
-    return `<div class="mcard ${lv ? '' : 'lock'} ${eq ? 'eq' : ''}" style="--sc:${St.c}"><div class="mtop"><canvas class="mic" data-mnt="${k}" width="96" height="84"></canvas><div><b>${M.n}</b><small>${lv ? `Niveau ${lv} / ${MNT_MAX}` : M.d}</small></div>${eq ? '<em>Montée</em>' : ''}</div>
+    return `<div class="mcard ${lv ? '' : 'lock'} ${eq ? 'eq' : ''}" style="--sc:${St.c}"><div class="mtop"><i class="mic" style="display:grid;place-items:center;color:var(--sc)">${IC[M.ic]}</i><div><b>${M.n}</b><small>${lv ? `Niveau ${lv} / ${MNT_MAX}` : M.d}</small></div>${eq ? '<em>Avec toi</em>' : ''}</div>
       <div class="mst">${MKN[M.k]} <b>+${(M.v * Math.max(1, lv)).toFixed(M.v % 1 ? 1 : 0)}${M.k === 'crit' ? ' pts' : ' %'}</b>${lv ? '' : ' au niveau 1'}</div>
       <div class="mset"><small>${St.n}</small>${St.b.map(([n, t], i) => `<p class="${tier >= n ? 'on' : ''}"><i>Nv ${[1, 10, 20][i]}</i>${t}</p>`).join('')}</div>
-      <div class="mbt">${lv ? `<button class="btn ${eq ? '' : 'gold'}" type="button" data-meq="${k}">${eq ? 'Descendre' : 'Monter'}</button>` : ''}<button class="btn gold" type="button" data-mup="${k}" ${ok ? '' : 'disabled'}>${lv ? (lv >= MNT_MAX ? 'Niveau max' : 'Améliorer') : 'Débloquer'}<small>${lv >= MNT_MAX ? '' : `${c} Sceaux${M.any ? ' (tous)' : ''} · tu as ${mSeals(k)}`}</small></button></div></div>`; };
-  sheet(`<h3>Montures <button class="x" type="button" aria-label="Fermer">✕</button></h3><p class="knote" style="margin-top:0">Débloque et améliore les montures avec les <b>Sceaux</b> des donjons de set. Une seule montée à la fois : elle donne son bonus et réveille les pouvoirs de son set aux niveaux 1, 10 et 20.</p><div class="mgrid">${MKS.map(card).join('')}</div>`);
+      <div class="mbt">${lv ? `<button class="btn ${eq ? '' : 'gold'}" type="button" data-meq="${k}">${eq ? 'Renvoyer' : 'Choisir'}</button>` : ''}<button class="btn gold" type="button" data-mup="${k}" ${ok ? '' : 'disabled'}>${lv ? (lv >= MNT_MAX ? 'Niveau max' : 'Améliorer') : 'Débloquer'}<small>${lv >= MNT_MAX ? '' : `${c} Sceaux${M.any ? ' (tous)' : ''} · tu as ${mSeals(k)}`}</small></button></div></div>`; };
+  sheet(`<h3>Gardiens <button class="x" type="button" aria-label="Fermer">✕</button></h3><p class="knote" style="margin-top:0">Débloque et améliore les gardiens avec les <b>Sceaux</b> des donjons de set. Un seul gardien t'accompagne : il vole près de toi, attaque toutes les 5 s, donne son bonus et réveille les pouvoirs de son set aux niveaux 1, 10 et 20.</p><div class="mgrid">${MKS.map(card).join('')}</div>`);
   const m = $('mbox');
   m.querySelectorAll('[data-mup]').forEach(b => b.onclick = () => { const k = b.dataset.mup, lv = S.mounts[k] || 0, c = lv ? mntCost(k, lv) : mntUnl(k); if (lv >= MNT_MAX || !mPay(k, c)) return; S.mounts[k] = lv + 1; if (!lv && !S.mountEq) S.mountEq = k; sfxPlay('reward'); toast(lv ? `${MNT[k].n} niveau ${lv + 1}` : `${MNT[k].n} débloqué !`); save(); ui(); mountSheet(); });
   mntIcons(m);
   m.querySelectorAll('[data-meq]').forEach(b => b.onclick = () => { const k = b.dataset.meq; S.mountEq = S.mountEq === k ? null : k; save(); ui(); mountSheet(); });
 }
 function mntIcons(root) { root.querySelectorAll('canvas[data-mnt]').forEach(c => { const k = c.dataset.mnt, A = ASSETS.MOUNT && ASSETS.MOUNT[k], im = MNTI[k]; if (!A || !im) return; const dr = () => { if (!c.isConnected) return; if (!im.complete || !im.naturalWidth) return setTimeout(dr, 120); const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); g.imageSmoothingEnabled = true; const sc = Math.min(c.width / A.cw, c.height / A.ch) * 1.25; g.drawImage(im, 0, A.ch, A.cw, A.ch, (c.width - A.cw * sc) / 2, c.height - (A.ch - A.foot * 0.6) * sc, A.cw * sc, A.ch * sc); }; dr(); }); }
+const PETI = {}; for (const k in (ASSETS.PET || {})) PETI[k] = lazyImg(ASSETS.PET[k].src);
 const MNTI = {}; for (const k in (ASSETS.MOUNT || {})) MNTI[k] = lazyImg(ASSETS.MOUNT[k].src);
 // en combat : la monture sous le héros (course pendant les avances, attente, action au début de chaque vague)
 function mountDraw(time, anim) { const k = S.mountEq, A = k && ASSETS.MOUNT && ASSETS.MOUNT[k], im = k && MNTI[k], h = B.hero; if (!A || !im || h.dead || !im.complete || !im.naturalWidth) return false;
@@ -3561,7 +3573,7 @@ function showAdmin() {
   else if (ADT === 'hero') body = G('Niveau', B2('lvl', '+10 niveaux') + B2('allcp', 'Niveau 60') + `<div class="adin full"><input type="number" id="adLvl" min="1" max="200" value="${S.lvl}"><button class="btn" data-a="setlvl" type="button">Fixer le niveau</button></div>`)
     + G('Classe', ['knight', 'hunter', 'mage'].map(c => `<button class="btn ${S.cls === c ? 'gold' : ''}" type="button" data-cls2="${c}">${TCL[c].n}</button>`).join('') + B2('evomax', 'Forme ultime (voie 1)'))
     + G('Équiper tout le stuff en', RAR.map((r, i) => rb(i, r)).join('') + B2('strip', 'Tout retirer'))
-    + G('Reliques : set complet sur l\'autel', SETK.map(k => `<button class="btn" type="button" data-set="${k}" style="border-color:${SETS[k].c};color:${SETS[k].c}">${SETS[k].n}</button>`).join('') + B2('allmnt', 'Toutes les montures') + B2('mnt20', 'Montures niveau 20') + B2('seals', '+500 Sceaux'))
+    + G('Reliques : set complet sur l\'autel', SETK.map(k => `<button class="btn" type="button" data-set="${k}" style="border-color:${SETS[k].c};color:${SETS[k].c}">${SETS[k].n}</button>`).join('') + B2('allmnt', 'Tous les gardiens') + B2('mnt20', 'Gardiens niveau 20') + B2('seals', '+500 Sceaux'))
     + G('Talents', B2('tp', '+20 points de talent') + B2('ultfull', 'Jauge d\'ultime pleine'));
   else if (ADT === 'world') body = G('Chapitre', B2('cm', '◀ Chapitre −1') + B2('cp', 'Chapitre +1 ▶') + `<div class="adin full"><input type="number" id="adCh" min="1" max="200" value="${S.c}"><button class="btn" data-a="setch" type="button">Aller au chapitre</button></div>` + B2('boss', 'Aller au boss', 'red') + B2('kill', 'Tuer la vague', 'red'))
     + G('Aller au biome', BIOMES.map((b, i) => `<button class="btn" type="button" data-bio="${i}" style="border-color:${b.rune};color:${b.rune}">${b.n.replace(/^(Le |La |L\')/, '')}</button>`).join(''))
@@ -3837,7 +3849,7 @@ const TABTUTO = {
   dungeon: [
     { pre: '[data-dtab=res]', t: '#panel .ktabs', h: 'Trois sortes de donjons', p: '<b>Ressources</b> pour farmer, <b>Sets</b> pour les équipements de set, <b>Raid</b> pour les ailes.' },
     { t: '#panel .rdun', h: 'Donjons de ressources', p: 'Or, XP, clés, pages : chacun donne <b>2 tickets par jour</b>, remis à minuit, et se débloque en avançant. Le Repaire du Voleur donne des <b>clés</b>. <b>Combattre</b> fait monter le niveau du donjon, <b>Balayer</b> donne tout de suite la récompense d\'un niveau déjà battu.' },
-    { pre: '[data-dtab=sets]', t: '#panel .wdun', h: 'Les donjons de sets', p: 'Quatre donjons sur la carte, ouverts avec des <b>tickets</b>. Ils donnent des <b>Sceaux</b> pour débloquer et améliorer les <b>montures</b> (Sang, Os, Braises, Givre). Chaque monture réveille les pouvoirs de son set.' },
+    { pre: '[data-dtab=sets]', t: '#panel .wdun', h: 'Les donjons de sets', p: 'Quatre donjons sur la carte, ouverts avec des <b>tickets</b>. Ils donnent des <b>Sceaux</b> pour débloquer et améliorer les <b>gardiens</b> (Sang, Os, Braises, Givre). Chaque gardien réveille les pouvoirs de son set.' },
     { pre: '[data-dtab=raid]', t: () => $('raidGo') && $('raidGo').closest('.kl'), h: 'Le raid', p: 'L\'Archidémon est immortel : inflige un maximum de dégâts en <b>30 secondes</b>. Chaque palier atteint rapporte des <b>plumes</b> pour les ailes. 2 essais par jour.', post: '[data-dtab=res]' },
   ],
 };
