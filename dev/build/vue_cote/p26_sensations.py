@@ -29,6 +29,8 @@ rep("  if (!e.dead && e.spawn <= 0 && !e.boss) {", r"""  if (!e.dead && e.spawn 
     ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fillRect(x - w / 2 - 2, hy - 2, w + 4, 9); ctx.fillStyle = '#ffffffaa'; ctx.fillRect(x - w / 2, hy, w * e.hpS, 5); ctx.fillStyle = e.enraged ? '#ff3020' : '#d01830'; ctx.fillRect(x - w / 2, hy, w * f, 5); ctx.strokeStyle = '#c8964a'; ctx.lineWidth = 1; ctx.strokeRect(x - w / 2 - 1.5, hy - 1.5, w + 3, 8);
     if (e.bossName) { ctx.textAlign = 'center'; ctx.font = '900 9px Cinzel, serif'; ctx.lineWidth = 3; ctx.strokeStyle = '#000'; ctx.strokeText(e.bossName, x, hy - 5); ctx.fillStyle = '#ffd890'; ctx.fillText(e.bossName, x, hy - 5); } }
   if (!e.dead && e.spawn <= 0 && !e.boss) {""")
+# bandeaux : le titre rétrécit pour ne pas passer sous les icônes
+rep("ctx.globalAlpha = a; ctx.font = '900 28px Cinzel, serif'; ctx.textAlign = 'center';", "ctx.globalAlpha = a; ctx.font = '900 28px Cinzel, serif'; { const tw = ctx.measureText(B.banner.a).width; if (tw > 220) ctx.font = `900 ${Math.floor(28 * 220 / tw)}px Cinzel, serif`; } ctx.textAlign = 'center';")
 # --- impacts ---
 rep("if (e.flash > 0) dem(e.key, anim, e.dir, fr, x, y, sc, { alpha: (e.raid ? 0.18 : 0.75) * al,", "if (e.flash > 0) dem(e.key, anim, e.dir, fr, x, y, sc, { alpha: (e.raid ? 0.18 : A.hd ? (e.boss ? 0.22 : 0.4) : 0.75) * al * Math.min(1, e.flash * 12),")
 rep("  sfxPlay(crit ? 'crit' : 'hit'); num(", "  if (crit && B.t - (B.hsT || -9) > 0.45) { B.hs = 0.06; B.hsT = B.t; }\n  sfxPlay(crit ? 'crit' : 'hit'); num(")

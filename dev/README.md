@@ -31,6 +31,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - Toujours là : 3 classes et évolutions, ailes, familiers, reliques, pouvoirs, ultime, talents, donjons + raid, quêtes, succès, hub illustré, déblocages progressifs, tutoriel.
 
 - p26 sensations : intro de boss (`bossIntro`), barre de vie + nom au-dessus du boss, micro-pause sur critique (`B.hs`), chiffres qui sautent, onde + âmes à la mort (`deathFx`), pièces vers `#goldD` (`coinFly`), flash blanc adouci pour les monstres HD.
+- p27 donjons : boss nommé par donjon (`DBOSS`, boss HD du biome si dispo) avec intro, halo de couleur propre (`DCOL`) sur le décor.
 
 ## À faire / en attente
 - Plus d'amélioration d'objet (p12) : on progresse en trouvant mieux dans le coffre. Ailes de profil HD (p13-p14) : planche 4 images en ligne, fond vert, racine au bord droit → `python3 dev/build/build_wings.py planche.png corbeau|os|enfer|givre|dechu` (→ `dev/assets_wings.js`).

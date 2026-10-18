@@ -1163,7 +1163,7 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p26 sensations */
+<style id="sv">/* p27 donjons *//* p26 sensations */
 .coinfly{position:fixed;z-index:60;width:12px;height:12px;margin:-6px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 35% 35%,#fff6c0,#ffc94a 45%,#b86a10);box-shadow:0 0 6px #ffb040}
 @keyframes gpop{40%{transform:scale(1.15);filter:brightness(1.5)}}#app #dock #goldD.gpop{animation:gpop .25s}
 /* p25 chargement *//* p24 ennemis biomes *//* p23 decors biomes *//* p22 raid *//* p21 ennemis hd *//* p20 fin donjon */
@@ -2185,7 +2185,7 @@ function draw(time) {
   if (B.flash) { ctx.fillStyle = `rgba(${B.flash.c},${B.flash.a * B.flash.t / 0.45})`; ctx.fillRect(0, -40, BW, BH + 80); }
   if (B.fade > 0) { ctx.fillStyle = `rgba(0,0,0,${B.fade})`; ctx.fillRect(-10, -60, BW + 20, BH + 120); }
   drawBossIntro();
-  if (B.banner) { const a = Math.min(1, B.banner.t * 2); ctx.globalAlpha = a; ctx.font = '900 28px Cinzel, serif'; ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#000'; ctx.strokeText(B.banner.a, BW / 2, YF - 150); ctx.fillStyle = '#ff3a4a'; ctx.fillText(B.banner.a, BW / 2, YF - 150); ctx.font = '800 14px Nunito, sans-serif'; ctx.lineWidth = 4; ctx.strokeText(B.banner.b, BW / 2, YF - 128); ctx.fillStyle = '#ffe0d0'; ctx.fillText(B.banner.b, BW / 2, YF - 128); ctx.globalAlpha = 1; }
+  if (B.banner) { const a = Math.min(1, B.banner.t * 2); ctx.globalAlpha = a; ctx.font = '900 28px Cinzel, serif'; { const tw = ctx.measureText(B.banner.a).width; if (tw > 220) ctx.font = `900 ${Math.floor(28 * 220 / tw)}px Cinzel, serif`; } ctx.textAlign = 'center'; ctx.lineWidth = 5; ctx.strokeStyle = '#000'; ctx.strokeText(B.banner.a, BW / 2, YF - 150); ctx.fillStyle = '#ff3a4a'; ctx.fillText(B.banner.a, BW / 2, YF - 150); ctx.font = '800 14px Nunito, sans-serif'; ctx.lineWidth = 4; ctx.strokeText(B.banner.b, BW / 2, YF - 128); ctx.fillStyle = '#ffe0d0'; ctx.fillText(B.banner.b, BW / 2, YF - 128); ctx.globalAlpha = 1; }
 }
 const LIGHT = document.createElement('canvas'); LIGHT.width = BW; LIGHT.height = BH;
 function drawLight(time) {
@@ -2366,9 +2366,11 @@ const RBG = ASSETS.raidBg ? lazyImg(ASSETS.raidBg.src) : new Image();
 const BBG = {}; for (const k in (ASSETS.biomeBg || {})) BBG[k] = lazyImg(ASSETS.biomeBg[k]); // p23 decors biomes
 function drawSideBg(VH) { const top = -OFFY;
   if (B.dun && B.dun.raid && RBG.complete && RBG.naturalWidth) { const s3 = VH / RBG.naturalHeight, w = RBG.naturalWidth * s3, x0 = clamp(sx(0, 0.3) + 40 - ASSETS.raidBg.tx * s3, BW - w, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(RBG, x0, top, w, VH); const gd = ctx.createLinearGradient(0, top, 0, top + VH); gd.addColorStop(0, 'rgba(8,2,6,.55)'); gd.addColorStop(0.62, 'rgba(8,2,6,.42)'); gd.addColorStop(1, 'rgba(8,2,6,.2)'); ctx.fillStyle = gd; ctx.fillRect(0, top, BW, VH); return; }
+  const dunC = B.dun && !B.dun.raid && DCOL[B.dun.k];
   const bi = BIOMES.indexOf(biome()), BI = BBG[bi] && BBG[bi].complete && BBG[bi].naturalWidth ? BBG[bi] : SBG; if (!BI.complete || !BI.naturalWidth) { ctx.fillStyle = '#1a1028'; ctx.fillRect(0, top, BW, VH); return; }
   const s2 = VH / BI.naturalHeight, w = BI.naturalWidth * s2, off = ((B.scroll * ZW) % w + w) % w; ctx.imageSmoothingEnabled = BI !== SBG; ctx.imageSmoothingQuality = 'high';
   for (let x = -off; x < BW; x += w) ctx.drawImage(BI, Math.floor(x), top, Math.ceil(w) + 1, VH);
+  if (dunC) { const g = ctx.createRadialGradient(BW * 0.62, YF - 60, 20, BW * 0.62, YF - 60, BW * 0.9); g.addColorStop(0, dunC + '38'); g.addColorStop(1, 'rgba(6,2,8,.55)'); ctx.fillStyle = g; ctx.fillRect(0, top, BW, VH); }
   if (bi > 0 && BI === SBG) { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = BIOMES[bi].tint; ctx.fillRect(0, top, BW, VH); ctx.globalCompositeOperation = 'source-over'; } }
 function drawSideLight(VH) { const top = -OFFY, g = ctx.createLinearGradient(0, top, 0, top + VH); g.addColorStop(0, 'rgba(6,2,8,.62)'); g.addColorStop(0.3, 'rgba(6,2,8,0)'); g.addColorStop(0.93, 'rgba(6,2,8,0)'); g.addColorStop(1, 'rgba(6,2,8,.5)'); ctx.fillStyle = g; ctx.fillRect(0, top, BW, VH); }
 // p13 : point d'accroche des ailes (omoplate) mesuré une fois par forme sur l'image d'attente
@@ -3395,6 +3397,8 @@ function startRaid() {
   const AL = raidAllies(); tab = 'forge'; document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('on', x.dataset.t === 'forge'));
   B.dun = { k: 'raid', lv: 1, w: 0, t: 30, raid: true, allies: [] }; B.cs = []; B.walk = null; B.pend = 0; B.pendFn = null; B.scene = 'arena'; B.scroll = 0; B.fade = 1; closeM(); startWave();
 }
+const DBOSS = { sang: 'Le Seigneur de sang', os: 'Le Gardien de l\'Ossuaire', braise: 'Le Maître-forgeron', givre: 'La Sentinelle gelée', or: 'Le Roi des trésors', xp: 'Le Dévoreur d\'âmes', eclats: 'La Reine de cristal', ham: 'Le Voleur de clés', pages: 'Le Bibliothécaire maudit' }; // p27 donjons
+const DCOL = { sang: '#ff2040', os: '#d8c890', braise: '#ff7a20', givre: '#8ad8ff', or: '#ffc23a', xp: '#7aff9a', eclats: '#b48aff', ham: '#e8dcc8', pages: '#ff9a6a' };
 function startDunWave() {
   if (B.dun.raid) { const D = B.dun; B.bi = 6; B.scene = 'arena'; placeDeco(); B.en = []; B.es = []; B.shots = [];
     B.wave = { n: stageIndex(), boss: true, left: 0, spawnT: 99, total: 1, killed: 0, dun: true };
@@ -3403,7 +3407,7 @@ function startDunWave() {
   const D = B.dun, n = D.res ? Math.max(4 + (D.lv - 1) * 5, Math.round(stageIndex() * 0.75) + (D.lv - 1) * 3) : 4 + (D.lv - 1) * 5; B.bi = (DUNS[D.k] || RD[D.k]).bi; B.scene = 'arena'; placeDeco(); B.en = []; B.es = []; B.shots = [];
   const boss = D.w === 3, count = boss ? 0 : 6 + D.w * 2;
   B.wave = { n, boss, left: count, spawnT: 0.4, total: count + (boss ? 1 : 0), killed: 0, dun: true };
-  if (boss) { const st = enemyStats(n, true); st.hp *= 0.8; spawnEnemy(pick(['beast1', 'beast2', 'beast3', 'beast4', 'beast5']), 0, 1.45, st, true); }
+  if (boss) { const st = enemyStats(n, true); st.hp *= 0.8; const M = BMOBS[B.bi % BMOBS.length], bk = M.boss[D.lv % M.boss.length][0], key = bk === 'p_idle' ? 'spawn1' : bk; spawnEnemy(ASSETS.DEM[key] ? bk : pick(['beast1', 'beast2', 'beast3', 'beast4', 'beast5']), 0, 1.45, st, true); bossIntro(DBOSS[D.k] || 'Le Gardien', `${dunName(D.k)} · Niveau ${D.lv}`); }
   queueBiome(B.bi);
   if (D.w === 0) { const H = heroStats(); B.hero.hpMax = H.pv; B.hero.hp = H.pv; B.hero.dead = 0; B.hero.reported = 0; B.dmg = []; B.waveDmg = 0; B.cd = {}; B.banner = { a: dunName(D.k), b: `Niveau ${D.lv} · 3 vagues + boss en 60 s`, t: 2 }; }
   ui();
