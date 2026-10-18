@@ -1163,7 +1163,16 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p30 equilibrage *//* p29 chrono boss *//* p28 retour sorts *//* p27 donjons *//* p26 sensations */
+<style id="sv">/* p31 sorts4 */
+#skBar{gap:7px!important}#skBar #spellHud2{gap:7px!important}#skBar .sh2{width:42px!important;height:42px!important}
+.spslots{grid-template-columns:repeat(4,1fr)!important}
+#mbox .row:has(>[data-slot]){flex-wrap:wrap}#mbox .row>[data-slot]{flex:1 1 45%!important}
+#app #hubTog{display:grid!important;position:absolute;left:100%;top:50%;margin:-15px 0 0 2px;width:22px;height:30px}
+#app #hubTog img{width:22px;height:28px}#app #hubCol #hubTog .aR{display:none}#app #hubCol.shut #hubTog .aR{display:block}#app #hubCol.shut #hubTog .aL{display:none}
+#app #hubCol{transition:transform .28s cubic-bezier(.3,.8,.3,1)!important}
+#app #hubCol.shut{transform:translateX(calc(-100% - 3px))!important}
+#app #hubCol.shut .hcIn{opacity:0!important;pointer-events:none!important}
+/* p30 equilibrage *//* p29 chrono boss *//* p28 retour sorts *//* p27 donjons *//* p26 sensations */
 .coinfly{position:fixed;z-index:60;width:12px;height:12px;margin:-6px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 35% 35%,#fff6c0,#ffc94a 45%,#b86a10);box-shadow:0 0 6px #ffb040}
 @keyframes gpop{40%{transform:scale(1.15);filter:brightness(1.5)}}#app #dock #goldD.gpop{animation:gpop .25s}
 /* p25 chargement *//* p24 ennemis biomes *//* p23 decors biomes *//* p22 raid *//* p21 ennemis hd *//* p20 fin donjon */
@@ -2499,7 +2508,7 @@ function ui() {
       art('wingSlot', 'aile', 'Ailes', w ? `<canvas id="wingMini" width="84" height="54"></canvas><span class="lv">Nv ${wlv(w)}</span>` : '<i class="wplus">+</i>', !!w, w ? WINGS[w].c : '')}${
       art('famSlot', 'invoc', 'Familier', fam ? `<canvas id="famMini" width="64" height="64"></canvas><span class="lv">${S.famEq.length}/${famSlots()}</span>` : '<i class="wplus">+</i>', !!fam, fam ? FRC[FAM[S.fam].r] : '')}${
       art('relSlot', 'rel', 'Reliques', nRel ? `<span class="rmini">${S.relEq.filter(Boolean).slice(0, 4).map(id => relSp(id)).join('')}</span><span class="lv">${nRel}/6</span>` : '<i class="wplus">+</i>', nRel > 0, '#ffc23a')}${
-      art('spSlot', 'grim', 'Pouvoirs', nSp ? `<span class="spmini">${S.slots.filter(Boolean).slice(0, 3).map(id => spIcon(id, 16)).join('')}</span><span class="lv">${nSp}/${slotCount()}</span>` : '<i class="wplus">+</i>', nSp > 0, '#b48aff')}
+      art('spSlot', 'grim', 'Pouvoirs', nSp ? `<span class="spmini">${S.slots.filter(Boolean).slice(0, 4).map(id => spIcon(id, 12)).join('')}</span><span class="lv">${nSp}/${slotCount()}</span>` : '<i class="wplus">+</i>', nSp > 0, '#b48aff')}
       <button type="button" class="slot art lockd" data-soon="Monture"><i class="flk">${IC.lock}</i><span class="nm">Monture</span></button><button type="button" class="slot art lockd" data-soon="Artefact mystère"><i class="flk">${IC.lock}</i><span class="nm">???</span></button></div></div>`;
     const bind = (id, fn) => { const e = $(id); if (e && !e.dataset.fk) e.onclick = fn; }; bind('wingSlot', wingSheet); bind('famSlot', famSheet); bind('relSlot', relSheet); bind('spSlot', openSkills);
     document.querySelectorAll('#eqg [data-fk]').forEach(e => e.onclick = () => toast(featMsg(e.dataset.fk)));
@@ -2574,7 +2583,7 @@ function ui() {
     $('panel').innerHTML = `<div class="kp"><button type="button" class="spBack" id="spBack">‹ Équipement</button>
       <div class="spban" style="background-image:url(${DUNART.grim})"><div class="spbt"><b>Grimoire</b><small>Les pouvoirs se lancent seuls en combat</small></div><div class="sppg">${IC.book}<b>${fmt(S.pages)}</b><small>pages</small></div></div>
       <h4 class="kh">Équipés <small>se lancent automatiquement</small></h4>
-      <div class="spslots">${[0, 1, 2].map(i => { const id = S.slots[i]; if (i >= n) return `<div class="spslot lock"><i class="splk">${IC.lock}</i><small>Chapitre ${i === 1 ? 2 : 4}</small></div>`; if (!id) return `<div class="spslot empty"><b>+</b><small>Emplacement libre</small></div>`; const sp = SPELLS[id]; return `<button type="button" class="spslot" data-sp="${id}" style="--rc:${SPRC[sp.r]};--sc:${sp.c}">${prev(id, 120, 100)}<b>${sp.n}</b><small>Nv ${S.spells[id].lv} · ${sp.cd} s</small></button>`; }).join('')}</div>
+      <div class="spslots">${[0, 1, 2, 3].map(i => { const id = S.slots[i]; if (i >= n) return `<div class="spslot lock"><i class="splk">${IC.lock}</i><small>Chapitre ${[1, 2, 4, 6][i]}</small></div>`; if (!id) return `<div class="spslot empty"><b>+</b><small>Emplacement libre</small></div>`; const sp = SPELLS[id]; return `<button type="button" class="spslot" data-sp="${id}" style="--rc:${SPRC[sp.r]};--sc:${sp.c}">${prev(id, 120, 100)}<b>${sp.n}</b><small>Nv ${S.spells[id].lv} · ${sp.cd} s</small></button>`; }).join('')}</div>
       <h4 class="kh">Collection <small>${owned} / ${ids.length} · rare 50 % · épique 30 % · légendaire 15 % · mythique 5 %</small></h4>
       <div class="spgrid2">${ids.map(card).join('')}</div></div>`;
     $('spBack').onclick = () => { tab = 'forge'; ui(); };
@@ -2605,8 +2614,8 @@ function uiTop() { musicFor();
   $('pips').innerHTML = Array.from({ length: 10 }, (_, i) => `<i class="${i + 1 < S.s ? 'done' : ''} ${i + 1 === S.s ? 'cur' : ''} ${i === 9 ? 'boss' : ''}" style="${S.farm && i + 1 === S.s ? 'opacity:.55' : ''}"></i>`).join('');
 }
 function uiSpells() {
-  const n = slotCount(), el = $('spellHud2'), key = S.slots.slice(0, 3).map(id => id && S.spells[id] ? id : '').join(',') + '|' + n + '|' + featOK('grim');
-  if (el.dataset.k !== key) { el.dataset.k = key; el.innerHTML = [0, 1, 2].map(i => { const id = S.slots[i]; if (i >= n || !featOK('grim')) return `<button type="button" class="sh2 lk" data-shl="${i}">${IC.lock}</button>`; if (!id || !S.spells[id]) return `<button type="button" class="sh2 em" data-she="1"><b>+</b></button>`; return `<button type="button" class="sh2" data-shs="${id}" style="--sc:${SPELLS[id].c}">${spIcon(id, 40)}<i class="cdm"></i><b class="cdt"></b></button>`; }).join('');
+  const n = slotCount(), el = $('spellHud2'), key = S.slots.slice(0, 4).map(id => id && S.spells[id] ? id : '').join(',') + '|' + n + '|' + featOK('grim');
+  if (el.dataset.k !== key) { el.dataset.k = key; el.innerHTML = [0, 1, 2, 3].map(i => { const id = S.slots[i]; if (i >= n || !featOK('grim')) return `<button type="button" class="sh2 lk" data-shl="${i}">${IC.lock}</button>`; if (!id || !S.spells[id]) return `<button type="button" class="sh2 em" data-she="1"><b>+</b></button>`; return `<button type="button" class="sh2" data-shs="${id}" style="--sc:${SPELLS[id].c}">${spIcon(id, 40)}<i class="cdm"></i><b class="cdt"></b></button>`; }).join('');
     el.querySelectorAll('[data-shl]').forEach(b => b.onclick = () => toast(!featOK('grim') ? featMsg('grim') : `Emplacement de pouvoir : chapitre ${b.dataset.shl === '1' ? 2 : 4}`));
     el.querySelectorAll('[data-she],[data-shs]').forEach(b => b.onclick = openSkills); }
   el.querySelectorAll('[data-shs]').forEach(d => { const id = d.dataset.shs, rem = B.cd && B.cd[id] !== undefined ? Math.max(0, B.cd[id]) : 0, cd = B.cd && B.cd[id] !== undefined ? rem / SPELLS[id].cd : 0.5; d.querySelector('.cdm').style.setProperty('--cd', (cd * 100).toFixed(0) + '%'); d.querySelector('.cdt').textContent = rem > 0.05 ? (rem >= 10 ? Math.ceil(rem) : rem.toFixed(1)) : ''; const fire = rem > SPELLS[id].cd - 0.35; if (fire !== d.classList.contains('cast')) d.classList.toggle('cast', fire); });
@@ -2923,7 +2932,7 @@ if (S.souls === undefined) S.souls = 10; S.fams = S.fams || {}; if (S.fam === un
 const famStar = id => (S.fams[id] || { s: 0 }).s, famVal = id => FAM[id].v * (1 + 0.4 * (famStar(id) - 1));
 const famTxt = id => { const F = FAM[id], K = FK[F.k], v = famStar(id) ? famVal(id) : F.v; return `${K[0]} +${v < 1 ? v.toFixed(2) : v % 1 ? v.toFixed(1) : v}${K[1]}`; };
 const famColl = () => Object.keys(S.fams).reduce((a, id) => a + 0.6 * (1 + 0.5 * FAM[id].r) * (1 + 0.2 * (famStar(id) - 1)), 0);
-const FAM_UNL = [0, 21, 31, 41, 51]; // p15 familiers multi : étape (index) qui ouvre chaque emplacement
+const FAM_UNL = [0, 11, 21, 31, 41]; // p15 familiers multi : étape (index) qui ouvre chaque emplacement
 const famSlots = () => FAM_UNL.filter(i => (S.best || 1) >= i).length;
 function famSync() { if (!Array.isArray(S.famEq)) S.famEq = S.fam ? [S.fam] : []; if (S.fam && !S.famEq.length && S.fams[S.fam]) S.famEq.push(S.fam);
   S.famEq = S.famEq.filter((id, i, a) => FAM[id] && S.fams[id] && a.indexOf(id) === i).slice(0, famSlots()); S.fam = S.famEq[0] || null; return S.famEq; }
@@ -3264,7 +3273,7 @@ const SPELLS = {
 const SPR = ['', 'Rare', 'Épique', 'Légendaire', 'Mythique'], SPRC = ['', '#3a8ae0', '#a040e0', '#ff9a2a', '#ff2a3a'];
 IC.snow = '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7M9 4l3 3 3-3M9 20l3-3 3 3"/></svg>';
 IC.sun = '<svg class="i" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v4h-2zM11 19h2v4h-2zM1 11h4v2H1zM19 11h4v2h-4zM4.2 5.6l1.4-1.4 2.8 2.8-1.4 1.4zM15.6 17l1.4-1.4 2.8 2.8-1.4 1.4zM4.2 18.4 7 15.6 8.4 17l-2.8 2.8zM15.6 7 18.4 4.2l1.4 1.4L17 8.4z"/></svg>';
-const slotCount = () => S.c >= 4 ? 3 : S.c >= 2 ? 2 : 1;
+const slotCount = () => S.c >= 6 ? 4 : S.c >= 4 ? 3 : S.c >= 2 ? 2 : 1; while (S.slots.length < 4) S.slots.push(null); // p31 sorts4
 const spPct = id => Math.round(SPELLS[id].p * (1 + 0.2 * ((S.spells[id] || { lv: 1 }).lv - 1)));
 // ================= sorts ultimes (un par forme / voie) =================
 const ULT = {
@@ -3377,7 +3386,7 @@ function spSheet() {
     return `<button type="button" class="spc2 ${o ? '' : 'lock'} ${eq ? 'eq' : ''}" data-sp="${id}" style="--rc:${SPRC[sp.r]};--sc:${sp.c}">${prev(id, 128, 96)}${eq ? '<em class="speq">Équipé</em>' : ''}${o ? `<em class="splv">Nv ${o.lv}</em>` : `<i class="splk">${IC.lock}</i>`}<span class="spn"><b>${sp.n}</b><small>${SPR[sp.r]}</small></span>${o ? `<span class="spbar"><i style="width:${pc}%"></i><u>${o.cp}/${o.lv}</u></span>` : '<span class="spbar off"><u>Pas encore invoqué</u></span>'}</button>`; };
   sheet(`<h3>Pouvoirs <button class="x" type="button" aria-label="Fermer">✕</button></h3><div class="spsheet">
     <h4 class="kh">Équipés</h4>
-    <div class="spslots">${[0, 1, 2].map(i => { const id = S.slots[i]; if (i >= n) return `<div class="spslot lock"><i class="splk">${IC.lock}</i><small>Chapitre ${i === 1 ? 2 : 4}</small></div>`; if (!id) return `<div class="spslot empty"><b>+</b><small>Emplacement libre</small></div>`; const sp = SPELLS[id]; return `<button type="button" class="spslot" data-sp="${id}" style="--rc:${SPRC[sp.r]};--sc:${sp.c}">${prev(id, 120, 100)}<b>${sp.n}</b><small>Nv ${S.spells[id].lv} · ${sp.cd} s</small></button>`; }).join('')}</div>
+    <div class="spslots">${[0, 1, 2, 3].map(i => { const id = S.slots[i]; if (i >= n) return `<div class="spslot lock"><i class="splk">${IC.lock}</i><small>Chapitre ${[1, 2, 4, 6][i]}</small></div>`; if (!id) return `<div class="spslot empty"><b>+</b><small>Emplacement libre</small></div>`; const sp = SPELLS[id]; return `<button type="button" class="spslot" data-sp="${id}" style="--rc:${SPRC[sp.r]};--sc:${sp.c}">${prev(id, 120, 100)}<b>${sp.n}</b><small>Nv ${S.spells[id].lv} · ${sp.cd} s</small></button>`; }).join('')}</div>
     <h4 class="kh">Collection <b class="spCnt">${owned} / ${ids.length}</b></h4><p class="knote" style="margin:-4px 0 8px">${owned} pouvoir${owned > 1 ? 's' : ''} obtenu${owned > 1 ? 's' : ''} sur ${ids.length} · rare 50 % · épique 30 % · légendaire 15 % · mythique 5 %</p>
     <div class="spgrid2">${ids.map(card).join('')}</div></div>`);
   $('mbox').querySelectorAll('[data-sp]').forEach(b => b.onclick = () => showSpell(b.dataset.sp)); spvLoop();
@@ -3588,7 +3597,7 @@ function showAdmin() {
     keys: () => S.keys += 10, seals: () => SETK.forEach(k => S.seals[k] += 20), pages: () => S.pages += 500, lvl: () => { for (let i = 0; i < 10; i++) gainXP(xpNeed(S.lvl)); }, qdone: () => { const q = quest(); S.qStart -= q.n; }, away: () => { window.__noSave = true; S.lastSeen = Date.now() - 3 * 3600e3; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } location.reload(); return 'sheet'; }, newday: () => { S.loginDay = ''; RDK.forEach(k => S.rt[k].day = ''); S.keyDay = ''; welcome(S.ham); return 'sheet'; },
     allcp: () => { S.lvl = Math.max(S.lvl, 60); },
     evomax: () => { S.lvl = Math.max(S.lvl, 60); const T = ETREE[S.cls]; if (S.cls === 'hunter') S.hform = T.c[0]; else if (S.cls === 'mage') S.mform = T.c[0]; else S.form = T.c[0]; applyEvo(); },
-    allsp: () => { Object.keys(SPELLS).forEach(k => S.spells[k] = { lv: 5, cp: 0 }); S.slots = Object.keys(SPELLS).slice(0, 3); },
+    allsp: () => { Object.keys(SPELLS).forEach(k => S.spells[k] = { lv: 5, cp: 0 }); S.slots = Object.keys(SPELLS).slice(0, 4); },
     allfam: () => { Object.keys(FAM).forEach(k => { if (!S.fams[k]) S.fams[k] = { s: 1, c: 0 }; }); if (!S.fam) S.fam = Object.keys(FAM)[0]; },
     fam5: () => { Object.keys(FAM).forEach(k => S.fams[k] = { s: 5, c: 0 }); if (!S.fam) S.fam = Object.keys(FAM)[0]; },
     allrel: () => { Object.keys(REL).forEach(k => S.rels[k] = S.rels[k] || { s: 1, c: 0 }); },
@@ -3832,7 +3841,7 @@ const TABTUTO = {
   ],
   skills: [
     { t: '#mbox .spban', h: 'Le grimoire', p: 'Les <b>pouvoirs</b> sont des sorts qui se lancent tout seuls pendant le combat. Invoque-les avec des <b>pages</b> : 10 pages par invocation.' },
-    { t: '#mbox .spslots', h: 'Tes emplacements', p: 'Équipe jusqu\'à <b>3 pouvoirs</b>. Le premier est libre, les autres se débloquent aux chapitres 2 et 4. Touche un pouvoir pour l\'équiper.' },
+    { t: '#mbox .spslots', h: 'Tes emplacements', p: 'Équipe jusqu\'à <b>4 pouvoirs</b>. Le premier est libre, les autres se débloquent aux chapitres 2, 4 et 6. Touche un pouvoir pour l\'équiper.' },
     { t: '#mbox .spgrid2', h: 'Ta collection', p: 'Rare, épique, légendaire, mythique : plus c\'est rare, plus c\'est fort. Chaque <b>doublon</b> invoqué renforce le pouvoir jusqu\'à le faire <b>monter de niveau</b>.' },
   ],
   dungeon: [
@@ -3845,7 +3854,7 @@ const TABTUTO = {
 function tabTuto(t) { if (CO || TITLE || !S.tutoDone || !TABTUTO[t]) return; S.tabTuto = S.tabTuto || {}; if (S.tabTuto[t]) return; S.tabTuto[t] = 1; save(); setTimeout(() => coachStart(null, TABTUTO[t]), 250); }
 const ARW = '<svg viewBox="0 0 24 24"><path d="M12 22 3 10h5V2h8v8h5z" fill="#ffd27a" stroke="#6a2a06" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 function coachStart(after, steps) {
-  if (CO) return; if (!$('modal').hidden) closeM();
+  if (CO) return; if (!$('modal').hidden && !(steps && steps.some(st => typeof st.t === 'string' && st.t.includes('#mbox')))) closeM();
   if (!steps) { const nb = document.querySelector('#nav [data-t="forge"]'); if (nb) nb.click(); S.auto.on = false; if (S.ham < 3) S.ham = 3; uiTop(); }
   const d = document.createElement('div'); d.id = 'coach';
   d.innerHTML = '<div class="cb"></div><div class="cb"></div><div class="cb"></div><div class="cb"></div><div class="cb cbh"></div><div class="ch"></div><div class="ca">' + ARW + '</div><div class="kg cbub"><div class="cst"></div><h4></h4><p></p><div class="crow"><button type="button" class="cskip">Passer le tutoriel</button><button type="button" class="btn gold cnext">Suivant</button></div></div>';

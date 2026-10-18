@@ -35,6 +35,7 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - p28 : écran « Bon retour ! » (coffre de temps récolté d'un geste, via `dunScreen` + `o.btn`) ; lancement de pouvoir = onde + éclair de couleur.
 - p29 : boss chronométré (`BOSS_T` = 60 s) : temps écoulé → repli et farm.
 - p30 équilibrage : +3 % atk/PV par niveau ; en farm, 1 démon sur 3 donne une clé. Simulation bot : `sim.py` (scratchpad) — ×8, coffres auto, équipe, défie le boss après 90 s de farm.
+- p31 : 4 pouvoirs + ultime (4e au chapitre 6), familiers 5 emplacements (1, 2-1, 3-1, 4-1, 5-1), flèche `#hubTog` qui replie le volet Invocation/Roue/Passe ; le tuto Pouvoirs ne ferme plus la fiche.
 
 ## À faire / en attente
 - Plus d'amélioration d'objet (p12) : on progresse en trouvant mieux dans le coffre. Ailes de profil HD (p13-p14) : planche 4 images en ligne, fond vert, racine au bord droit → `python3 dev/build/build_wings.py planche.png corbeau|os|enfer|givre|dechu` (→ `dev/assets_wings.js`).
