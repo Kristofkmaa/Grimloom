@@ -1163,7 +1163,20 @@ body.eqmode #bagBtn small b{font-size:15px!important;margin-top:0!important}
 #panel,#dock{position:relative;z-index:1}
 body.eqmode #panel,body.eqmode #dock{background:transparent!important}
 </style>
-<style id="sv">/* p31 sorts4 */
+<style id="sv">/* p32 passe vertical */
+.s-passv .sknX{width:8cqw;height:8cqw;font-size:4cqw;right:2%;top:1%}
+.s-passv .psHead{gap:2cqw;padding:0 3cqw}.s-passv .psHead b{font-size:4.2cqw}.s-passv .psHead .skBar{height:2.4cqw}.s-passv .psHead small{font-size:3cqw}
+.s-passv .skBtn{font-size:4.6cqw}.s-passv .skNote{font-size:3.4cqw;display:grid;place-items:center;color:#e8d0b0}
+.psList{display:block!important;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;padding:4cqw 0 8cqw;-webkit-mask:linear-gradient(transparent,#000 4%,#000 94%,transparent)}.psList::-webkit-scrollbar{display:none}
+.psRail{position:absolute;left:calc(50% - .6cqw);top:0;width:1.2cqw;height:calc(var(--n,100) * 1px);display:none}
+.psRow{position:relative;height:21cqw;flex:none}
+.psNode{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:7.4cqw;height:7.4cqw;border-radius:50%;display:grid;place-items:center;font:400 3.2cqw/1 var(--n);color:#9a8a80;background:radial-gradient(#2a1a18,#0c0607);border:.5cqw solid #6a4a2a;box-shadow:0 0 0 .4cqw #000a;z-index:2}
+.psNode.ok{color:#fff;border-color:#ffc44a;background:radial-gradient(#c8401a,#5a0e0a);box-shadow:0 0 2.4cqw #ff8a2a}.psNode.big{width:9cqw;height:9cqw;font-size:3.8cqw}
+.psRow .psC{position:absolute;top:50%;transform:translateY(-50%);width:27cqw;aspect-ratio:163/240;gap:.7cqw;padding-top:3cqw}
+.psRow.l .psC{right:calc(50% + 6cqw)}.psRow.r .psC{left:calc(50% + 6cqw)}
+.psRow .psC i{width:8cqw;height:8cqw}.psRow .psC b{font-size:3.6cqw}.psRow .psC small{font-size:2.4cqw}.psRow .psC.claim{filter:drop-shadow(0 0 2.4cqw #ffb040)}
+.psRow::before{content:'';position:absolute;top:50%;height:.6cqw;width:6cqw;background:#6a4a2a}.psRow.l::before{right:50%}.psRow.r::before{left:50%}.psRow.ok::before{background:#ffc44a;box-shadow:0 0 1cqw #ff9a2a}
+/* p31 sorts4 */
 #skBar{gap:7px!important}#skBar #spellHud2{gap:7px!important}#skBar .sh2{width:42px!important;height:42px!important}
 .spslots{grid-template-columns:repeat(4,1fr)!important}
 #mbox .row:has(>[data-slot]){flex-wrap:wrap}#mbox .row>[data-slot]{flex:1 1 45%!important}
@@ -3088,27 +3101,23 @@ function passCard(r) { const k = Object.keys(r)[0];
   if (r.spins) return `<i style="color:#9affc8">${IC.star}</i><b>+${r.spins}</b><small>jetons · ${r.seals} Sceaux</small>`;
   if (k === 'gold') return `<i style="color:#ffd27a">${IC.coin}</i><b>Bourse</b><small>d'or${r.gold > 1 ? ' ×' + r.gold : ''}</small>`;
   const d = RWI[k]; return `<i style="color:${d[1]}">${IC[d[0]]}</i><b>+${fmt(r[k])}</b><small>${d[2]}</small>`; }
+let PSCR = null; // p32 passe vertical
 function passSheet() { if (!featOK('passe')) { toast(featMsg('passe')); return; }
-  const P = passTier(), left = SEASON_MS - (Date.now() % SEASON_MS), W = 1482, H = 941, NP = 5, pages = Math.ceil(PASS_N / NP);
-  if (PSPG < 0) { let f = 1; while (f <= P.t && S.passClaim[f]) f++; PSPG = Math.min(pages - 1, Math.floor((Math.min(f, PASS_N) - 1) / NP)); }
-  const cw = 224, ch = 330, gap = 35, x0 = 100 + (1283 - (NP * cw + (NP - 1) * gap)) / 2, y0 = 383;
-  let cards = '', rails = '';
-  for (let i = 0; i < NP; i++) { const t = PSPG * NP + i + 1; if (t > PASS_N) break; const r = passRew(t), ok = P.t >= t, got = S.passClaim[t], big = t % 10 === 0, x = x0 + i * (cw + gap);
-    cards += `<div class="z psC ${ok ? 'ok' : 'lock'} ${got ? 'got' : ''} ${ok && !got ? 'claim' : ''}" data-pt="${t}" style="${zP(x, y0, x + cw, y0 + ch, W, H)};background-image:url(${big ? UIA.cMile : ok ? UIA.cNorm : UIA.cLock})"><em>${t}</em>${passCard(r)}${got ? `<img class="psK" alt="" src="${UIA.chk}">` : ''}</div>`;
-    if (i < NP - 1) rails += `<img class="z" alt="" src="${P.t > t ? UIA.railL : UIA.railD}" style="${zP(x + cw - 12, 536, x + cw + gap + 12, 576, W, H)}">`; }
-  const aL = $('hubTog').querySelector('.aL').src, aR = $('hubTog').querySelector('.aR').src, ready = passReady();
-  skin('pass', W, H, `<div class="z psHead" style="${zP(440, 284, 1042, 338, W, H)}"><b>Palier ${P.t}</b><div class="skBar"><i style="width:${P.t < PASS_N ? P.p / P.need * 100 : 100}%"></i></div><small>${P.t < PASS_N ? `${fmt(P.p)} / ${fmt(P.need)}` : 'Terminé'}</small></div>
-    ${rails}${cards}
-    <button class="z psArr" type="button" id="psPrev" style="${zP(8, 508, 92, 602, W, H)}" ${PSPG ? '' : 'disabled'}><img alt="" src="${aL}"></button>
-    <button class="z psArr" type="button" id="psNext" style="${zP(1384, 508, 1468, 602, W, H)}" ${PSPG < pages - 1 ? '' : 'disabled'}><img alt="" src="${aR}"></button>
-    ${ready ? `<button class="z skBtn" type="button" id="psAll" style="${zP(530, 788, 952, 852, W, H)}">Tout récupérer</button>` : `<div class="z skNote" style="${zP(530, 788, 952, 852, W, H)}">Paliers ${PSPG * NP + 1} – ${Math.min(PASS_N, PSPG * NP + NP)} / ${PASS_N}</div>`}`,
-    `<div class="psInfo"><span>⏳ Fin de saison dans <b>${dhm(left)}</b></span><span>Points : démons, étapes, boss, coffres, donjons, invocations, roue, coffre, connexion.</span><div class="psJump">${[0, 2, 4, 6, 8, 10, 12, 14, 16, 18].map(p => `<button type="button" data-pj="${p}" class="${Math.floor(PSPG / 2) * 2 === p ? 'on' : ''} ${P.t >= p * NP + 1 ? 'r' : ''}">${p * NP + 1}</button>`).join('')}</div></div>`);
-  $('psPrev').onclick = () => { if (PSPG > 0) { PSPG--; passSheet(); } }; $('psNext').onclick = () => { if (PSPG < pages - 1) { PSPG++; passSheet(); } };
-  document.querySelectorAll('[data-pj]').forEach(b => b.onclick = () => { PSPG = +b.dataset.pj; passSheet(); });
+  if (ASSETS.passV) UIA.passv = ASSETS.passV;
+  const P = passTier(), left = SEASON_MS - (Date.now() % SEASON_MS), W = 941, H = 1672, ready = passReady(), old = document.querySelector('.psList'), keep = old ? old.scrollTop : null;
+  let rows = '';
+  for (let t = 1; t <= PASS_N; t++) { const r = passRew(t), ok = P.t >= t, got = S.passClaim[t], big = t % 10 === 0;
+    rows += `<div class="psRow ${t % 2 ? 'l' : 'r'} ${ok ? 'ok' : ''}" data-row="${t}"><span class="psNode ${ok ? 'ok' : ''} ${big ? 'big' : ''}">${t}</span>
+      <div class="psC ${ok ? 'ok' : 'lock'} ${got ? 'got' : ''} ${ok && !got ? 'claim' : ''}" data-pt="${t}" style="background-image:url(${big ? UIA.cMile : ok ? UIA.cNorm : UIA.cLock})">${passCard(r)}${got ? `<img class="psK" alt="" src="${UIA.chk}">` : ''}</div></div>`; }
+  skin('passv', W, H, `<div class="z psHead" style="${zP(262, 226, 680, 288, W, H)}"><b>Palier ${P.t}</b><div class="skBar"><i style="width:${P.t < PASS_N ? P.p / P.need * 100 : 100}%"></i></div><small>${P.t < PASS_N ? `${fmt(P.p)} / ${fmt(P.need)}` : 'Terminé'}</small></div>
+    <div class="z psList" style="${zP(162, 334, 783, 1422, W, H)}"><div class="psRail"><i style="height:${Math.min(100, P.t / PASS_N * 100)}%"></i></div>${rows}</div>
+    ${ready ? `<button class="z skBtn" type="button" id="psAll" style="${zP(285, 1472, 668, 1534, W, H)}">Tout récupérer</button>` : `<div class="z skNote" style="${zP(285, 1472, 668, 1534, W, H)}">⏳ Fin de saison dans ${dhm(left)}</div>`}`,
+    `<div class="psInfo"><span>Points : démons, étapes, boss, coffres, donjons, invocations, roue, coffre, connexion.</span></div>`);
+  const L = document.querySelector('.psList');
+  if (keep !== null) L.scrollTop = keep; else { let f = 1; while (f <= P.t && S.passClaim[f]) f++; const row = L.querySelector(`[data-row="${Math.min(f, PASS_N)}"]`); if (row) L.scrollTop = Math.max(0, row.offsetTop - L.clientHeight * 0.3); }
   document.querySelectorAll('.psC.claim').forEach(c => c.onclick = () => { const t = +c.dataset.pt; if (S.passClaim[t] || passTier().t < t) return; S.passClaim[t] = 1; passGive(passRew(t)); sfxPlay('reward'); toast(`Palier ${t} : ${passTxt(passRew(t))}`); save(); ui(); passSheet(); });
   document.querySelectorAll('.psC:not(.claim)').forEach(c => c.onclick = () => toast(`Palier ${c.dataset.pt} : ${passTxt(passRew(+c.dataset.pt))}`));
   if ($('psAll')) $('psAll').onclick = () => { const P2 = passTier(); let n = 0; for (let t = 1; t <= P2.t; t++) if (!S.passClaim[t]) { S.passClaim[t] = 1; passGive(passRew(t)); n++; } sfxPlay('reward'); toast(`${n} palier${n > 1 ? 's' : ''} récupéré${n > 1 ? 's' : ''}`); save(); ui(); passSheet(); };
-  SKC = () => { PSPG = -1; };
 }
 
 const goldMul = () => (tr('k_midas') ? 1.6 : 1) * (1 + 0.06 * tr('a_gold') + (wEq() === 'dechu' ? 0.05 * wlv('dechu') : 0) + achBonus().gold / 100 + famK('gold') / 100);
