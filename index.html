@@ -2461,7 +2461,7 @@ function sideWings(SA, key, time, sc, by) { const w = wEq(); if (!w) return; con
     const q2 = WDARK.q; ctx.drawImage(dk, (fw * 168 + 84) * q2, row * 168 * q2, 84 * q2, 168 * q2, -(168 - 84 - RX), -RY, 84, 168); ctx.restore(); }
   ctx.translate(rx, ry); ctx.rotate(0.42); ctx.scale(ws, ws); const [I, q] = WIM(); ctx.drawImage(I, fw * 168 * q, row * 168 * q, 84 * q, 168 * q, -RX, -RY, 84, 168); ctx.restore(); // aile proche
   if (w === 'enfer' || w === 'givre' || w === 'dechu') { if (Math.random() < 0.25) B.fx.push({ k: 'p', x: rx - rand(5, 60) * ws, y: ry + rand(-20, 50) * ws, vx: 0, vy: w === 'givre' ? 10 : -16, g: 0, c: WINGS[w].c, t: 0, d: 0.7, r: 1 }); } }
-function drawSideHero(time, anim) { if (!B.mntIn && typeof mountDraw === 'function' && mountDraw(time, anim)) return; const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];
+function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];
   if (SA) { const im = SIDEI[curForm()], sc = HSC * 0.69 * (SA.k || 1); let row = 1, f = 3, by = 0; // attente = « retour en garde » (épée basse) // rangées : marche · sort · touché (2) + mort (2)
     if (h.dead) { row = 2; f = h.deadT < 0.3 ? 2 : 3; } else if (anim === 'course') { row = 0; f = Math.floor(time * 10) % 4; }
     else if (anim === 'tir') { f = clamp(Math.floor((B.t - (h.shotAt || 0)) / 0.32 * 4), 0, 3); } else if (anim === 'touche') { row = 2; f = 0; } else by = Math.round(Math.sin(time * 2.6) * 1.2);

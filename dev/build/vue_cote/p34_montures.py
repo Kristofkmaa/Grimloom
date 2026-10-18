@@ -64,7 +64,7 @@ rep("bind('relSlot', relSheet);", "bind('relSlot', mountSheet); mntIcons($('pane
 rep("rel: [26, 'Reliques']", "rel: [26, 'Montures']")
 rep("  rel: [null, 'Invoque des <b>reliques</b> avec les Sceaux des donjons, puis place-les sur l\\'autel : 6 emplacements et des bonus de set.', () => relSheet()],",
     "  rel: [null, 'Débloque des <b>montures</b> avec les Sceaux des donjons de set : chacune donne un bonus et réveille les pouvoirs de son set.', () => mountSheet()],")
-rep("function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];", "function drawSideHero(time, anim) { if (!B.mntIn && typeof mountDraw === 'function' && mountDraw(time, anim)) return; const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];")
+# (monture sous le héros retirée : ça ne se mariait pas avec les personnages)
 # panneau admin : toutes les montures
 rep("B2('allrel', 'Toutes les reliques')", "B2('allmnt', 'Toutes les montures') + B2('mnt20', 'Montures niveau 20') + B2('seals', '+500 Sceaux')")
 rep("allrel: () => { Object.keys(REL).forEach(k => S.rels[k] = S.rels[k] || { s: 1, c: 0 }); },", "allmnt: () => { MKS.forEach(k => S.mounts[k] = Math.max(1, S.mounts[k] || 0)); if (!S.mountEq) S.mountEq = MKS[0]; }, mnt20: () => { MKS.forEach(k => S.mounts[k] = Math.max(20, S.mounts[k] || 0)); if (!S.mountEq) S.mountEq = MKS[0]; }, seals: () => { SETK.forEach(k => S.seals[k] += 500); },")
