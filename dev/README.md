@@ -30,6 +30,8 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - Ajouter un héros de profil : planche ChatGPT fond vert 4×3 (marche ×4 · sort/attaque ×4 · touché ×2 + mort ×2, regard vers la droite) → `python3 dev/build/build_side.py planche.png <clé de forme>` (ex. `chev`, `h_novice`) → il apparaît tout seul en combat (`dev/assets_side.js`). `--keep-green` seulement pour une aura vraiment verte ; `--ws` quand les images se touchent (grosses auras), avec `--claim=rang,col,x0,y0,x1,y1` pour rendre une épée tendue à la bonne image (voir sfeu) ; `--aura=violet|feu|glace|sang|sacre|foudre|vert` sépare l'aura du corps : en jeu le dessin reste intact : l'aura scintille, des flammèches s'échappent de ses bords, halo et lumière au sol, liseré pulsé et cercle runique pour les formes ultimes, embrasement à chaque attaque.
 - Toujours là : 3 classes et évolutions, ailes, familiers, reliques, pouvoirs, ultime, talents, donjons + raid, quêtes, succès, hub illustré, déblocages progressifs, tutoriel.
 
+- p26 sensations : intro de boss (`bossIntro`), barre de vie + nom au-dessus du boss, micro-pause sur critique (`B.hs`), chiffres qui sautent, onde + âmes à la mort (`deathFx`), pièces vers `#goldD` (`coinFly`), flash blanc adouci pour les monstres HD.
+
 ## À faire / en attente
 - Plus d'amélioration d'objet (p12) : on progresse en trouvant mieux dans le coffre. Ailes de profil HD (p13-p14) : planche 4 images en ligne, fond vert, racine au bord droit → `python3 dev/build/build_wings.py planche.png corbeau|os|enfer|givre|dechu` (→ `dev/assets_wings.js`).
 - Plusieurs familiers équipés (p15) : 1 emplacement, +1 aux étapes 3-1, 4-1, 5-1, 6-1 (5 max) ; chacun tire et donne son bonus.
