@@ -18,7 +18,7 @@ rep("function relSheet() {", r"""const MNT = { // set : pouvoirs réveillés · 
   chopper: { n: 'Chopper d\'ossements', set: 'sang', k: 'atk', v: 1.5, ic: 'skull', d: 'Une moto faite d\'os, phare en crâne, pots d\'échappement en tibias', seat: [92, 100] },
   cercueil: { n: 'Cercueil à roulettes', set: 'os', k: 'pv', v: 2, ic: 'shield', d: 'Un cercueil sur roues propulsé par un petit moteur qui crachote', seat: [126, 112] },
   coq: { n: 'Coq des enfers', set: 'braise', k: 'rate', v: 1.2, ic: 'wind', d: 'Un poulet démoniaque géant, très en colère, qui court très vite', seat: [115, 90] },
-  escargot: { n: 'Escargot de siège', set: 'givre', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une tour de guet sur sa coquille', seat: [166, 100] },
+  escargot: { n: 'Escargot de siège', set: 'givre', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une tour de guet sur sa coquille', seat: [130, 108] },
   destrier_rouge: { n: 'Destrier écarlate', set: 'sang', any: 1, k: 'atk', v: 2.2, ic: 'flame', d: 'Un destrier démoniaque à la crinière de flammes · se paie avec tous tes Sceaux', seat: [104, 88] },
   destrier_os: { n: 'Destrier d\'os', set: 'os', any: 1, k: 'pv', v: 3, ic: 'snow', d: 'Un cheval squelette aux flammes bleues · se paie avec tous tes Sceaux', seat: [112, 90] } };
 const MKS = Object.keys(MNT), MNT_MAX = 30, mntUnl = k => MNT[k].any ? 45 : 20, mntCost = (k, lv) => Math.round((6 + lv * 2) * (MNT[k].any ? 1.5 : 1)), MKN = { atk: 'Attaque', pv: 'Points de vie', rate: 'Vitesse d\'attaque', crit: 'Critique' };
@@ -42,11 +42,12 @@ const MNTI = {}; for (const k in (ASSETS.MOUNT || {})) MNTI[k] = lazyImg(ASSETS.
 // en combat : la monture sous le héros (course pendant les avances, attente, action au début de chaque vague)
 function mountDraw(time, anim) { const k = S.mountEq, A = k && ASSETS.MOUNT && ASSETS.MOUNT[k], im = k && MNTI[k], h = B.hero; if (!A || !im || h.dead || !im.complete || !im.naturalWidth) return false;
   if (B.walk) B.mntW = 1; else if (B.mntW) { B.mntW = 0; B.mntAct = B.t; }
-  const msc = (A.k || 0.5) * 1.35, M = MNT[k], act = B.t - (B.mntAct ?? -9), [qx, qy] = M.seat, foot = A.ch - A.foot; let row = 1, f = Math.floor(time * 4) % 4, up = 0;
-  if (B.walk) { row = 0; f = Math.floor(time * 11) % 4; } else if (act < 0.9) { row = 2; f = clamp(Math.floor(act / 0.9 * 4), 0, 3); up = Math.sin(act / 0.9 * Math.PI) * 10; }
-  const x0 = CX - (qx - 0) * msc, y0 = YF - foot * msc, seatY = y0 + qy * msc, lift = YF - seatY - 24 + up;
-  ctx.save(); ctx.beginPath(); ctx.rect(-50, -OFFY - 300, BW + 100, seatY + 8 - up + OFFY + 300); ctx.clip(); ctx.translate(0, -lift); B.mntIn = 1; try { drawSideHero(time, anim === 'course' ? 'idle' : anim); } finally { B.mntIn = 0; } ctx.restore();
+  const msc = (A.k || 0.5) * 1.35, M = MNT[k], act = B.t - (B.mntAct ?? -9), [qx, qy] = M.seat, foot = A.ch - A.foot; let row = 1, f = Math.floor(time * 4) % 4;
+  if (B.walk) { row = 0; f = Math.floor(time * 11) % 4; } else if (act < 0.9) { row = 2; f = clamp(Math.floor(act / 0.9 * 4), 0, 3); }
+  const [fx, fy] = A.seats ? A.seats[row][f] : [qx, qy]; // selle de cette image : le cavalier la suit
+  const x0 = CX - qx * msc, y0 = YF - foot * msc, seatX = x0 + fx * msc, seatY = y0 + fy * msc, lift = YF - seatY - 24;
   ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, f * A.cw, row * A.ch, A.cw, A.ch, Math.round(x0), Math.round(y0), Math.round(A.cw * msc), Math.round(A.ch * msc)); ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.rect(-50, -OFFY - 300, BW + 100, seatY + 8 + OFFY + 300); ctx.clip(); ctx.translate(seatX - CX, -lift); if (row === 2) { ctx.translate(CX, YF); ctx.rotate(clamp((qy - fy) / 140, -0.25, 0.25) * -1); ctx.translate(-CX, -YF); } B.mntIn = 1; try { drawSideHero(time, anim === 'course' ? 'idle' : anim); } finally { B.mntIn = 0; } ctx.restore();
   if (B.walk && Math.random() < 0.4) B.fx.push({ k: 'p', x: x0 + rand(10, 40) * msc, y: YF - rand(0, 6), vx: rand(-40, -10), vy: rand(-20, -5), g: 0, c: '#8a7a6a', t: 0, d: 0.5, r: rand(1, 2.2) });
   return true; }
 function relSheet() {""")
@@ -59,6 +60,9 @@ rep("rel: [26, 'Reliques']", "rel: [26, 'Montures']")
 rep("  rel: [null, 'Invoque des <b>reliques</b> avec les Sceaux des donjons, puis place-les sur l\\'autel : 6 emplacements et des bonus de set.', () => relSheet()],",
     "  rel: [null, 'Débloque des <b>montures</b> avec les Sceaux des donjons de set : chacune donne un bonus et réveille les pouvoirs de son set.', () => mountSheet()],")
 rep("function drawSideHero(time, anim) { const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];", "function drawSideHero(time, anim) { if (!B.mntIn && typeof mountDraw === 'function' && mountDraw(time, anim)) return; const h = B.hero, SA = ASSETS.side && ASSETS.side[curForm()];")
+# panneau admin : toutes les montures
+rep("B2('allrel', 'Toutes les reliques')", "B2('allmnt', 'Toutes les montures') + B2('mnt20', 'Montures niveau 20') + B2('seals', '+500 Sceaux')")
+rep("allrel: () => { Object.keys(REL).forEach(k => S.rels[k] = S.rels[k] || { s: 1, c: 0 }); },", "allmnt: () => { MKS.forEach(k => S.mounts[k] = Math.max(1, S.mounts[k] || 0)); if (!S.mountEq) S.mountEq = MKS[0]; }, mnt20: () => { MKS.forEach(k => S.mounts[k] = Math.max(20, S.mounts[k] || 0)); if (!S.mountEq) S.mountEq = MKS[0]; }, seals: () => { SETK.forEach(k => S.seals[k] += 500); },")
 # invocation : plus d'onglet Reliques
 rep("[['fam', 'Familiers'], ['grim', 'Grimoire'], ['rel', 'Reliques']]", "[['fam', 'Familiers'], ['grim', 'Grimoire']]")
 rep("  if (SUMTAB === 'rel') return relPage(pg);", "  if (SUMTAB === 'rel') SUMTAB = 'fam';")
