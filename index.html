@@ -3101,12 +3101,12 @@ function relReveal(got, n) {
   $('app').appendChild(d); $('sfOk').onclick = () => { d.remove(); B.gear = gear(); ui(); if ($('sumPg')) sumPage(); else relSheet(); }; $('sfAgain').onclick = () => { d.remove(); relSummon(n); };
 }
 const MNT = { // set : pouvoirs réveillés · any : se paie avec n'importe quels Sceaux · seat : selle dans la case de la planche (ASSETS.MOUNT)
-  chopper: { n: 'Chopper d\'ossements', set: 'sang', k: 'atk', v: 1.5, ic: 'skull', d: 'Une moto faite d\'os, phare en crâne, pots d\'échappement en tibias', seat: [92, 100] },
+  chopper: { leg: -1.15, n: 'Chopper d\'ossements', set: 'sang', k: 'atk', v: 1.5, ic: 'skull', d: 'Une moto faite d\'os, phare en crâne, pots d\'échappement en tibias', seat: [92, 100] },
   cercueil: { n: 'Cercueil à roulettes', set: 'os', k: 'pv', v: 2, ic: 'shield', d: 'Un cercueil sur roues propulsé par un petit moteur qui crachote', seat: [126, 112] },
-  coq: { n: 'Coq des enfers', set: 'braise', k: 'rate', v: 1.2, ic: 'wind', d: 'Un poulet démoniaque géant, très en colère, qui court très vite', seat: [115, 90] },
-  escargot: { n: 'Escargot de siège', set: 'givre', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une tour de guet sur sa coquille', seat: [130, 108] },
-  destrier_rouge: { n: 'Destrier écarlate', set: 'sang', any: 1, k: 'atk', v: 2.2, ic: 'flame', d: 'Un destrier démoniaque à la crinière de flammes · se paie avec tous tes Sceaux', seat: [104, 88] },
-  destrier_os: { n: 'Destrier d\'os', set: 'os', any: 1, k: 'pv', v: 3, ic: 'snow', d: 'Un cheval squelette aux flammes bleues · se paie avec tous tes Sceaux', seat: [112, 90] } };
+  coq: { leg: -0.6, n: 'Coq des enfers', set: 'braise', k: 'rate', v: 1.2, ic: 'wind', d: 'Un poulet démoniaque géant, très en colère, qui court très vite', seat: [115, 90] },
+  escargot: { leg: -0.65, n: 'Escargot de siège', set: 'givre', k: 'crit', v: 0.5, ic: 'gem', d: 'Un escargot énorme portant une tour de guet sur sa coquille', seat: [130, 108] },
+  destrier_rouge: { leg: -0.5, n: 'Destrier écarlate', set: 'sang', any: 1, k: 'atk', v: 2.2, ic: 'flame', d: 'Un destrier démoniaque à la crinière de flammes · se paie avec tous tes Sceaux', seat: [104, 88] },
+  destrier_os: { leg: -0.5, n: 'Destrier d\'os', set: 'os', any: 1, k: 'pv', v: 3, ic: 'snow', d: 'Un cheval squelette aux flammes bleues · se paie avec tous tes Sceaux', seat: [112, 90] } };
 const MKS = Object.keys(MNT), MNT_MAX = 30, mntUnl = k => MNT[k].any ? 45 : 20, mntCost = (k, lv) => Math.round((6 + lv * 2) * (MNT[k].any ? 1.5 : 1)), MKN = { atk: 'Attaque', pv: 'Points de vie', rate: 'Vitesse d\'attaque', crit: 'Critique' };
 const mSeals = k => MNT[k].any ? sealTot() : S.seals[MNT[k].set], mPay = (k, c) => MNT[k].any ? sealPay(c) : (S.seals[MNT[k].set] >= c && (S.seals[MNT[k].set] -= c, true));
 S.mounts = S.mounts || {}; if (S.mountEq === undefined) S.mountEq = null; { const OLD = { sang: 'chopper', os: 'cercueil', braise: 'coq', givre: 'escargot' }; for (const o in OLD) if (S.mounts[o]) { S.mounts[OLD[o]] = Math.max(S.mounts[OLD[o]] || 0, S.mounts[o]); delete S.mounts[o]; } if (OLD[S.mountEq]) S.mountEq = OLD[S.mountEq]; if (S.mountEq && !MNT[S.mountEq]) S.mountEq = null; }
@@ -3134,6 +3134,11 @@ function mountDraw(time, anim) { const k = S.mountEq, A = k && ASSETS.MOUNT && A
   const x0 = CX - qx * msc, y0 = YF - foot * msc, seatX = x0 + fx * msc, seatY = y0 + fy * msc, lift = YF - seatY - 24;
   ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(im, f * A.cw, row * A.ch, A.cw, A.ch, Math.round(x0), Math.round(y0), Math.round(A.cw * msc), Math.round(A.ch * msc)); ctx.restore();
   ctx.save(); ctx.beginPath(); ctx.rect(-50, -OFFY - 300, BW + 100, seatY + 8 + OFFY + 300); ctx.clip(); ctx.translate(seatX - CX, -lift); if (row === 2) { ctx.translate(CX, YF); ctx.rotate(clamp((qy - fy) / 140, -0.25, 0.25) * -1); ctx.translate(-CX, -YF); } B.mntIn = 1; try { drawSideHero(time, anim === 'course' ? 'idle' : anim); } finally { B.mntIn = 0; } ctx.restore();
+  if (M.leg) { // jambe avant du cavalier par-dessus la monture : cuisse pliée vers l'avant, tibia vers le bas (pédale / étrier)
+    const base = () => { ctx.translate(seatX - CX, -lift); if (row === 2) { ctx.translate(CX, YF); ctx.rotate(clamp((qy - fy) / 140, -0.25, 0.25) * -1); ctx.translate(-CX, -YF); } };
+    const hx = CX + 10, hy = YF - 33, L = 17, th = M.leg, kx = hx + Math.sin(-th) * L, ky = hy + Math.cos(th) * L, draw = () => { B.mntIn = 1; try { drawSideHero(time, anim === 'course' ? 'idle' : anim); } finally { B.mntIn = 0; } };
+    ctx.save(); base(); ctx.translate(hx, hy); ctx.rotate(th); ctx.translate(-hx, -hy); ctx.beginPath(); ctx.rect(CX + 1, hy - 3, 21, L + 4); ctx.clip(); ctx.filter = 'drop-shadow(0 0 1.2px #000) brightness(1.15)'; draw(); ctx.restore();
+    ctx.save(); base(); ctx.translate(kx - hx, ky - (hy + L)); ctx.translate(hx, hy + L); ctx.rotate(th * 0.12); ctx.translate(-hx, -(hy + L)); ctx.beginPath(); ctx.rect(CX + 1, hy + L - 1, 21, YF - hy - L + 3); ctx.clip(); ctx.filter = 'drop-shadow(0 0 1.2px #000) brightness(1.15)'; draw(); ctx.restore(); }
   if (B.walk && Math.random() < 0.4) B.fx.push({ k: 'p', x: x0 + rand(10, 40) * msc, y: YF - rand(0, 6), vx: rand(-40, -10), vy: rand(-20, -5), g: 0, c: '#8a7a6a', t: 0, d: 0.5, r: rand(1, 2.2) });
   return true; }
 function relSheet() {
