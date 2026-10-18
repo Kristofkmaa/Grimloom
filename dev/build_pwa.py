@@ -12,9 +12,18 @@ head = ('<link rel="manifest" href="manifest.webmanifest"><meta name="theme-colo
         '<link rel="apple-touch-icon" href="icon-192.png"><link rel="icon" href="icon-192.png"><title>GRIMLOOM</title>')
 s = s.replace('<meta charset="utf-8">', '<meta charset="utf-8">' + head, 1)
 s = s.replace('</body></html>', "<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));</script></body></html>")
+# images sorties du HTML en fichiers (a/xxxx.webp) : le jeu s'ouvre vite, les images arrivent ensuite (et se mettent en cache)
+import hashlib
+shutil.rmtree(OUT + 'a', ignore_errors=True); os.makedirs(OUT + 'a')
+def ext_img(m):
+    t, b = m.group(1), m.group(2); raw = base64.b64decode(b); n = hashlib.sha1(raw).hexdigest()[:12] + '.' + {'jpeg': 'jpg', 'svg+xml': 'svg'}.get(t, t)
+    if not os.path.exists(OUT + 'a/' + n): open(OUT + 'a/' + n, 'wb').write(raw)
+    return 'a/' + n
+logo_src = s
+s = re.sub(r'data:image/(png|webp|jpeg);base64,([A-Za-z0-9+/=]+)', ext_img, s)
 open(OUT + 'index.html', 'w').write(s)
 # icône : logo GRIMLOOM sur fond sombre
-m = re.search(r'const TIA = (\{.*?\});\n', s); T = json.loads(m.group(1))
+m = re.search(r'const TIA = (\{.*?\});\n', logo_src); T = json.loads(m.group(1))
 logo = Image.open(io.BytesIO(base64.b64decode(T['logo'].split(',')[1]))).convert('RGBA')
 for n in (192, 512):
     ic = Image.new('RGBA', (n, n), (12, 6, 16, 255))
@@ -36,8 +45,11 @@ self.addEventListener('fetch', e => { if (e.request.method !== 'GET') return; e.
 """ % ver)
 z = D + 'out/grimloom_web.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as f:
-    for n in os.listdir(OUT): f.write(OUT + n, n)
+    for r, _, fs in os.walk(OUT):
+        for n in fs: f.write(os.path.join(r, n), os.path.relpath(os.path.join(r, n), OUT))
 print('ok', ver, os.path.getsize(z) // 1024, 'Ko')
 if '--publish' in sys.argv:
-    for n in os.listdir(OUT): shutil.copy(OUT + n, D + '../' + n)
+    for n in os.listdir(OUT):
+        if os.path.isdir(OUT + n): shutil.rmtree(D + '../' + n, ignore_errors=True); shutil.copytree(OUT + n, D + '../' + n)
+        else: shutil.copy(OUT + n, D + '../' + n)
     print('copié à la racine du dépôt')

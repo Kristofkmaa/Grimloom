@@ -15,6 +15,9 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 - `dev/build/build_enemy_hd.py planche.png <clé> [--h=hauteur] [--bg=magenta]` = ennemi de profil HD (regard à GAUCHE ; marche ×4 · attaque ×4 · touché + mort ×3) → `dev/assets_enemy.js` (ASSETS.DEMHD, fusionné par p21, dessiné lissé ; même taille affichée que l'ancienne planche).
 - `dev/maquette/` = maquette de la NOUVELLE direction (vue de côté) + essai jouable + sprites découpés.
 
+## Chargement
+- `build_pwa.py` sort toutes les images du HTML en fichiers `a/<hash>.<ext>` (HTML ~3 Mo au lieu de 47). p25 : `lazyImg(url)` = image téléchargée au premier `.complete`/`.naturalWidth` (monstres, héros de profil, ailes, décors) ; `warmBiome` précharge le biome courant + suivant ; le démarrage n'attend plus que 2,5 s max. Tester la version PWA via `python3 -m http.server` dans `dev/out/pwa` (pas en file://).
+
 ## Publication
 `python3 dev/assemble.py && python3 dev/build_pwa.py --publish`, puis commit + push sur `main` → GitHub Pages se met à jour.
 
