@@ -32,6 +32,9 @@ Jeu en ligne : https://kristofkmaa.github.io/Grimloom/ (PWA installable).
 
 - p26 sensations : intro de boss (`bossIntro`), barre de vie + nom au-dessus du boss, micro-pause sur critique (`B.hs`), chiffres qui sautent, onde + âmes à la mort (`deathFx`), pièces vers `#goldD` (`coinFly`), flash blanc adouci pour les monstres HD.
 - p27 donjons : boss nommé par donjon (`DBOSS`, boss HD du biome si dispo) avec intro, halo de couleur propre (`DCOL`) sur le décor.
+- p28 : écran « Bon retour ! » (coffre de temps récolté d'un geste, via `dunScreen` + `o.btn`) ; lancement de pouvoir = onde + éclair de couleur.
+- p29 : boss chronométré (`BOSS_T` = 60 s) : temps écoulé → repli et farm.
+- p30 équilibrage : +3 % atk/PV par niveau ; en farm, 1 démon sur 3 donne une clé. Simulation bot : `sim.py` (scratchpad) — ×8, coffres auto, équipe, défie le boss après 90 s de farm.
 
 ## À faire / en attente
 - Plus d'amélioration d'objet (p12) : on progresse en trouvant mieux dans le coffre. Ailes de profil HD (p13-p14) : planche 4 images en ligne, fond vert, racine au bord droit → `python3 dev/build/build_wings.py planche.png corbeau|os|enfer|givre|dechu` (→ `dev/assets_wings.js`).
